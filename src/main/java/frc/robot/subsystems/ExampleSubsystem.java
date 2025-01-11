@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -11,9 +13,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 // subsystems get created.
 public class ExampleSubsystem extends SubsystemBase
 {
+    private static TalonFX mEx;
     // Set up the example subsystem.
-    public ExampleSubsystem() { }
+    public ExampleSubsystem() {
+        mEx = new TalonFX(0);
+    }
 
+    public TalonFX getMotor(){
+        return mEx;
+    }
     // An example method that would do something to the subsystem's
     // physical state.
     public void exampleMethod(double value) { }
@@ -37,6 +45,10 @@ public class ExampleSubsystem extends SubsystemBase
         return false;
     }
 
+    public void setMotorVoltage(double volt){
+        mEx.setVoltage(volt);
+    }
+
     // Run continously. In a perfect situation, this runs every 20 ms,
     // or 50 times per second.
     @Override
@@ -45,4 +57,6 @@ public class ExampleSubsystem extends SubsystemBase
     // Runs continously, but only when simulated. Runs 50 times per second.
     @Override
     public void simulationPeriodic() { }
+
+    public void close() { }
 }
