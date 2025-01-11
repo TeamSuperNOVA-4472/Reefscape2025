@@ -7,37 +7,39 @@ package frc.robot.commands;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
-public class ExampleCommand extends Command {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final ExampleSubsystem m_subsystem;
+// An example command. Uses the ExampleSubsystem.
+public class ExampleCommand extends Command
+{
+    private ExampleSubsystem mSubsystem;
 
-  /**
-   * Creates a new ExampleCommand.
-   *
-   * @param subsystem The subsystem used by this command.
-   */
-  public ExampleCommand(ExampleSubsystem subsystem) {
-    m_subsystem = subsystem;
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(subsystem);
-  }
+    // Set up the command. Put subsystem requirements here.
+    public ExampleCommand(ExampleSubsystem subsystem)
+    {
+        mSubsystem = subsystem;
 
-  // Called when the command is initially scheduled.
-  @Override
-  public void initialize() {}
+        // Use addRequirements() here to declare subsystem dependencies.
+        addRequirements(subsystem);
+    }
 
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
+    // Called when the command is initially scheduled.
+    @Override
+    public void initialize() { }
 
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {}
+    // Called every time the scheduler runs while the command is scheduled.
+    @Override
+    public void execute()
+    {
+        mSubsystem.exampleMethod(100);
+    }
 
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+    // Called once the command ends or is interrupted.
+    @Override
+    public void end(boolean interrupted) { }
+
+    // Returns true when the command should end.
+    @Override
+    public boolean isFinished()
+    {
+        return false;
+    }
 }
