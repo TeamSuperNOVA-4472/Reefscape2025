@@ -6,22 +6,22 @@
   "absoluteEncoderOffset": 273.25,
   "drive": {
     "type": "talonfx",
-    "id": 6,
+    "id": 4,
     "canbus": "rio"
   },
   "angle": {
     "type": "talonfx",
-    "id": 7,
+    "id": 5,
     "canbus": "rio"
   },
   "encoder": {
     "type": "cancoder",
-    "id": 11,
+    "id": 10,
     "canbus": "rio"
   },
   "inverted": {
-    "drive": false,
-    "angle": true
+    "drive": true,
+    "angle": false
   },
   "absoluteEncoderInverted": false
 }
