@@ -4,19 +4,37 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.config.RobotConfig;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 // Represents an example subsystem. It will be removed once some actual
 // subsystems get created.
 public class ExampleSubsystem extends SubsystemBase
 {
+    private RobotConfig sadf;
     private static TalonFX mEx;
     // Set up the example subsystem.
     public ExampleSubsystem() {
-        mEx = new TalonFX(0);
+        mEx = new TalonFX(1/* , new CANBus("rio")*/);
+        /*mEx.getConfigurator().apply(
+            new CurrentLimitsConfigs()
+                .withStatorCurrentLimitEnable(true)
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(20)
+                .withSupplyCurrentLimit(20)
+                .withSupplyCurrentLowerLimit(0)
+                .withSupplyCurrentLowerTime(0));
+        mEx.getConfigurator().apply(
+            new VoltageConfigs()
+                .withPeakForwardVoltage(12)
+                .withPeakReverseVoltage(-12));
+        mEx.setNeutralMode(NeutralModeValue.Brake);*/
     }
 
     public TalonFX getMotor(){
@@ -58,5 +76,7 @@ public class ExampleSubsystem extends SubsystemBase
     @Override
     public void simulationPeriodic() { }
 
-    public void close() { }
+    public void close() {
+        mEx.close();
+    }
 }
