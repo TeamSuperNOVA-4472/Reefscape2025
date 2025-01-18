@@ -15,6 +15,8 @@ import java.util.Optional;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.AutoBuilderException;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 
@@ -70,21 +72,8 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     try {
-      PathPlannerPath path = PathPlannerPath.fromPathFile("Turn180");
-      Optional<Alliance> alliance = DriverStation.getAlliance();
-
-      Pose2d pose = path.getStartingHolonomicPose().orElseThrow();
-      if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red ) {
-        pose = path.flipPath().getStartingHolonomicPose().orElseThrow();
-      }
-
-      final Pose2d startingPose = pose;
-      return new SequentialCommandGroup(
-        new InstantCommand(() -> mSwerveSubsystem.resetOdometry(startingPose)),
-        new WaitCommand(.1),
-        AutoBuilder.followPath(path)
-        );
-    } catch (IOException | FileVersionException | ParseException | NoSuchElementException e) {
+      return new PathPlannerAuto("TestDrive180");
+    } catch (AutoBuilderException e) {
       return new InstantCommand();
     }
   }
