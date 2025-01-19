@@ -9,11 +9,8 @@ import java.io.IOException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
-
-// import com.pathplanner.lib.auto.AutoBuilder;
-// import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-// import com.pathplanner.lib.util.PIDConstants;
-// import com.pathplanner.lib.util.ReplanningConfig;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -41,18 +38,56 @@ public class SwerveSubsystem extends SubsystemBase {
     try {
       swerveDrive = new SwerveParser(swerveJsonDirectory)
         .createSwerveDrive(kMaxSpeedMS);
-      swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(kS, kV, kA));
+      //swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(kS, kV, kA));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
     return swerveDrive;
   }
 
+  private static void configAutoBuilder(SwerveSubsystem pSwerveSubsystem) {
+    // Load the RobotConfig from the GUI settings. You should probably
+    // store this in your Constants file
+    RobotConfig config;
+    try{
+      config = RobotConfig.fromGUISettings();
+
+      // Configure AutoBuilder last
+      AutoBuilder.configure(
+        pSwerveSubsystem::getPose, // Robot pose supplier
+        pSwerveSubsystem::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+        pSwerveSubsystem::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        (speeds, feedforwards) ->pSwerveSubsystem.driveRobotOriented(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+        ),
+        config, // The robot configuration
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        pSwerveSubsystem // Reference to this subsystem to set requirements
+      );
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+  }
+
   /** Creates a new ExampleSubsystem. */
   public SwerveSubsystem() {
-    //SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+    // SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     mSwerveDrive = readSwerveConfig();
     mSwerveDrive.setHeadingCorrection(false);
+    configAutoBuilder(this);
   }
 
   private boolean isRedAlliance() {
@@ -103,4 +138,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return mSwerveDrive.getPose().getRotation().getDegrees();
   }
 
+  public ChassisSpeeds getRobotRelativeSpeeds() {
+    return mSwerveDrive.getRobotVelocity();
+  }
 }
