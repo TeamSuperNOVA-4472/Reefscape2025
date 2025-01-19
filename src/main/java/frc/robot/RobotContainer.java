@@ -4,63 +4,87 @@
 
 package frc.robot;
 
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.commands.SwerveTeleop;
+import frc.robot.subsystems.SwerveSubsystem;
+
+import java.io.IOException;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
+
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-// This class is where subsystems and other robot parts are declared.
-// IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
-public class RobotContainer
-{
-    // Ports go here:
-    public static final int DriverControllerPort = 0;
+/**
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * subsystems, commands, and trigger mappings) should be declared here.
+ */
+public class RobotContainer {
 
-    // Subsystems go here:
-    private ExampleSubsystem mExampleSubsystem;
 
-    // Controllers go here:
-    // Replace with CommandPS4Controller or CommandJoystick if needed.
-    private CommandXboxController mDriverController;
+  private final XboxController mDriver =
+      new XboxController(OperatorConstants.kDriverControllerPort);
 
-    public RobotContainer()
-    {
-        // Initialize subsystems.
-        mExampleSubsystem = new ExampleSubsystem();
+  // The robot's subsystems and commands are defined here...
+  private final SwerveSubsystem mSwerveSubsystem = new SwerveSubsystem();
 
-        configureSubsystems(); // Setup all the subsystems once they're created.
-        
-        // Initialize controllers.
-        mDriverController = new CommandXboxController(DriverControllerPort);
+  private final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
+  private final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
+  private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
 
-        configureBindings(); // Setup controllers and triggers.
+
+  private final SwerveTeleop mSwerveTeleop = new SwerveTeleop(
+    () -> mFwdLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftY())), 
+    () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
+    () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
+    mDriver::getAButton,
+    mSwerveSubsystem);
+
+
+
+  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  public RobotContainer() {
+    mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+  }
+
+
+  /**
+   * Use this to pass the autonomous command to the main {@link Robot} class.
+   *
+   * @return the command to run in autonomous
+   */
+  public Command getAutonomousCommand() {
+    try {
+      PathPlannerPath path = PathPlannerPath.fromPathFile("Turn180");
+      Optional<Alliance> alliance = DriverStation.getAlliance();
+
+      Pose2d pose = path.getStartingHolonomicPose().orElseThrow();
+      if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red ) {
+        pose = path.flipPath().getStartingHolonomicPose().orElseThrow();
+      }
+
+      final Pose2d startingPose = pose;
+      return new SequentialCommandGroup(
+        new InstantCommand(() -> mSwerveSubsystem.resetOdometry(startingPose)),
+        new WaitCommand(.1),
+        AutoBuilder.followPath(path)
+        );
+    } catch (IOException | FileVersionException | ParseException | NoSuchElementException e) {
+      return new InstantCommand();
     }
-
-    // If any first-time setup needs to be run on the subsystems, that code
-    // would go here.
-    private void configureSubsystems()
-    {
-
-    }
-
-    // Configure conditions for events, such as controller buttons.
-    private void configureBindings()
-    {
-        // When the example condition is met, it will start the example command
-        // for the example subsystem.
-        new Trigger(mExampleSubsystem::exampleCondition).onTrue(new ExampleCommand(mExampleSubsystem));
-
-        // For as long as B is being pressed, run a method in the example
-        // subsystem.
-        mDriverController.b().whileTrue(mExampleSubsystem.exampleMethodCommand());
-    }
-
-    // Specify which command will be used as the autonomous command.
-    public Command getAutonomousCommand()
-    {
-        // An example command will be run in autonomous
-        return Autos.exampleAuto(mExampleSubsystem);
-    }
+  }
 }
