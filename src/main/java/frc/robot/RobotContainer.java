@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -16,7 +17,9 @@ import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.AutoBuilderException;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
 
@@ -62,6 +65,9 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+    NamedCommands.registerCommand("DoTheThingCommand", new DoTheThingCommand());
+    new EventTrigger("TheEvent").onTrue(
+      new InstantCommand(() -> System.out.println("The Event has triggered")));
   }
 
 
@@ -72,7 +78,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     try {
-      return new PathPlannerAuto("TestDrive180");
+      return new PathPlannerAuto("DriveDoTheThingDriveBack");
     } catch (AutoBuilderException e) {
       return new InstantCommand();
     }
