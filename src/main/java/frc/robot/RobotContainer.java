@@ -27,6 +27,8 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -52,6 +54,7 @@ public class RobotContainer {
   private final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
   private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
 
+  private final SendableChooser<Command> autoChooser;
 
   private final SwerveTeleop mSwerveTeleop = new SwerveTeleop(
     () -> mFwdLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftY())), 
@@ -64,10 +67,28 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    autoChooser = AutoBuilder.buildAutoChooser();
     mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+
     NamedCommands.registerCommand("DoTheThingCommand", new DoTheThingCommand());
+    NamedCommands.registerCommand("ScoreLevel4Right", new DoTheThingCommand());
+    NamedCommands.registerCommand("ScoreLevel4Left", new DoTheThingCommand());
+    NamedCommands.registerCommand("ScoreLevel3Right", new DoTheThingCommand());
+    NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
+    NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
+    NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
+
     new EventTrigger("TheEvent").onTrue(
       new InstantCommand(() -> System.out.println("The Event has triggered")));
+    
+    autoChooser.addOption("DriveDoTheThingDriveBack", new PathPlannerAuto("DriveDoTheThingDriveBack"));
+    autoChooser.addOption("ReefScoreTopLeft", new PathPlannerAuto("ReefScoreTopLeft"));
+    autoChooser.addOption("MidRightReefScore", new PathPlannerAuto("MidRightReefScore"));
+    autoChooser.addOption("RightReefScoreToAlgae", new PathPlannerAuto("RightReefScoreToAlgae"));
+    autoChooser.addOption("AmbitiousTopLeftScore", new PathPlannerAuto("AmbitiousTopLeftScore"));
+    autoChooser.addOption("ReefScoreBottomRight", new PathPlannerAuto("ReefScoreBottomRight"));
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
 
@@ -77,10 +98,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    try {
-      return new PathPlannerAuto("DriveDoTheThingDriveBack");
-    } catch (AutoBuilderException e) {
-      return new InstantCommand();
-    }
+    return autoChooser.getSelected();
   }
 }
