@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "DriveToReefBottomRight"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreLevel4Left"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BottomRightReefToBottomLoader"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeCoral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BottomLoaderToBottomRightReef"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreLevel4Right"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
