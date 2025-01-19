@@ -4,15 +4,15 @@
     {
       "anchor": {
         "x": 5.282319078947368,
-        "y": 5.968585526315789
+        "y": 6.016694078947369
       },
       "prevControl": null,
       "nextControl": {
         "x": 6.46934818853641,
-        "y": 5.877640591204037
+        "y": 5.925749143835617
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Testing Auto Waypoint"
     },
     {
       "anchor": {
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.2480321281564323
+    "rotation": 2.683775159468908
   },
   "useDefaultConstraints": true
 }
