@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.logging.FileHandler;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonUtils;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -25,7 +28,7 @@ public class VisionSubsystem extends SubsystemBase
     // TODO: More information!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("", Transform3d.kZero)
+        new CameraInfo("Arducam_OV9281_USB_Camera", Transform3d.kZero) // Can be changed.
     };
 
     // Cameras go here.
@@ -40,6 +43,8 @@ public class VisionSubsystem extends SubsystemBase
     private boolean enabled = true;
 
     private ArrayList<Consumer<Pose2d>> poseListeners;
+
+    private Pose2d poseApproximation;
     
     public VisionSubsystem()
     {
@@ -51,13 +56,15 @@ public class VisionSubsystem extends SubsystemBase
         {
             // There's a file created by wpilib that has the layout for the new game.
             String layoutPath = AprilTagFields.k2025Reefscape.m_resourceFile;
-            System.out.println("April Tag Layout Path: " + layoutPath);
+            System.out.println("[VISION] April Tag Layout Path: " + layoutPath);
             tagLayout = new AprilTagFieldLayout(layoutPath);
         }
         catch (IOException ex)
         {
             // Failed to read layout information.
-            System.out.println("FAILED TO LOAD APRIL TAG LAYOUTS! The vision subsystem will NOT be active.");
+            // TODO: This fails in simulation, I think because the path is not
+            //       valid. Is there a way to avoid this?
+            System.out.println("[VISION] FAILED TO LOAD APRIL TAG LAYOUTS! The vision subsystem will NOT be active.");
             initPass = false;
             return;
         }
@@ -84,6 +91,7 @@ public class VisionSubsystem extends SubsystemBase
     public void periodic()
     {
         SmartDashboard.putBoolean("Vision Active", isActive());
+        if (!isActive()) return; // Disabled.
 
         // Process vision updates for each camera.
         for (int i = 0; i < cameras.length; i++)
@@ -92,18 +100,44 @@ public class VisionSubsystem extends SubsystemBase
             CameraInfo cameraInfo = kInstalledCameras[i];
 
             // This includes only NEW results.
-            // TODO: Maybe previous results are better than the crappy ones we have now?
+            // TODO: Maybe previous results are better than the crappy ones we
+            //       have now? (Talking on a millisecond-to-millisecond basis)
             List<PhotonPipelineResult> results = camera.getAllUnreadResults();
             for (PhotonPipelineResult result : results)
             {
                 if (!result.hasTargets()) continue;
 
+                // Get pose offset. If the tag is hard-coded (which it is) and
+                // we know our offset to the tag, we can determine our absolute
+                // position in the field.
                 // TODO: Maybe we should include more than one "good target?"
-                int tagId = result.getBestTarget().getFiducialId();
+                PhotonTrackedTarget target = result.getBestTarget();
+                int tagId = target.getFiducialId();
                 Optional<Pose3d> tagPose = tagLayout.getTagPose(tagId);
-                // FIXME: finish this
+                if (tagPose.isEmpty()) continue; // Pose was not found. Does this actually happen?
+                
+                // Use offset to approximate actual robot position.
+                // TODO: Using PhotonPoseEstimator is more accurate but seems more complex. Will do it later.
+                Pose3d robotPose3d = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose.get(), cameraInfo.getOffset());
+                Pose2d robotPose2d = new Pose2d(robotPose3d.getTranslation().toTranslation2d(),
+                                                robotPose3d.getRotation().toRotation2d());
+
+                // We *should* have a decent approximation. We're done here.
+                updatePose(robotPose2d);
             }
         }
+    }
+
+    private void updatePose(Pose2d newPose)
+    {
+        poseApproximation = newPose;
+        field.setRobotPose(newPose);
+        for (Consumer<Pose2d> callback : poseListeners) callback.accept(newPose);
+    }
+
+    public Pose2d getRobotPosition()
+    {
+        return poseApproximation;
     }
 
     public boolean isActive()
