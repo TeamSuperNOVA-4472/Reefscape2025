@@ -14,11 +14,10 @@ public class ClimbSubsystem extends SubsystemBase
     private double mCurrentVoltage = 0; // Starts at 0 voltage!
 
     // Constructor
-    public ClimbSubsystem() // Last year, checked if robot was real for testing - not required, in fact is bad?
+    public ClimbSubsystem()
     {
         mLeftClimbMotor = new PWMTalonFX(1);
         mRightClimbMotor = new PWMTalonFX(0); // Two krakens using TalonFX motor controllers
-        // I think this is all that I need, do we need anything other than bang-bang control?
     }
 
     public void setVoltage(double pNewVoltage)
