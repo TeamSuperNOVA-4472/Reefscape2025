@@ -121,7 +121,7 @@ public class VisionSubsystem extends SubsystemBase
                 Pose3d robotPose3d = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose.get(), cameraInfo.getOffset());
                 Pose2d robotPose2d = new Pose2d(robotPose3d.getTranslation().toTranslation2d(),
                                                 robotPose3d.getRotation().toRotation2d());
-
+                
                 // We *should* have a decent approximation. We're done here.
                 updatePose(robotPose2d);
             }
