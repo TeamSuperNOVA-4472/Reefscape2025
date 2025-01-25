@@ -22,7 +22,7 @@ public class VisionAlignCommand extends Command {
 
     private final PIDController mLateralPidController;
 
-    public static final double kP= 0, kI = 0, kD = 0;
+    public static final double kP= 1, kI = 0, kD = 0;
 
     private Transform2d mError;
 
