@@ -48,7 +48,7 @@ public class HilsimSubsystem extends SubsystemBase
         if (position + length - 1 < 24) right = buffer.createView(position + length, 24);
 
         LEDPattern off = LEDPattern.solid(Color.kBlack);
-        LEDPattern greenColor = LEDPattern.solid(Color.kGreen);
+        LEDPattern greenColor = LEDPattern.solid(Color.kRed);
 
         if (left != null) off.applyTo(left);
         greenColor.applyTo(green);
