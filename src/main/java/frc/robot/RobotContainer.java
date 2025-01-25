@@ -8,6 +8,7 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.objectmodels.VisionPoseInfo;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -17,6 +18,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -69,6 +71,11 @@ public class RobotContainer
 
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+        mVisionSubsystem.addMeasurementListener((VisionPoseInfo newVisionPose) -> {
+            // Update the swerve's odometry with the new vision estimate.
+            mSwerveSubsystem.addVisionMeasurement(newVisionPose.getPose(),
+                                                  newVisionPose.getTimestamp());
+        });
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
