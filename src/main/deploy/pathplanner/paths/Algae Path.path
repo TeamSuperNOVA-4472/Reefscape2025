@@ -1,0 +1,107 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.463825757575758,
+        "y": 2.22594696969697
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.030681818186974,
+        "y": 1.8803661616220846
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.8735479798031351,
+        "y": 2.1649621212180445
+      },
+      "prevControl": {
+        "x": 1.8837121212172763,
+        "y": 2.5207070707129935
+      },
+      "nextControl": {
+        "x": 1.8638241856903888,
+        "y": 1.8246293272719099
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.356218934431085,
+        "y": 0.6457676357180993
+      },
+      "prevControl": {
+        "x": 2.903201673570684,
+        "y": 1.146783525044289
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Algae grab",
+      "minWaypointRelativePos": 0.733050847457628,
+      "maxWaypointRelativePos": 1.2584745762711864,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 1.2,
+        "y": 2.2
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.7118380062305318,
+      "maxWaypointRelativePos": 1.406542056074763,
+      "name": "Look at Algae"
+    }
+  ],
+  "eventMarkers": [
+    {
+      "name": "Massive Event",
+      "waypointRelativePos": 0.8121468926553657,
+      "endWaypointRelativePos": 1.3545197740112918,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "DoTheThingCommand"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -179.16968451421963
+  },
+  "useDefaultConstraints": true
+}
