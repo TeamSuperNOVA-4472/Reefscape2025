@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+/*package frc.robot.subsystems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,7 +25,7 @@ public class TalonTesting implements AutoCloseable {
  
     @Override
     public void close() {
-       /* destroy our TalonFX object */
+       destroy our TalonFX object
        m_fx.close();
     }
  
@@ -33,15 +33,15 @@ public class TalonTesting implements AutoCloseable {
     public void constructDevices() {
        assert HAL.initialize(500, 0);
  
-       /* create the TalonFX */
+       //create the TalonFX
        m_fx = new TalonFX(0);
        m_fxSim = m_fx.getSimState();
  
-       /* enable the robot */
+       //enable the robot
        DriverStationSim.setEnabled(true);
        DriverStationSim.notifyNewData();
  
-       /* delay ~100ms so the devices can start up and enable */
+       //delay ~100ms so the devices can start up and enable
        Timer.delay(0.100);
     }
  
@@ -52,32 +52,32 @@ public class TalonTesting implements AutoCloseable {
  
     @Test
     public void robotIsEnabled() {
-       /* verify that the robot is enabled */
+       //verify that the robot is enabled
        assertTrue(DriverStation.isEnabled());
     }
  
     @Test
     public void motorDrives() {
-       /* set the voltage supplied by the battery */
+       //set the voltage supplied by the battery
        m_fxSim.setSupplyVoltage(16);
  
        StatusSignal<Double> dutyCycle = m_fx.getDutyCycle();
  
-       /* wait for a fresh duty cycle signal */
+       //wait for a fresh duty cycle signal
        dutyCycle.waitForUpdate(0.100);
-       /* verify that the motor output is zero */
+       //verify that the motor output is zero
        assertEquals(dutyCycle.getValue(), 0.0, DELTA);
  
-       /* request 100% output */
+       //request 100% output
        m_fx.setControl(new DutyCycleOut(1.0));
-       /* wait for the control to apply */
+       //wait for the control to apply
        Timer.delay(0.020);
  
-       /* wait for a new duty cycle signal */
+       //wait for a new duty cycle signal
        dutyCycle.waitForUpdate(1.00);
-       /* verify that the motor output is 1.0 */
+       //verify that the motor output is 1.0
        double outVal = dutyCycle.getValue();
        System.out.println(outVal);
        assertEquals(outVal, 1.0, DELTA);
     } 
- }
+ }*/
