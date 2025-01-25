@@ -174,6 +174,11 @@ public class VisionSubsystem extends SubsystemBase
     {
         return poseApproximation.getTimestamp();
     }
+    
+    public AprilTagFieldLayout getTagLayout()
+    {
+        return tagLayout;
+    }
 
     public boolean isActive()
     {

@@ -15,6 +15,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -151,6 +153,11 @@ public class SwerveSubsystem extends SubsystemBase
     public void driveRobotOriented(ChassisSpeeds pVelocity)
     {
         mSwerveDrive.drive(pVelocity);
+    }
+
+    public void driveTranslation(Translation2d pTranslation)
+    {
+        mSwerveDrive.drive(pTranslation, 0, true, false);
     }
 
     public void resetOdometry(Pose2d pPose)
