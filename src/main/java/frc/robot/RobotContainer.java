@@ -8,6 +8,7 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -30,9 +31,10 @@ public class RobotContainer
     public static final int kDriverPort = 0;
 
     // Subsystems go here:
+    private LightsSubsystem mLightsSubsystem;
     private VisionSubsystem mVisionSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
-    
+
     // Controllers go here:
     private final XboxController mDriver;
 
@@ -48,14 +50,14 @@ public class RobotContainer
     private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
 
     public RobotContainer()
-    {
+    {        
         // Initialize controllers.
         mDriver = new XboxController(kDriverPort);
 
         // Initialize subsystems.
-        mVisionSubsystem = new VisionSubsystem();
-    
+        mLightsSubsystem = new LightsSubsystem();
         mSwerveSubsystem = new SwerveSubsystem();
+        mVisionSubsystem = new VisionSubsystem();
 
         // Initialize commands.
         mSwerveTeleop = new SwerveTeleop(
