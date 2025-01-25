@@ -116,6 +116,12 @@ public class SwerveSubsystem extends SubsystemBase
         configAutoBuilder(this);
     }
 
+    public void addVisionMeasurement(Pose2d visionPose, double timestamp)
+    {
+        mSwerveDrive.addVisionMeasurement(visionPose, timestamp);
+    }
+
+    // TODO: This should be moved to RobotContainer or Robot, I think.
     private boolean isRedAlliance()
     {
         var alliance = DriverStation.getAlliance();

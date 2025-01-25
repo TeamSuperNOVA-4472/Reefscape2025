@@ -17,11 +17,13 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.objectmodels.CameraInfo;
+import frc.robot.objectmodels.VisionPoseInfo;
 
 public class VisionSubsystem extends SubsystemBase
 {
@@ -42,9 +44,10 @@ public class VisionSubsystem extends SubsystemBase
     private boolean initPass;
     private boolean enabled = true;
 
-    private ArrayList<Consumer<Pose2d>> poseListeners;
+    private ArrayList<Consumer<VisionPoseInfo>> poseListeners;
 
-    private Pose2d poseApproximation;
+    private VisionPoseInfo poseApproximation;
+    private Optional<PhotonTrackedTarget> bestTarget;
     
     public VisionSubsystem()
     {
@@ -57,7 +60,7 @@ public class VisionSubsystem extends SubsystemBase
             // There's a file created by wpilib that has the layout for the new game.
             String layoutPath = AprilTagFields.k2025Reefscape.m_resourceFile;
             System.out.println("[VISION] April Tag Layout Path: " + layoutPath);
-            tagLayout = new AprilTagFieldLayout(layoutPath);
+            tagLayout = AprilTagFieldLayout.loadFromResource(layoutPath);
         }
         catch (IOException ex)
         {
@@ -82,7 +85,7 @@ public class VisionSubsystem extends SubsystemBase
         }
     }
 
-    public void addPoseConsumer(Consumer<Pose2d> consumer)
+    public void addMeasurementListener(Consumer<VisionPoseInfo> consumer)
     {
         poseListeners.add(consumer);
     }
@@ -92,6 +95,8 @@ public class VisionSubsystem extends SubsystemBase
     {
         SmartDashboard.putBoolean("Vision Active", isActive());
         if (!isActive()) return; // Disabled.
+
+        bestTarget = Optional.empty();
 
         // Process vision updates for each camera.
         for (int i = 0; i < cameras.length; i++)
@@ -123,21 +128,51 @@ public class VisionSubsystem extends SubsystemBase
                                                 robotPose3d.getRotation().toRotation2d());
                 
                 // We *should* have a decent approximation. We're done here.
-                updatePose(robotPose2d);
+                bestTarget = Optional.of(target);
+                updatePose(new VisionPoseInfo(robotPose2d, result.getTimestampSeconds()));
             }
+        }
+
+        // DEBUG: Distance to best april tag.
+        Optional<PhotonTrackedTarget> best = getTargetInView();
+        if (best.isPresent())
+        {
+            PhotonTrackedTarget target = best.get();
+            Pose2d curPose = poseApproximation.getPose();
+            Pose2d targetPose = tagLayout.getTagPose(target.getFiducialId()).get().toPose2d();
+            
+            SmartDashboard.putString("Vision: Distance to April Tag", targetPose.minus(curPose).toString());
+        }
+        else
+        {
+            SmartDashboard.putString("Vision: Distance to April Tag", "No Tag in View");
         }
     }
 
-    private void updatePose(Pose2d newPose)
+    /** Returns the best april tag target in view. */
+    public Optional<PhotonTrackedTarget> getTargetInView()
     {
-        poseApproximation = newPose;
-        field.setRobotPose(newPose);
-        for (Consumer<Pose2d> callback : poseListeners) callback.accept(newPose);
+        return bestTarget;
     }
 
-    public Pose2d getRobotPosition()
+    private void updatePose(VisionPoseInfo newPose)
+    {
+        poseApproximation = newPose;
+        field.setRobotPose(newPose.getPose());
+        for (Consumer<VisionPoseInfo> callback : poseListeners) callback.accept(newPose);
+    }
+
+    public VisionPoseInfo getPoseInfo()
     {
         return poseApproximation;
+    }
+    public Pose2d getPose()
+    {
+        return poseApproximation.getPose();
+    }
+    public double getPoseTimestamp()
+    {
+        return poseApproximation.getTimestamp();
     }
 
     public boolean isActive()
