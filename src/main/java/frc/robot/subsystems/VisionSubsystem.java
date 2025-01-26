@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -16,6 +18,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -35,6 +38,7 @@ public class VisionSubsystem extends SubsystemBase
     // Cameras go here.
     // TODO: In simulation, use PhotonCameraSim instead.
     private PhotonCamera[] cameras;
+    private PhotonPoseEstimator poseEstimator;
 
     private Field2d field;
     private AprilTagFieldLayout tagLayout;
@@ -73,6 +77,12 @@ public class VisionSubsystem extends SubsystemBase
 
         field = new Field2d();
         SmartDashboard.putData("Vision Pose", field);
+        poseEstimator = new PhotonPoseEstimator(
+            tagLayout, 
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
+        );
+        poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
         // Initialize cameras. This means we don't need a million variables for
         // all the cameras.
@@ -110,7 +120,7 @@ public class VisionSubsystem extends SubsystemBase
             for (PhotonPipelineResult result : results)
             {
                 if (!result.hasTargets()) continue;
-
+                poseEstimator.update(result);
                 // Get pose offset. If the tag is hard-coded (which it is) and
                 // we know our offset to the tag, we can determine our absolute
                 // position in the field.

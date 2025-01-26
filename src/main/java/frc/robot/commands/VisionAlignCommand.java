@@ -54,6 +54,11 @@ public class VisionAlignCommand extends Command {
         }
         return Optional.empty();
     }
+
+    @Override
+    public void initialize() {
+        
+    }
     
     @Override
     public void execute() {
