@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -38,10 +39,11 @@ public class VisionSubsystem extends SubsystemBase
     // Cameras go here.
     // TODO: In simulation, use PhotonCameraSim instead.
     private PhotonCamera[] cameras;
-    private PhotonPoseEstimator poseEstimator;
 
     private Field2d field;
     private AprilTagFieldLayout tagLayout;
+
+    private PhotonPoseEstimator[] poseEstimators;
 
     // Checks that must pass for vision to be active.
     private boolean initPass;
@@ -77,20 +79,19 @@ public class VisionSubsystem extends SubsystemBase
 
         field = new Field2d();
         SmartDashboard.putData("Vision Pose", field);
-        poseEstimator = new PhotonPoseEstimator(
-            tagLayout, 
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            new Transform3d(0, 0, 0, new Rotation3d(0, 0, 0))
-        );
-        poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
 
         // Initialize cameras. This means we don't need a million variables for
         // all the cameras.
         cameras = new PhotonCamera[kInstalledCameras.length];
+        poseEstimators = new PhotonPoseEstimator[kInstalledCameras.length];
         for (int i = 0; i < cameras.length; i++)
         {
             CameraInfo info = kInstalledCameras[i];
             cameras[i] = new PhotonCamera(info.getName());
+            poseEstimators[i] = new PhotonPoseEstimator(
+                tagLayout, 
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                info.getOffset());
         }
     }
 
@@ -111,6 +112,7 @@ public class VisionSubsystem extends SubsystemBase
         for (int i = 0; i < cameras.length; i++)
         {
             PhotonCamera camera = cameras[i];
+            PhotonPoseEstimator poseEstimator = poseEstimators[i];
             CameraInfo cameraInfo = kInstalledCameras[i];
 
             // This includes only NEW results.
@@ -120,7 +122,7 @@ public class VisionSubsystem extends SubsystemBase
             for (PhotonPipelineResult result : results)
             {
                 if (!result.hasTargets()) continue;
-                poseEstimator.update(result);
+                
                 // Get pose offset. If the tag is hard-coded (which it is) and
                 // we know our offset to the tag, we can determine our absolute
                 // position in the field.
@@ -135,7 +137,9 @@ public class VisionSubsystem extends SubsystemBase
                 Pose3d robotPose3d = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose.get(), cameraInfo.getOffset());
                 Pose2d robotPose2d = new Pose2d(robotPose3d.getTranslation().toTranslation2d(),
                                                 robotPose3d.getRotation().toRotation2d());
-                
+
+                Optional<EstimatedRobotPose> robotPose = poseEstimator.update(result);
+            
                 // We *should* have a decent approximation. We're done here.
                 bestTarget = Optional.of(target);
                 updatePose(new VisionPoseInfo(robotPose2d, result.getTimestampSeconds()));
