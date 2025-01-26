@@ -1,7 +1,9 @@
 package frc.robot.commands;
 
+import java.lang.StackWalker.Option;
 import java.util.Optional;
 
+import org.opencv.photo.Photo;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -21,12 +23,11 @@ public class VisionAlignCommand extends Command {
     private final Translation2d mOffset;
     private final AprilTagFieldLayout mLayout;
 
-    private final PIDController mLateralPidController;
-
-    public static final double kP= 1, kI = 0, kD = 0;
-
+    private Optional<PhotonTrackedTarget> mLastTarget;
     private Transform2d mError;
+    private boolean mMoving;
 
+    // Creates new command with swerve, vision, and offset
     public VisionAlignCommand(
         SwerveSubsystem pSwerveSubsystem,
         VisionSubsystem pVisionSubsystem,
@@ -38,43 +39,59 @@ public class VisionAlignCommand extends Command {
         mOffset = pOffset;
 
         mLayout = mVisionSubsystem.getTagLayout();
-        mLateralPidController = new PIDController(kP, kI, kD);
 
         addRequirements(pSwerveSubsystem, pVisionSubsystem);
     }
 
-    private Optional<Translation2d> calculateError()
+    // Updates the target
+    private Optional<PhotonTrackedTarget> updateTarget()
     {
         if (mVisionSubsystem.getTargetInView().isPresent())
         {
-            PhotonTrackedTarget target = mVisionSubsystem.getTargetInView().get();
-            Pose3d curPose = mVisionSubsystem.getPose();
-            Pose3d targetPose = mLayout.getTagPose(target.getFiducialId()).get();
-            
-            return Optional.of(targetPose.minus(curPose).getTranslation().toTranslation2d());
+            return Optional.of(mVisionSubsystem.getTargetInView().get());
         }
         return Optional.empty();
     }
 
+    // Returns a translation that is the difference between the robot's current pose and desired pose
+    private Translation2d getTranslation(PhotonTrackedTarget target)
+    {
+        Pose3d curPose = mVisionSubsystem.getPose();
+        Pose3d targetPose = mLayout.getTagPose(target.getFiducialId()).get();
+            
+        return targetPose.minus(curPose).getTranslation().toTranslation2d();
+    }
+
+    // Updates the target
     @Override
     public void initialize() {
-        
+        mLastTarget = updateTarget();
     }
     
+    // Checks if the target is empty. If it is, updates the target. If not, it checks if the module is
+    // already moving, and if it isn't, tells the swerve to perform the calculated translation.
     @Override
     public void execute() {
-        if (calculateError().isPresent())
+        if (mLastTarget.isEmpty())
         {
-            Translation2d error = calculateError().get();
-            double xValue = mLateralPidController.calculate(error.getX(), 0);
-            double yValue = mLateralPidController.calculate(error.getY(), 0);
-            mSwerveSubsystem.driveTranslation(new Translation2d(xValue, yValue));
+            mLastTarget = updateTarget();
+        }
+        else if (mMoving == false)
+        {
+            mMoving = true;
+            DriveDistanceAndHeading drive = new DriveDistanceAndHeading(
+                mSwerveSubsystem, 
+                getTranslation(mLastTarget.get()),
+                mLastTarget.get().yaw
+            );
+            drive.schedule();
         }
     }
 
+    //TODO unfinished. needs to exist when appropriate
     @Override
     public boolean isFinished() {
-        
+
         return false;
     }
 }
