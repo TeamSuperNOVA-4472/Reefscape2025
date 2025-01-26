@@ -1,10 +1,13 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.objectmodels.IntakePresets;
 
 public class CarriageSubsystem extends SubsystemBase 
 {
@@ -31,17 +34,29 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final int wristD = 1;
 
-    private static final double armPreset0 = 0.0;
+    private static final double armPresetKAway = 0.0;
 
-    private static final double armPreset1 = 1.0;
+    private static final double armPresetGroundPickup = 1.0;
 
-    private static final double armPreset2 = 2.0;
+    private static final double armPresetL1 = 2.0;
 
-    private static final double armPreset3 = 3.0;
+    private static final double armPresetL2 = 3.0;
 
-    private static final double wristPreset0 = 0.0;
+    private static final double armPresetL3 = 4.0;
 
-    private static final double wristPreset1 = 1.0;
+    private static final double armPresetL4 = 4.0;
+
+    private static final double wristPresetKAway = 0.0;
+
+    private static final double wristPresetGroundPickup = 1.0;
+
+    private static final double wristPresetL1 = 1.0;
+
+    private static final double wristPresetL2 = 1.0;
+
+    private static final double wristPresetL3 = 1.0;
+
+    private static final double wristPresetL4 = 1.0;
 
     private TalonFX armMotor;
 
@@ -53,9 +68,7 @@ public class CarriageSubsystem extends SubsystemBase
 
     private DigitalInput wristLimit;
 
-    private int activeArmPreset = -1;
-
-    private int activeWristPreset = -1;
+    private Optional<IntakePresets> activePreset = Optional.empty();
 
     private PIDController armPID;
 
@@ -114,14 +127,14 @@ public class CarriageSubsystem extends SubsystemBase
     }
 
     // TODO: Combine these into one?
-    public void setActiveArmPreset(int preset) 
+    public void setActiveArmPreset(IntakePresets preset) 
     {
-        activeArmPreset = preset;
+        activePreset = Optional.of(preset);
     }
 
-    public void setActiveWristPreset(int preset) 
+    public void setActiveWristPreset(IntakePresets preset) 
     {
-        activeWristPreset = preset;
+        activePreset = Optional.of(preset);
     }
 
     public double getArmCurrentPosition() 
@@ -147,24 +160,46 @@ public class CarriageSubsystem extends SubsystemBase
     @Override
     public void periodic() 
     {
-        if (activeArmPreset == 0) 
+
+        if (activePreset.isEmpty())
         {
-            armPID.setSetpoint(armPreset0);
+            return;
+        }
+
+        else if (activePreset.get() == IntakePresets.kAway) 
+        {
+            armPID.setSetpoint(armPresetKAway);
+            wristPID.setSetpoint(wristPresetKAway);
         } 
         
-        else if (activeArmPreset == 1) 
+        else if (activePreset.get() == IntakePresets.kGroundPickup) 
         {
-            armPID.setSetpoint(armPreset1);
+            armPID.setSetpoint(armPresetGroundPickup);
+            wristPID.setSetpoint(wristPresetGroundPickup);
         } 
         
-        else if (activeArmPreset == 2) 
+        else if (activePreset.get() == IntakePresets.kScoreL1) 
         {
-            armPID.setSetpoint(armPreset2);
+            armPID.setSetpoint(armPresetL1);
+            wristPID.setSetpoint(wristPresetL1);
         } 
         
-        else if (activeArmPreset == 3) 
+        else if (activePreset.get() == IntakePresets.kScoreL2) 
         {
-            armPID.setSetpoint(armPreset3);
+            armPID.setSetpoint(armPresetL2);
+            wristPID.setSetpoint(wristPresetL2);
+        } 
+
+        else if (activePreset.get() == IntakePresets.kScoreL3) 
+        {
+            armPID.setSetpoint(armPresetL3);
+            wristPID.setSetpoint(wristPresetL3);
+        } 
+
+        else if (activePreset.get() == IntakePresets.kScoreL4) 
+        {
+            armPID.setSetpoint(armPresetL4);
+            wristPID.setSetpoint(wristPresetL4);
         } 
         
         else 
@@ -177,21 +212,6 @@ public class CarriageSubsystem extends SubsystemBase
         double armSpeed = armPID.calculate(armCurrentPosition);
 
         armMotor.set(armSpeed);
-
-        if (activeWristPreset == 0) 
-        {
-            wristPID.setSetpoint(wristPreset0);
-        } 
-        
-        else if (activeWristPreset == 1) 
-        {
-            wristPID.setSetpoint(wristPreset1);
-        } 
-        
-        else 
-        {
-            return;
-        }
 
         double wristCurrentPosition = wristMotor.getPosition().getValueAsDouble();
 
