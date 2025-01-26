@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.objectmodels.CameraInfo;
-import frc.robot.objectmodels.VisionPoseInfo;
 
 public class VisionSubsystem extends SubsystemBase
 {
@@ -49,9 +48,9 @@ public class VisionSubsystem extends SubsystemBase
     private boolean initPass;
     private boolean enabled = true;
 
-    private ArrayList<Consumer<VisionPoseInfo>> poseListeners;
+    private ArrayList<Consumer<EstimatedRobotPose>> poseListeners;
 
-    private VisionPoseInfo poseApproximation;
+    private EstimatedRobotPose poseApproximation;
     private Optional<PhotonTrackedTarget> bestTarget;
     
     public VisionSubsystem()
@@ -89,13 +88,13 @@ public class VisionSubsystem extends SubsystemBase
             CameraInfo info = kInstalledCameras[i];
             cameras[i] = new PhotonCamera(info.getName());
             poseEstimators[i] = new PhotonPoseEstimator(
-                tagLayout, 
+                tagLayout,
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 info.getOffset());
         }
     }
 
-    public void addMeasurementListener(Consumer<VisionPoseInfo> consumer)
+    public void addMeasurementListener(Consumer<EstimatedRobotPose> consumer)
     {
         poseListeners.add(consumer);
     }
@@ -119,6 +118,7 @@ public class VisionSubsystem extends SubsystemBase
             // TODO: Maybe previous results are better than the crappy ones we
             //       have now? (Talking on a millisecond-to-millisecond basis)
             List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+            Optional<EstimatedRobotPose> newRobotPose = Optional.empty();
             for (PhotonPipelineResult result : results)
             {
                 if (!result.hasTargets()) continue;
@@ -133,16 +133,15 @@ public class VisionSubsystem extends SubsystemBase
                 if (tagPose.isEmpty()) continue; // Pose was not found. Does this actually happen?
                 
                 // Use offset to approximate actual robot position.
-                // TODO: Using PhotonPoseEstimator is more accurate but seems more complex. Will do it later.
-                Pose3d robotPose3d = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose.get(), cameraInfo.getOffset());
-                Pose2d robotPose2d = new Pose2d(robotPose3d.getTranslation().toTranslation2d(),
-                                                robotPose3d.getRotation().toRotation2d());
-
-                Optional<EstimatedRobotPose> robotPose = poseEstimator.update(result);
+                newRobotPose = poseEstimator.update(result);
             
                 // We *should* have a decent approximation. We're done here.
                 bestTarget = Optional.of(target);
-                updatePose(new VisionPoseInfo(robotPose2d, result.getTimestampSeconds()));
+            }
+            if  (newRobotPose.isPresent())
+            {
+                EstimatedRobotPose pose = newRobotPose.get();
+                updatePose(pose);
             }
         }
 
@@ -151,8 +150,8 @@ public class VisionSubsystem extends SubsystemBase
         if (best.isPresent())
         {
             PhotonTrackedTarget target = best.get();
-            Pose2d curPose = poseApproximation.getPose();
-            Pose2d targetPose = tagLayout.getTagPose(target.getFiducialId()).get().toPose2d();
+            Pose3d curPose = poseApproximation.estimatedPose;
+            Pose3d targetPose = tagLayout.getTagPose(target.getFiducialId()).get();
             
             SmartDashboard.putString("Vision: Distance to April Tag", targetPose.minus(curPose).toString());
         }
@@ -168,24 +167,24 @@ public class VisionSubsystem extends SubsystemBase
         return bestTarget;
     }
 
-    private void updatePose(VisionPoseInfo newPose)
+    private void updatePose(EstimatedRobotPose newPose)
     {
         poseApproximation = newPose;
-        field.setRobotPose(newPose.getPose());
-        for (Consumer<VisionPoseInfo> callback : poseListeners) callback.accept(newPose);
+        field.setRobotPose(newPose.estimatedPose.toPose2d());
+        for (Consumer<EstimatedRobotPose> callback : poseListeners) callback.accept(newPose);
     }
 
-    public VisionPoseInfo getPoseInfo()
+    public EstimatedRobotPose getPoseInfo()
     {
         return poseApproximation;
     }
-    public Pose2d getPose()
+    public Pose3d getPose()
     {
-        return poseApproximation.getPose();
+        return poseApproximation.estimatedPose;
     }
     public double getPoseTimestamp()
     {
-        return poseApproximation.getTimestamp();
+        return poseApproximation.timestampSeconds;
     }
     
     public AprilTagFieldLayout getTagLayout()

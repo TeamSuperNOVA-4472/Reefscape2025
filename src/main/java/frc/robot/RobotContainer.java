@@ -8,9 +8,10 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
-import frc.robot.objectmodels.VisionPoseInfo;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -72,10 +73,10 @@ public class RobotContainer
 
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
-        mVisionSubsystem.addMeasurementListener((VisionPoseInfo newVisionPose) -> {
+        mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
-            mSwerveSubsystem.addVisionMeasurement(newVisionPose.getPose(),
-                                                  newVisionPose.getTimestamp());
+            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
+                                                  newVisionPose.timestampSeconds);
         });
 
         // Configure other things.

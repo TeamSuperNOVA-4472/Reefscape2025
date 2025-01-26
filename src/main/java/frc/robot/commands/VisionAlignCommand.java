@@ -7,6 +7,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,10 +48,10 @@ public class VisionAlignCommand extends Command {
         if (mVisionSubsystem.getTargetInView().isPresent())
         {
             PhotonTrackedTarget target = mVisionSubsystem.getTargetInView().get();
-            Pose2d curPose = mVisionSubsystem.getPose();
-            Pose2d targetPose = mLayout.getTagPose(target.getFiducialId()).get().toPose2d();
+            Pose3d curPose = mVisionSubsystem.getPose();
+            Pose3d targetPose = mLayout.getTagPose(target.getFiducialId()).get();
             
-            return Optional.of(targetPose.minus(curPose).getTranslation());
+            return Optional.of(targetPose.minus(curPose).getTranslation().toTranslation2d());
         }
         return Optional.empty();
     }
