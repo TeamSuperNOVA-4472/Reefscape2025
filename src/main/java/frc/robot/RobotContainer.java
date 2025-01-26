@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
+import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -25,6 +26,7 @@ import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -77,10 +79,11 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    try {
-      return new PathPlannerAuto("DriveDoTheThingDriveBack");
-    } catch (AutoBuilderException e) {
-      return new InstantCommand();
-    }
+    // try {
+    //   return new PathPlannerAuto("DriveDoTheThingDriveBack");
+    // } catch (AutoBuilderException e) {
+    //   return new InstantCommand();
+    // }
+    return new DriveDistanceAndHeading(mSwerveSubsystem, new Translation2d(1,1), 90);
   }
 }

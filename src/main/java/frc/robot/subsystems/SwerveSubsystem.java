@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -111,9 +112,11 @@ public class SwerveSubsystem extends SubsystemBase {
       else {
         mSwerveDrive.driveFieldOriented(pVelocity);
       }
+      SmartDashboard.putNumber("Rot Vel", pVelocity.omegaRadiansPerSecond);
   }
 
   public void driveRobotOriented(ChassisSpeeds pVelocity) {
+    SmartDashboard.putNumber("Rot Vel", pVelocity.omegaRadiansPerSecond);
     mSwerveDrive.drive(pVelocity);
   }
 
