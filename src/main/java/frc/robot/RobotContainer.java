@@ -5,87 +5,96 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.subsystems.SwerveSubsystem;
 
-import java.io.IOException;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import org.json.simple.parser.ParseException;
-
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FileVersionException;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
-public class RobotContainer {
+// This class is where subsystems and other robot parts are declared.
+// IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
+public class RobotContainer
+{
+    // Ports go here:
+    public static final int kDriverPort = 0;
 
+    // Subsystems go here:
+    private final SwerveSubsystem mSwerveSubsystem;
 
-  private final XboxController mDriver =
-      new XboxController(OperatorConstants.kDriverControllerPort);
+    // Controllers go here:
+    private final XboxController mDriver;
+    
+    // Commands go here:
+    private final SwerveTeleop mSwerveTeleop;
 
-  // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem mSwerveSubsystem = new SwerveSubsystem();
+    // Extras:
+    private final SendableChooser<Command> autoChooser;
 
-  private final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
-  private final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
-  private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
+    // TODO: I think these should be defined and handled by the swerve subsystem or command, not here.
+    private final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
+    private final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
+    private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
 
+    public RobotContainer()
+    {
+        // Initialize controllers.
+        mDriver = new XboxController(kDriverPort);
 
-  private final SwerveTeleop mSwerveTeleop = new SwerveTeleop(
-    () -> mFwdLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftY())), 
-    () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
-    () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
-    mDriver::getAButton,
-    mSwerveSubsystem);
+        // Initialize subsystems.
+        mSwerveSubsystem = new SwerveSubsystem();
 
+        // Initialize commands.
+        mSwerveTeleop = new SwerveTeleop(
+            () -> mFwdLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftY())),
+            () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
+            () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
+            mDriver::getAButton,
+            mSwerveSubsystem);
 
+        // Configure subsystems.
+        mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
-  }
+        // Configure other things.
+        autoChooser = AutoBuilder.buildAutoChooser();
 
+        // Register named commands.
+        // TODO: Some of these are temporary things.
+        NamedCommands.registerCommand("DoTheThingCommand", new DoTheThingCommand());
+        NamedCommands.registerCommand("ScoreLevel4Right", new DoTheThingCommand());
+        NamedCommands.registerCommand("ScoreLevel4Left", new DoTheThingCommand());
+        NamedCommands.registerCommand("ScoreLevel3Right", new DoTheThingCommand());
+        NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
+        NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
+        NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    try {
-      PathPlannerPath path = PathPlannerPath.fromPathFile("Turn180");
-      Optional<Alliance> alliance = DriverStation.getAlliance();
+        // TODO: DEBUG THING, PLEASE REMOVE
+        new EventTrigger("TheEvent").onTrue(
+                new InstantCommand(() -> System.out.println("The Event has triggered")));
 
-      Pose2d pose = path.getStartingHolonomicPose().orElseThrow();
-      if (alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red ) {
-        pose = path.flipPath().getStartingHolonomicPose().orElseThrow();
-      }
+        autoChooser.addOption("DriveDoTheThingDriveBack", new PathPlannerAuto("DriveDoTheThingDriveBack"));
+        autoChooser.addOption("ReefScoreTopLeft", new PathPlannerAuto("ReefScoreTopLeft"));
+        autoChooser.addOption("MidRightReefScore", new PathPlannerAuto("MidRightReefScore"));
+        autoChooser.addOption("RightReefScoreToAlgae", new PathPlannerAuto("RightReefScoreToAlgae"));
+        autoChooser.addOption("AmbitiousTopLeftScore", new PathPlannerAuto("AmbitiousTopLeftScore"));
+        autoChooser.addOption("ReefScoreBottomRight", new PathPlannerAuto("ReefScoreBottomRight"));
 
-      final Pose2d startingPose = pose;
-      return new SequentialCommandGroup(
-        new InstantCommand(() -> mSwerveSubsystem.resetOdometry(startingPose)),
-        new WaitCommand(.1),
-        AutoBuilder.followPath(path)
-        );
-    } catch (IOException | FileVersionException | ParseException | NoSuchElementException e) {
-      return new InstantCommand();
+        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
-  }
+
+    // Specify which command will be used as the autonomous command.
+    public Command getAutonomousCommand()
+    {
+        return autoChooser.getSelected();
+    }
 }

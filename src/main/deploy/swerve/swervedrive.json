@@ -1,6 +1,6 @@
 {
   "imu": {
-    "type": "navx_usb",
+    "type": "navx_spi",
     "id": 0,
     "canbus": null
   },
