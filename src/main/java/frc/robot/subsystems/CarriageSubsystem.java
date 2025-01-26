@@ -17,7 +17,7 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final int armTopSwitch = 1;
 
-    public static final int wristSwitch = 0;
+    public static final int wristSwitch = 1;
 
     public static final int armP = 1;
 
@@ -30,6 +30,18 @@ public class CarriageSubsystem extends SubsystemBase
     public static final int wristI = 1;
 
     public static final int wristD = 1;
+
+    private static final double armPreset0 = 0.0;
+
+    private static final double armPreset1 = 1.0;
+
+    private static final double armPreset2 = 2.0;
+
+    private static final double armPreset3 = 3.0;
+
+    private static final double wristPreset0 = 0.0;
+
+    private static final double wristPreset1 = 1.0;
 
     private TalonFX armMotor;
 
@@ -49,7 +61,6 @@ public class CarriageSubsystem extends SubsystemBase
 
     private PIDController wristPID;
 
-
     public CarriageSubsystem() 
     {
         armMotor = new TalonFX(armMotorId);
@@ -61,6 +72,10 @@ public class CarriageSubsystem extends SubsystemBase
         armTop = new DigitalInput(armTopSwitch);
 
         wristLimit = new DigitalInput(wristSwitch);
+
+        armPID = new PIDController(armP, armI, armD);
+
+        wristPID = new PIDController(wristP, wristI, wristD);
     }
 
     public void stopArm() 
@@ -98,32 +113,64 @@ public class CarriageSubsystem extends SubsystemBase
         return wristLimit.get();
     }
 
+    // TODO: Combine these into one?
+    public void setActiveArmPreset(int preset) 
+    {
+        activeArmPreset = preset;
+    }
+
+    public void setActiveWristPreset(int preset) 
+    {
+        activeWristPreset = preset;
+    }
+
+    public double getArmCurrentPosition() 
+    {
+        return armMotor.getPosition().getValueAsDouble();
+    }
+
+    public double getArmSetpoint() 
+    {
+        return armPID.getSetpoint();
+    }
+
+    public double getWristCurrentPosition() 
+    {
+        return wristMotor.getPosition().getValueAsDouble();
+    }
+
+    public double getWristSetpoint() 
+    {
+        return wristPID.getSetpoint();
+    }
+
     @Override
     public void periodic() 
     {
-        double armDesiredPosition;
-
         if (activeArmPreset == 0) 
         {
-            armDesiredPosition = 0;
+            armPID.setSetpoint(armPreset0);
         } 
         
         else if (activeArmPreset == 1) 
         {
-            armDesiredPosition = 1;
+            armPID.setSetpoint(armPreset1);
         } 
         
         else if (activeArmPreset == 2) 
         {
-            armDesiredPosition = 2;
+            armPID.setSetpoint(armPreset2);
+        } 
+        
+        else if (activeArmPreset == 3) 
+        {
+            armPID.setSetpoint(armPreset3);
         } 
         
         else 
         {
             return;
         }
-
-        armPID.setSetpoint(armDesiredPosition);
 
         double armCurrentPosition = armMotor.getPosition().getValueAsDouble();
 
@@ -131,25 +178,21 @@ public class CarriageSubsystem extends SubsystemBase
 
         armMotor.set(armSpeed);
 
-        double wristDesiredPosition;
-
         if (activeWristPreset == 0) 
         {
-            wristDesiredPosition = 0;
+            wristPID.setSetpoint(wristPreset0);
         } 
         
         else if (activeWristPreset == 1) 
         {
-            wristDesiredPosition = 1;
+            wristPID.setSetpoint(wristPreset1);
         } 
         
         else 
         {
             return;
         }
-    
-        wristPID.setSetpoint(wristDesiredPosition);
-    
+
         double wristCurrentPosition = wristMotor.getPosition().getValueAsDouble();
 
         double wristSpeed = wristPID.calculate(wristCurrentPosition);
