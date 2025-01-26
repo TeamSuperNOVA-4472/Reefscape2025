@@ -92,6 +92,7 @@ public class VisionSubsystem extends SubsystemBase
                 tagLayout, 
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 info.getOffset());
+            poseEstimators[i].setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         }
     }
 
