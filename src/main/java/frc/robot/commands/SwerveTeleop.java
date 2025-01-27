@@ -9,6 +9,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -19,6 +20,11 @@ import static frc.robot.subsystems.SwerveSubsystem.*; // For constants.
 //       Is this mostly last year's code?
 public class SwerveTeleop extends Command
 {
+    // TODO: how is this different from a clamp? Might want to consider doing that.
+    public static final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
+    public static final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
+    public static final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
+
     private final Supplier<Double> mFwdInput;
     private final Supplier<Double> mSideInput;
     private final Supplier<Double> mTurnInput;
@@ -56,9 +62,9 @@ public class SwerveTeleop extends Command
     @Override
     public void execute()
     {
-        double updatedFwdSpeedMS = mFwdInput.get() * kMaxSpeedMS;
-        double updatedSideSpeedMS = mSideInput.get() * kMaxSpeedMS;
-        double updatedTurnSpeedRadS = mTurnInput.get() * kMetersPerSecondToRadiansPerSecond * kMaxSpeedMS;
+        double updatedFwdSpeedMS = mFwdLimiter.calculate(mFwdInput.get()) * kMaxSpeedMS;
+        double updatedSideSpeedMS = mSideLimiter.calculate(mSideInput.get()) * kMaxSpeedMS;
+        double updatedTurnSpeedRadS = mTurnLimiter.calculate(mTurnInput.get()) * kMetersPerSecondToRadiansPerSecond * kMaxSpeedMS;
 
         if (updatedTurnSpeedRadS == 0.0 && (updatedFwdSpeedMS != 0 || updatedSideSpeedMS != 0))
         {

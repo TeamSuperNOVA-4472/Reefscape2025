@@ -5,7 +5,6 @@
 package frc.robot;
 
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.subsystems.LightsSubsystem;
@@ -18,17 +17,17 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
+import static frc.robot.OperatorConfig.weightJoystick;
+
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
+@SuppressWarnings("unused")
 public class RobotContainer
 {
     // Ports go here:
@@ -48,13 +47,8 @@ public class RobotContainer
     // Extras:
     private final SendableChooser<Command> autoChooser;
 
-    // TODO: I think these should be defined and handled by the swerve subsystem or command, not here.
-    private final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
-    private final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
-    private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
-
     public RobotContainer()
-    {        
+    {
         // Initialize controllers.
         mDriver = new XboxController(kDriverPort);
 
@@ -64,10 +58,13 @@ public class RobotContainer
         mVisionSubsystem = new VisionSubsystem();
 
         // Initialize commands.
+        // TODO: Should weighting go here? Or in the command?
+        //       Also, we should add a comment explaining why
+        //       we need to invert these.
         mSwerveTeleop = new SwerveTeleop(
-            () -> mFwdLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftY())),
-            () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
-            () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
+            weightJoystick(mDriver::getLeftY, true),
+            weightJoystick(mDriver::getLeftX, true),
+            weightJoystick(mDriver::getRightX, true),
             mDriver::getAButton,
             mSwerveSubsystem);
 
