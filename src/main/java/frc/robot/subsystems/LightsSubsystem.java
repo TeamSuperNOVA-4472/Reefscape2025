@@ -18,10 +18,13 @@ import frc.robot.objectmodels.lightpatterns.RandomLEDPattern;
 public class LightsSubsystem extends SubsystemBase
 {
     public static final int kLightChannel = 7;
-    public static final int kLightCount = 50;
+    public static final int kLightCount = 25;
 
     private AddressableLED light;
     private AddressableLEDBuffer lightData;
+
+    // Used in many animations. Reset between states.
+    private int tick;
 
     // Oh yeah, it's a state machine with transitions. Gonna cry?
     // Sorry. I want transitions between multiple different animations,
@@ -65,6 +68,7 @@ public class LightsSubsystem extends SubsystemBase
         }
 
         light.setData(lightData);
+        tick++;
     }
 
     // When the robot is off. Shouldn't ever really be used, this state
@@ -78,7 +82,10 @@ public class LightsSubsystem extends SubsystemBase
     // When the robot is in an unknown state. Should never happen.
     private void animUnknown()
     {
+        // TODO: Maybe replace this with a randomized fadeout? Could be cool.
         new RandomLEDPattern()
+            .withSingleColor(Color.kRed)
+            .withGamma(0.75)
             .applyTo(lightData);
     }
 }
