@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import java.util.Optional;
+import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -8,12 +8,13 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.objectmodels.LightState;
+import frc.robot.objectmodels.LightStatusRequest;
+import frc.robot.objectmodels.lightpatterns.LEDRandomFadeoutPattern;
+import frc.robot.objectmodels.lightpatterns.LEDSweepingPattern;
 import frc.robot.objectmodels.lightpatterns.RandomLEDPattern;
 
 // Controls the light strips on the robot.
-// I want the lights to be *very* well developed.
 // I've created some custom LED patterns that I use here.
-// They're meant to be used like builders.
 // Ask me any questions you've got about this, I'd be happy to answer them!
 public class LightsSubsystem extends SubsystemBase
 {
@@ -29,11 +30,13 @@ public class LightsSubsystem extends SubsystemBase
     // Used in many animations. Reset between states.
     private int tick;
 
-    // Oh yeah, it's a state machine with transitions. Gonna cry?
-    // Sorry. I want transitions between multiple different animations,
-    // and there isn't a much nicer way to do it.
-    private LightState currentState;
-    private Optional<LightState> newState;
+    // We're using a priority system to prevent the need for
+    // a state machine with conditions. The highest priority
+    // status request that is active gets picked.
+    // See `boolean getActiveState()`.
+    private ArrayList<LightStatusRequest> requests;
+
+    private LightState prevState;
 
     public LightsSubsystem()
     {
@@ -42,36 +45,66 @@ public class LightsSubsystem extends SubsystemBase
         light.setLength(kLightCount);
         light.start();
 
-        currentState = LightState.kOff;
-        newState = Optional.of(LightState.kDisconnected);
+        requests = new ArrayList<>();
+        requests.add(new LightStatusRequest(LightState.kOff, 0));
+    }
+
+    public void addRequests(LightStatusRequest... requests)
+    {
+        for (int i = 0; i < requests.length; i++) addRequest(requests[i]);
+    }
+    public void addRequest(LightStatusRequest request)
+    {
+        for (int i = 0; i < requests.size(); i++)
+        {
+            LightStatusRequest req = requests.get(i);
+            if (req.priority == request.priority &&
+                req.state == request.state)
+            {
+                requests.set(i, request);
+                return;
+            }
+        }
+        requests.add(request);
     }
 
     @Override
     public void periodic()
     {
-        if (newState.isEmpty())
+        switch (getActiveState())
         {
-            // Idle animations for each state.
-            switch (currentState)
-            {
-                case kOff: animOff(); break;
-                //case kDisconnected: animDisconnected(); break;
-
-                default: animUnknown(); break;
-            }
-        }
-        else
-        {
-            // Transitional animations from one state to another.
-            // The method will complete the transition once it's finished.
-
-            // TODO: Implement this. This is temporary code.
-            currentState = newState.get();
-            newState = Optional.empty();
+            case kOff: animOff(); break;
+            case kDisabledStart: animDisabled(Color.kPurple); break;
+            case kAutonomous: animAuton(); break;
+            case kDisabledBetween: animDisabled(Color.kBlue); break;
+            case kDisabledError: animDisabled(Color.kOrange); break;
+            case kDisabledEnd: animDisabled(Color.kGreen); break;
+            default: animUnknown(); break;
         }
 
         light.setData(lightData);
         tick++;
+    }
+
+    public LightState getActiveState()
+    {
+        LightState result = LightState.kOff;
+        int highest = Integer.MIN_VALUE;
+        for (int i = 0; i < requests.size(); i++)
+        {
+            LightStatusRequest req = requests.get(i);
+            if (req.active && req.priority >= highest)
+            {
+                result = req.state;
+                highest = req.priority;
+            }
+        }
+        if (result != prevState)
+        {
+            System.out.println("[LIGHTS] Switching state: " + prevState + " -> " + result + ".");
+        }
+        prevState = result;
+        return result;
     }
 
     // When the robot is off. Shouldn't ever really be used, this state
@@ -80,6 +113,28 @@ public class LightsSubsystem extends SubsystemBase
     {
         LEDPattern off = LEDPattern.solid(Color.kBlack);
         off.applyTo(lightData);
+    }
+
+    // When the robot is disabled.
+    private void animDisabled(Color color)
+    {
+        new LEDSweepingPattern()
+            .withColor(color)
+            .moveMiddle()
+            .tick((int)(0.25 * tick))
+            .withSustain(0.9)
+            .applyTo(lightData);
+    }
+
+    // When the robot is in autonomous. Matrix-style affect.
+    private void animAuton()
+    {
+        new LEDRandomFadeoutPattern()
+            .withColor(Color.kGreen)
+            .withInterval(1)
+            .withSustain(0.9)
+            .tick(tick)
+            .applyTo(lightData);
     }
 
     // When the robot is in an unknown state. Should never happen.

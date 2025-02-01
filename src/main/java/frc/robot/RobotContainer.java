@@ -34,7 +34,7 @@ public class RobotContainer
     public static final int kDriverPort = 0;
 
     // Subsystems go here:
-    private LightsSubsystem mLightsSubsystem;
+    public LightsSubsystem mLightsSubsystem;
     private VisionSubsystem mVisionSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
 

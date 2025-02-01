@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.objectmodels.LightState;
+import frc.robot.objectmodels.LightStatusRequest;
 
 // This code shouldn't be messed with in most scenarios.
 // Most of this is run automatically.
@@ -24,6 +26,10 @@ public class Robot extends TimedRobot
         // Instantiate our RobotContainer. This will perform all our button
         // bindings, and put our autonomous chooser on the dashboard.
         mRobotContainer = new RobotContainer();
+
+        disabledLights = new LightStatusRequest(LightState.kDisabledStart, 100);
+        autonLights = new LightStatusRequest(LightState.kAutonomous, 50);
+        mRobotContainer.mLightsSubsystem.addRequests(disabledLights, autonLights);
     }
 
     // This function is continuously called every 20 ms (50 times per second).
@@ -37,19 +43,29 @@ public class Robot extends TimedRobot
         CommandScheduler.getInstance().run();
     }
 
-    // Run *once* when the robot is first disabled.
+    private LightStatusRequest disabledLights;
+    // Run *once* when the robot becomes disabled.
     @Override
-    public void disabledInit() { }
-
-    // Run continuously when the robot is disabled.
+    public void disabledInit()
+    {
+        disabledLights.active = true;
+    }
+    // Run *once* when the robot is no longer disabled.
     @Override
-    public void disabledPeriodic() { }
+    public void disabledExit()
+    {
+        disabledLights.active = false;
+    }
 
+    private LightStatusRequest autonLights;
     // Run *once* when the robot first goes into autonomous.
     @Override
     public void autonomousInit()
     {
         mAutonomousCommand = mRobotContainer.getAutonomousCommand();
+        // TODO: Light state for when autonomous fails?
+        autonLights.active = true;
+        disabledLights.state = LightState.kDisabledError;
 
         // Schedule the autonomous command (example)
         if (mAutonomousCommand != null)
@@ -57,10 +73,13 @@ public class Robot extends TimedRobot
             mAutonomousCommand.schedule();
         }
     }
-
-    // Run continuously when the robot is in autonomous mode.
+    // Run *once* when the robot exits autonomous.
     @Override
-    public void autonomousPeriodic() { }
+    public void autonomousExit()
+    {
+        autonLights.active = false;
+        disabledLights.state = LightState.kDisabledBetween;
+    }
 
     // Run *once* when the robot first enters teleop mode.
     @Override
@@ -74,11 +93,18 @@ public class Robot extends TimedRobot
         {
             mAutonomousCommand.cancel();
         }
+        disabledLights.state = LightState.kDisabledError;
     }
 
     // Run continuously when the robot is in teleop mode.
     @Override
     public void teleopPeriodic() { }
+
+    @Override
+    public void teleopExit()
+    {
+        disabledLights.state = LightState.kDisabledEnd;
+    }
 
     // Run *once* when the robot is in test mode.
     // TODO: Is test mode the same thing as unit testing the robot?
