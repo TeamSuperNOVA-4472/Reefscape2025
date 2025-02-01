@@ -39,6 +39,7 @@ public class RandomLEDPattern implements LEDPattern
         this.colorB = colorB;
         return this;
     }
+<<<<<<< Updated upstream
     /** Sets a new gamma for color interpolation. */
     public RandomLEDPattern withGamma(double gamma)
     {
@@ -46,6 +47,15 @@ public class RandomLEDPattern implements LEDPattern
         return this;
     }
     /** Reset all pattern properties. */
+=======
+    /** Sets a new gamma value for the pattern to use. */
+    public RandomLEDPattern withGamma(double newGamma)
+    {
+        gamma = newGamma;
+        return this;
+    }
+    /** Resets all settings. */
+>>>>>>> Stashed changes
     public RandomLEDPattern pureRandom()
     {
         // Chooses any possible color.
@@ -72,7 +82,11 @@ public class RandomLEDPattern implements LEDPattern
     {
         return isGradient;
     }
+<<<<<<< Updated upstream
     /** Return the gamma value used by the pattern. */
+=======
+    /** Returns the gamma value the pattern will use for interpolation. */
+>>>>>>> Stashed changes
     public double getGamma()
     {
         return gamma;

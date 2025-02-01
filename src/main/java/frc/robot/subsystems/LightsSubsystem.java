@@ -17,10 +17,21 @@ import frc.robot.objectmodels.lightpatterns.RandomLEDPattern;
 // Ask me any questions you've got about this, I'd be happy to answer them!
 public class LightsSubsystem extends SubsystemBase
 {
+<<<<<<< Updated upstream
     public static final int kLightChannel = 7;
+=======
+    // FIXME: Having multiple light strips causes an error (try it yourself).
+    //        ChielfDelphi claims it is impossible. Why would this be true?
+    //        - https://www.chiefdelphi.com/t/multiple-led-strips/425602
+    //        - https://www.chiefdelphi.com/t/addressable-leds-help/473063
+    public static final int[] kLightChannels = { 7 };
+>>>>>>> Stashed changes
     public static final int kLightCount = 25;
 
-    private AddressableLED light;
+    // This system uses the same buffer for each strip. This could be
+    // changed if we want the two strips to show different stuff, but
+    // I don't think we'll need or even want that.
+    private AddressableLED[] lights;
     private AddressableLEDBuffer lightData;
 
     // Used in many animations. Reset between states.
@@ -34,10 +45,16 @@ public class LightsSubsystem extends SubsystemBase
 
     public LightsSubsystem()
     {
-        light = new AddressableLED(kLightChannel);
         lightData = new AddressableLEDBuffer(kLightCount);
-        light.setLength(kLightCount);
-        light.start();
+        lights = new AddressableLED[kLightChannels.length];
+        for (int i = 0; i < kLightChannels.length; i++)
+        {
+            @SuppressWarnings("resource") // Claims this variable is never released. Duh, that shouldn't be an issue.
+            AddressableLED light = new AddressableLED(kLightChannels[i]);
+            light.setLength(kLightCount);
+            light.start();
+            lights[i] = light;
+        }
 
         currentState = LightState.kOff;
         newState = Optional.of(LightState.kDisconnected);
@@ -67,8 +84,13 @@ public class LightsSubsystem extends SubsystemBase
             newState = Optional.empty();
         }
 
+<<<<<<< Updated upstream
         light.setData(lightData);
         tick++;
+=======
+        // Apply buffer to lights.
+        for (int i = 0; i < lights.length; i++) lights[i].setData(lightData);
+>>>>>>> Stashed changes
     }
 
     // When the robot is off. Shouldn't ever really be used, this state
@@ -85,7 +107,11 @@ public class LightsSubsystem extends SubsystemBase
         // TODO: Maybe replace this with a randomized fadeout? Could be cool.
         new RandomLEDPattern()
             .withSingleColor(Color.kRed)
+<<<<<<< Updated upstream
             .withGamma(0.75)
+=======
+            .withGamma(1.0)
+>>>>>>> Stashed changes
             .applyTo(lightData);
     }
 }
