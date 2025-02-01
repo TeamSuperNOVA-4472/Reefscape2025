@@ -10,6 +10,9 @@ public class MoveCarriageToPresetCommand extends Command
 
     private final IntakePresets preset;
 
+    public static final double kArmTolerence = 1.0;
+    public static final double kWristTolerance = 1.0;
+
     public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, IntakePresets preset)
     {
 
@@ -38,10 +41,10 @@ public class MoveCarriageToPresetCommand extends Command
     @Override
     public boolean isFinished() 
     {
-        boolean armAtTarget = mCarriageSubsystem.getArmCurrentPosition() == targetArmPosition;
+        double armDist = mCarriageSubsystem.getArmCurrentPosition() - mCarriageSubsystem.getArmSetpoint();
 
-        boolean wristAtTarget = mCarriageSubsystem.getWristCurrentPosition() == targetWristPosition;
+        double wristDist = mCarriageSubsystem.getWristCurrentPosition() - mCarriageSubsystem.getWristSetpoint();
 
-        return armAtTarget && wristAtTarget;
+        return Math.abs(armDist) < kArmTolerence && Math.abs(wristDist) < kWristTolerance;
     }
 }
