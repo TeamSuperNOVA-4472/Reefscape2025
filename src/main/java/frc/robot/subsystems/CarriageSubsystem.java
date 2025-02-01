@@ -77,37 +77,32 @@ public class CarriageSubsystem extends SubsystemBase
     public CarriageSubsystem() 
     {
         armMotor = new TalonFX(armMotorId);
-
         wristMotor = new TalonFX(wristMotorId);
 
         armBottom = new DigitalInput(armBottomSwitch);
-
         armTop = new DigitalInput(armTopSwitch);
 
         wristLimit = new DigitalInput(wristSwitch);
 
         armPID = new PIDController(armP, armI, armD);
-
         wristPID = new PIDController(wristP, wristI, wristD);
     }
 
-    public void stopArm() 
+    public void stop()
     {
+        activePreset = Optional.empty();
         armMotor.stopMotor();
-    }
-
-    public void stopWrist() 
-    {
         wristMotor.stopMotor();
     }
 
     public void setArmVoltage(double voltage) 
     {
+        activePreset = Optional.empty();
         armMotor.setVoltage(voltage);
     }
-
     public void setWristVoltage(double voltage) 
     {
+        activePreset = Optional.empty();
         wristMotor.setVoltage(voltage);
     }
 
@@ -115,7 +110,6 @@ public class CarriageSubsystem extends SubsystemBase
     {
         return armBottom.get();
     }
-
     public boolean isArmAtTop() 
     {
         return armTop.get();
@@ -126,13 +120,7 @@ public class CarriageSubsystem extends SubsystemBase
         return wristLimit.get();
     }
 
-    // TODO: Combine these into one?
-    public void setActiveArmPreset(IntakePresets preset) 
-    {
-        activePreset = Optional.of(preset);
-    }
-
-    public void setActiveWristPreset(IntakePresets preset) 
+    public void setActivePreset(IntakePresets preset)
     {
         activePreset = Optional.of(preset);
     }
@@ -141,17 +129,15 @@ public class CarriageSubsystem extends SubsystemBase
     {
         return armMotor.getPosition().getValueAsDouble();
     }
-
-    public double getArmSetpoint() 
-    {
-        return armPID.getSetpoint();
-    }
-
     public double getWristCurrentPosition() 
     {
         return wristMotor.getPosition().getValueAsDouble();
     }
 
+    public double getArmSetpoint() 
+    {
+        return armPID.getSetpoint();
+    }
     public double getWristSetpoint() 
     {
         return wristPID.getSetpoint();
@@ -160,63 +146,51 @@ public class CarriageSubsystem extends SubsystemBase
     @Override
     public void periodic() 
     {
+        if (activePreset.isEmpty()) return; // No preset.
+        else
+        {
+            switch (activePreset.get())
+            {
+                case kAway:
+                    armPID.setSetpoint(armPresetKAway);
+                    wristPID.setSetpoint(wristPresetKAway);
+                    break;
 
-        if (activePreset.isEmpty())
-        {
-            return;
-        }
+                case kGroundPickup:
+                    armPID.setSetpoint(armPresetGroundPickup);
+                    wristPID.setSetpoint(wristPresetGroundPickup);
+                    break;
 
-        else if (activePreset.get() == IntakePresets.kAway) 
-        {
-            armPID.setSetpoint(armPresetKAway);
-            wristPID.setSetpoint(wristPresetKAway);
-        } 
-        
-        else if (activePreset.get() == IntakePresets.kGroundPickup) 
-        {
-            armPID.setSetpoint(armPresetGroundPickup);
-            wristPID.setSetpoint(wristPresetGroundPickup);
-        } 
-        
-        else if (activePreset.get() == IntakePresets.kScoreL1) 
-        {
-            armPID.setSetpoint(armPresetL1);
-            wristPID.setSetpoint(wristPresetL1);
-        } 
-        
-        else if (activePreset.get() == IntakePresets.kScoreL2) 
-        {
-            armPID.setSetpoint(armPresetL2);
-            wristPID.setSetpoint(wristPresetL2);
-        } 
+                case kScoreL1:
+                    armPID.setSetpoint(armPresetL1);
+                    wristPID.setSetpoint(wristPresetL1);
+                    break;
 
-        else if (activePreset.get() == IntakePresets.kScoreL3) 
-        {
-            armPID.setSetpoint(armPresetL3);
-            wristPID.setSetpoint(wristPresetL3);
-        } 
+                case kScoreL2:
+                    armPID.setSetpoint(armPresetL2);
+                    wristPID.setSetpoint(wristPresetL2);
+                    break;
 
-        else if (activePreset.get() == IntakePresets.kScoreL4) 
-        {
-            armPID.setSetpoint(armPresetL4);
-            wristPID.setSetpoint(wristPresetL4);
-        } 
-        
-        else 
-        {
-            return;
+                case kScoreL3:
+                    armPID.setSetpoint(armPresetL3);
+                    wristPID.setSetpoint(wristPresetL3);
+                    break;
+
+                case kScoreL4:
+                    armPID.setSetpoint(armPresetL4);
+                    wristPID.setSetpoint(wristPresetL4);
+                    break;
+
+                default: return; // Unknown preset. Shouldn't happen.
+            }
         }
 
         double armCurrentPosition = armMotor.getPosition().getValueAsDouble();
-
         double armSpeed = armPID.calculate(armCurrentPosition);
-
         armMotor.set(armSpeed);
 
         double wristCurrentPosition = wristMotor.getPosition().getValueAsDouble();
-
         double wristSpeed = wristPID.calculate(wristCurrentPosition);
-
         wristMotor.set(wristSpeed);
     }
 }
