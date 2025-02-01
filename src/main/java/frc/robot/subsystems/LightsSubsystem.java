@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.objectmodels.LightState;
 import frc.robot.objectmodels.LightStatusRequest;
@@ -37,13 +39,25 @@ public class LightsSubsystem extends SubsystemBase
     private ArrayList<LightStatusRequest> requests;
 
     private LightState prevState;
+    private boolean initialized, enabled = true;
 
     public LightsSubsystem()
     {
         lightData = new AddressableLEDBuffer(kLightCount);
-        light = new AddressableLED(kLightChannel);
-        light.setLength(kLightCount);
-        light.start();
+        try
+        {
+            light = new AddressableLED(kLightChannel);
+            light.setLength(kLightCount);
+            light.start();
+            initialized = true;
+        }
+        catch (Exception ex)
+        {
+            System.out.println("[LIGHTS] Failed to initialize the light strip. Lights will NOT be active.\n" +
+                               "         Is the port to the light strip incorrect? It should be " + kLightChannel + ".");
+            initialized = false;
+            return;
+        }
 
         requests = new ArrayList<>();
         requests.add(new LightStatusRequest(LightState.kOff, 0));
@@ -51,10 +65,12 @@ public class LightsSubsystem extends SubsystemBase
 
     public void addRequests(LightStatusRequest... requests)
     {
+        if (!isActive()) return;
         for (int i = 0; i < requests.length; i++) addRequest(requests[i]);
     }
     public void addRequest(LightStatusRequest request)
     {
+        if (!isActive()) return;
         for (int i = 0; i < requests.size(); i++)
         {
             LightStatusRequest req = requests.get(i);
@@ -68,10 +84,26 @@ public class LightsSubsystem extends SubsystemBase
         requests.add(request);
     }
 
+    public boolean isActive()
+    {
+        return initialized && enabled;
+    }
+    public void enable()
+    {
+        enabled = true;
+    }
+    public void disable()
+    {
+        enabled = false;
+    }
+
     @Override
     public void periodic()
     {
-        switch (getActiveState())
+        SmartDashboard.putBoolean("Lights Active", isActive());
+        if (!isActive()) return;
+        LightState state = getActiveState();
+        switch (state)
         {
             case kOff: animOff(); break;
             case kDisabledStart: animDisabled(Color.kPurple); break;
@@ -81,6 +113,7 @@ public class LightsSubsystem extends SubsystemBase
             case kDisabledEnd: animDisabled(Color.kGreen); break;
             default: animUnknown(); break;
         }
+        SmartDashboard.putString("Light Strip State", state.toString());
 
         light.setData(lightData);
         tick++;
@@ -88,6 +121,7 @@ public class LightsSubsystem extends SubsystemBase
 
     public LightState getActiveState()
     {
+        if (!isActive()) return LightState.kOff;
         LightState result = LightState.kOff;
         int highest = Integer.MIN_VALUE;
         for (int i = 0; i < requests.size(); i++)
