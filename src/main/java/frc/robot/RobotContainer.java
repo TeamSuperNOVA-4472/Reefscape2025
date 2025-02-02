@@ -6,7 +6,15 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
+import frc.robot.commands.ElevatorCarriageTeleop;
+import frc.robot.commands.IntakeTeleop;
+import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.subsystems.CarriageSubsystem;
+import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.ElevatorCarriageSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -16,7 +24,6 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,6 +37,11 @@ public class RobotContainer
     public static final int kDriverPort = 0;
 
     // Subsystems go here:
+    private final CarriageSubsystem mCarriageSubsystem;
+    private final ClimbSubsystem mClimbSubsystem;
+    private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
+    private final ElevatorSubsystem mElevatorSubsystem;
+    private final IntakeSubsystem mIntakeSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
 
     // Controllers go here:
@@ -37,6 +49,8 @@ public class RobotContainer
     
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
+    private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
+    private final IntakeTeleop mIntakeTeleop;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -53,6 +67,12 @@ public class RobotContainer
 
         // Initialize subsystems.
         mSwerveSubsystem = new SwerveSubsystem();
+        mCarriageSubsystem = new CarriageSubsystem();
+        mClimbSubsystem = new ClimbSubsystem();
+        mElevatorSubsystem = new ElevatorSubsystem();
+        mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
+        mIntakeSubsystem = new IntakeSubsystem();
+        
 
         // Initialize commands.
         mSwerveTeleop = new SwerveTeleop(
@@ -61,9 +81,13 @@ public class RobotContainer
             () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
             mDriver::getAButton,
             mSwerveSubsystem);
+        mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
+        mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
 
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+        mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
