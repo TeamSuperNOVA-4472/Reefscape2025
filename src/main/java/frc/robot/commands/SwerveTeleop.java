@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 import java.util.function.Supplier;
 
@@ -23,7 +24,10 @@ public class SwerveTeleop extends Command
     private final Supplier<Double> mSideInput;
     private final Supplier<Double> mTurnInput;
     private final Supplier<Boolean> mResetHeadingInput;
+    private final Supplier<Boolean> mButton;
     private final SwerveSubsystem mSwerveSubsystem;
+    private final VisionSubsystem mVisionSubsystem;
+    private final VisionAlignCommand mAlign;
 
     private final PIDController mGyroController = new PIDController(0.05, 0, 0.0005);
     private double mTargetHeading;
@@ -37,17 +41,23 @@ public class SwerveTeleop extends Command
             Supplier<Double> pSideInput,
             Supplier<Double> pTurnInput,
             Supplier<Boolean> pResetHeadingInput,
-            SwerveSubsystem pSwerveSubsystem)
+            Supplier<Boolean> pButton,
+            SwerveSubsystem pSwerveSubsystem,
+            VisionSubsystem pVisionSubsystem)
     {
         mFwdInput = pFwdInput;
         mSideInput = pSideInput;
         mTurnInput = pTurnInput;
         mResetHeadingInput = pResetHeadingInput;
+        mButton = pButton;
         mSwerveSubsystem = pSwerveSubsystem;
+        mVisionSubsystem = pVisionSubsystem;
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 
         mGyroController.enableContinuousInput(0, 360);
+
+        mAlign = new VisionAlignCommand(pSwerveSubsystem, pVisionSubsystem, null);
 
         addRequirements(pSwerveSubsystem);
     }
@@ -78,6 +88,16 @@ public class SwerveTeleop extends Command
         if (mResetHeadingInput.get())
         {
             mSwerveSubsystem.resetHeading();
+        }
+
+        if (mButton.get())
+        {
+            if(!mAlign.isScheduled())
+            {
+                mAlign.schedule();
+            }
+        } else {
+            mAlign.cancel();
         }
     }
 }

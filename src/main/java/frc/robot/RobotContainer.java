@@ -69,7 +69,9 @@ public class RobotContainer
             () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
             () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
             mDriver::getAButton,
-            mSwerveSubsystem);
+            mDriver::getYButton,
+            mSwerveSubsystem,
+            mVisionSubsystem);
 
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);

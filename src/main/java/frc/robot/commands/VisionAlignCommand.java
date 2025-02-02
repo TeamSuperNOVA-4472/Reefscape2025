@@ -23,6 +23,7 @@ public class VisionAlignCommand extends Command {
     private final Translation2d mOffset;
     private final AprilTagFieldLayout mLayout;
 
+    private DriveDistanceAndHeading mDrive;
     private Optional<PhotonTrackedTarget> mLastTarget;
     private Transform2d mError;
     private boolean mMoving;
@@ -37,6 +38,8 @@ public class VisionAlignCommand extends Command {
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
         mOffset = pOffset;
+
+        mMoving = false;
 
         mLayout = mVisionSubsystem.getTagLayout();
 
@@ -53,11 +56,16 @@ public class VisionAlignCommand extends Command {
         return Optional.empty();
     }
 
+    private Optional<Pose3d> getTagPose(PhotonTrackedTarget target)
+    {
+        return mLayout.getTagPose(target.getFiducialId());
+    }
+
     // Returns a translation that is the difference between the robot's current pose and desired pose
     private Translation2d getTranslation(PhotonTrackedTarget target)
     {
         Pose3d curPose = mVisionSubsystem.getPose();
-        Pose3d targetPose = mLayout.getTagPose(target.getFiducialId()).get();
+        Pose3d targetPose = getTagPose(target).get();
             
         return targetPose.minus(curPose).getTranslation().toTranslation2d();
     }
@@ -67,24 +75,34 @@ public class VisionAlignCommand extends Command {
     public void initialize() {
         mLastTarget = updateTarget();
     }
+
     
     // Checks if the target is empty. If it is, updates the target. If not, it checks if the module is
     // already moving, and if it isn't, tells the swerve to perform the calculated translation.
     @Override
     public void execute() {
+        
         if (mLastTarget.isEmpty())
         {
             mLastTarget = updateTarget();
         }
-        else if (mMoving == false)
+        else if (mDrive==null||!mDrive.isScheduled())
         {
             mMoving = true;
-            DriveDistanceAndHeading drive = new DriveDistanceAndHeading(
+            mDrive = new DriveDistanceAndHeading(
                 mSwerveSubsystem, 
                 getTranslation(mLastTarget.get()),
-                mLastTarget.get().yaw
+                getTagPose(mLastTarget.get()).get().getRotation().getAngle() - mVisionSubsystem.getPose().getRotation().getAngle()
             );
-            drive.schedule();
+            mDrive.schedule();
+        }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        if(mDrive!=null)
+        {
+            mDrive.cancel();
         }
     }
 
