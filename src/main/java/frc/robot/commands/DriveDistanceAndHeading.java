@@ -1,8 +1,11 @@
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -15,8 +18,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class DriveDistanceAndHeading extends Command {
     private final SwerveSubsystem mSwerveSubsystem;
 
-    private final Translation2d mTargetTranslation;
-    private final double mTargetRotation;
+    private final Supplier<Pose2d> mOffset;
     private final ProfiledPIDController mGyroController = new ProfiledPIDController(
         0.1,
         0,
@@ -39,16 +41,21 @@ public class DriveDistanceAndHeading extends Command {
             1.0
         ));
     private final Timer mTimer = new Timer();
+
+    private Translation2d mTargetTranslation;
+    private double mTargetRotation;
     private double mPrevTime = 0;
     private double mCurrTime = 0;
     private Translation2d mEstDistanceTraveled = new Translation2d();
     private double mNewHeading;
 
-    public DriveDistanceAndHeading(SwerveSubsystem pSwerveSubsystem, Translation2d pTranslation, double pRotation) {
+    public DriveDistanceAndHeading(SwerveSubsystem pSwerveSubsystem, Supplier<Pose2d> pOffset) {
         mSwerveSubsystem =pSwerveSubsystem;
-        mTargetTranslation = pTranslation;
-        mTargetRotation = pRotation;
+        mOffset = pOffset;
         mGyroController.enableContinuousInput(0, 360);
+        mXController.setTolerance(0.05);
+        mYController.setTolerance(0.05);
+        mGyroController.setTolerance(2);
         addRequirements(mSwerveSubsystem);
     }
 
@@ -58,11 +65,14 @@ public class DriveDistanceAndHeading extends Command {
         mTimer.start();
         mPrevTime = 0;
         mCurrTime = 0;
-        mEstDistanceTraveled =  new Translation2d();
-        mNewHeading = mSwerveSubsystem.getHeadingDegrees() + mTargetRotation;
         mGyroController.reset(mSwerveSubsystem.getHeadingDegrees());
         mXController.reset(0);
         mYController.reset(0);
+        mTargetTranslation = new Translation2d(mOffset.get().getX(), mOffset.get().getY());
+        mTargetRotation = mOffset.get().getRotation().getDegrees();
+        mEstDistanceTraveled =  new Translation2d();
+        mNewHeading = mSwerveSubsystem.getHeadingDegrees() + mTargetRotation;
+        SmartDashboard.putNumber("Commanded Rotation", mTargetRotation);
     }
 
     @Override
@@ -95,5 +105,13 @@ public class DriveDistanceAndHeading extends Command {
             Rotation2d.fromDegrees(deltaHeading));
 
         mSwerveSubsystem.driveRobotOriented(newRobotSpeeds);
+        SmartDashboard.putNumber("X error", mXController.getPositionError());
+        SmartDashboard.putNumber("Y error", mYController.getPositionError());
+        SmartDashboard.putNumber("Rot error", mGyroController.getPositionError());
+    }
+
+    @Override
+    public boolean isFinished() {
+        return mGyroController.atGoal() && mXController.atGoal() && mYController.atGoal();
     }
 }

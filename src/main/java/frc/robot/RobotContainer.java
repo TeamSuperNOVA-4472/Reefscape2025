@@ -8,21 +8,30 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+
+import java.util.List;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -39,6 +48,7 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem mSwerveSubsystem = new SwerveSubsystem();
+  private final CameraSubsystem mCameraSubsystem = new CameraSubsystem();
 
   private final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
   private final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
@@ -62,29 +72,53 @@ public class RobotContainer {
     NamedCommands.registerCommand("DoTheThingCommand", new DoTheThingCommand());
     new EventTrigger("TheEvent").onTrue(
       new InstantCommand(() -> System.out.println("The Event has triggered")));
-        autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser = AutoBuilder.buildAutoChooser();
 
-      // Register named commands.
-      // TODO: Some of these are temporary things.
-      NamedCommands.registerCommand("DoTheThingCommand", new DoTheThingCommand());
-      NamedCommands.registerCommand("ScoreLevel4Right", new DoTheThingCommand());
-      NamedCommands.registerCommand("ScoreLevel4Left", new DoTheThingCommand());
-      NamedCommands.registerCommand("ScoreLevel3Right", new DoTheThingCommand());
-      NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
-      NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
-      NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
+    // Register named commands.
+    // TODO: Some of these are temporary things.
+    NamedCommands.registerCommand("DoTheThingCommand", new DoTheThingCommand());
+    NamedCommands.registerCommand("ScoreLevel4Right", new DoTheThingCommand());
+    NamedCommands.registerCommand("ScoreLevel4Left", new DoTheThingCommand());
+    NamedCommands.registerCommand("ScoreLevel3Right", new DoTheThingCommand());
+    NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
+    NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
+    NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
 
-      // TODO: DEBUG THING, PLEASE REMOVE
-      new EventTrigger("TheEvent").onTrue(
-              new InstantCommand(() -> System.out.println("The Event has triggered")));
+    // TODO: DEBUG THING, PLEASE REMOVE
+    new EventTrigger("TheEvent").onTrue(
+            new InstantCommand(() -> System.out.println("The Event has triggered")));
 
-      SmartDashboard.putData("Auto Chooser", autoChooser);
-      Trigger xTrigger = new Trigger(mDriver::getXButton);
-      xTrigger.whileTrue(new DriveDistanceAndHeading(
-        mSwerveSubsystem,
-        new Translation2d(0.5, 0.5),
-        90));
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+    Trigger xTrigger = new Trigger(mDriver::getXButton);
+    xTrigger.whileTrue(
+      new SequentialCommandGroup(
+        new DriveDistanceAndHeading(
+          mSwerveSubsystem,
+          () -> {
+            Pose2d cameraOffsetPose = mCameraSubsystem
+              .calculateOffsetFromDest(
+                new Pose2d(
+                  1.0,
+                  0,
+                  Rotation2d.fromDegrees(180)));
+            return new Pose2d(0, 0, cameraOffsetPose.getRotation());
+          }),
+        new DriveDistanceAndHeading(
+          mSwerveSubsystem,
+          () -> {
+            Pose2d cameraOffsetPose = mCameraSubsystem
+              .calculateOffsetFromDest(
+                new Pose2d(
+                  1.0,
+                  0,
+                  Rotation2d.fromDegrees(180)));
+            return new Pose2d(cameraOffsetPose.getX(), cameraOffsetPose.getY(), Rotation2d.kZero);
+          })     
+      )
+
+    );
   }
+
 
 
   /**
@@ -96,7 +130,6 @@ public class RobotContainer {
     //return autoChooser.getSelected();
     return new DriveDistanceAndHeading(
       mSwerveSubsystem,
-      new Translation2d(0.5,0.5),
-      90);
+      () -> new Pose2d(.5, .5, Rotation2d.fromDegrees(90)));
   }
 }
