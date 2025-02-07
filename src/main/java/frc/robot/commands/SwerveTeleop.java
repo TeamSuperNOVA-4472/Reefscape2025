@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import static frc.robot.subsystems.SwerveSubsystem.*; // For constants.
@@ -24,7 +25,8 @@ public class SwerveTeleop extends Command
     private final Supplier<Double> mSideInput;
     private final Supplier<Double> mTurnInput;
     private final Supplier<Boolean> mResetHeadingInput;
-    private final Supplier<Boolean> mButton;
+    private final Supplier<Boolean> mLeftButton;
+    private final Supplier<Boolean> mRightButton;
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
     private final VisionAlignCommand mAlign;
@@ -41,7 +43,8 @@ public class SwerveTeleop extends Command
             Supplier<Double> pSideInput,
             Supplier<Double> pTurnInput,
             Supplier<Boolean> pResetHeadingInput,
-            Supplier<Boolean> pButton,
+            Supplier<Boolean> pLeftButton,
+            Supplier<Boolean> pRightButton,
             SwerveSubsystem pSwerveSubsystem,
             VisionSubsystem pVisionSubsystem)
     {
@@ -49,7 +52,8 @@ public class SwerveTeleop extends Command
         mSideInput = pSideInput;
         mTurnInput = pTurnInput;
         mResetHeadingInput = pResetHeadingInput;
-        mButton = pButton;
+        mLeftButton = pLeftButton;
+        mRightButton = pRightButton;
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
 
@@ -66,6 +70,7 @@ public class SwerveTeleop extends Command
     @Override
     public void execute()
     {
+        SmartDashboard.putNumber("Swerve Rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
         double updatedFwdSpeedMS = mFwdInput.get() * kMaxSpeedMS;
         double updatedSideSpeedMS = mSideInput.get() * kMaxSpeedMS;
         double updatedTurnSpeedRadS = mTurnInput.get() * kMetersPerSecondToRadiansPerSecond * kMaxSpeedMS;
@@ -90,10 +95,17 @@ public class SwerveTeleop extends Command
             mSwerveSubsystem.resetHeading();
         }
 
-        if (mButton.get())
+        if (mLeftButton.get())
         {
             if(!mAlign.isScheduled())
             {
+                mAlign.setOffset(VisionAlignCommand.kNothing);
+                mAlign.schedule();
+            }
+        } else if (mRightButton.get()) {
+            if(!mAlign.isScheduled())
+            {
+                mAlign.setOffset(VisionAlignCommand.kNothing);
                 mAlign.schedule();
             }
         } else {

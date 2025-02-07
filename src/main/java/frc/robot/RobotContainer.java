@@ -69,7 +69,8 @@ public class RobotContainer
             () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
             () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
             mDriver::getAButton,
-            mDriver::getYButton,
+            mDriver::getXButton,
+            mDriver::getBButton,
             mSwerveSubsystem,
             mVisionSubsystem);
 
