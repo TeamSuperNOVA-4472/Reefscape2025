@@ -61,7 +61,7 @@ public class RobotContainer
         // Initialize subsystems.
         mLightsSubsystem = new LightsSubsystem();
         mSwerveSubsystem = new SwerveSubsystem();
-        mVisionSubsystem = new VisionSubsystem();
+        mVisionSubsystem = new VisionSubsystem(mSwerveSubsystem);
 
         // Initialize commands.
         mSwerveTeleop = new SwerveTeleop(
