@@ -13,6 +13,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.subsystems.SwerveSubsystem.*; // For constants.
 
@@ -29,7 +31,7 @@ public class SwerveTeleop extends Command
     private final Supplier<Boolean> mRightButton;
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
-    private final VisionAlignCommand mAlign;
+    private final Trigger mVisionAlignTrigger;
 
     private final PIDController mGyroController = new PIDController(0.05, 0, 0.0005);
     private double mTargetHeading;
@@ -56,12 +58,12 @@ public class SwerveTeleop extends Command
         mRightButton = pRightButton;
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
+        mVisionAlignTrigger = new Trigger(pLeftButton::get);
+        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kNothing));
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 
         mGyroController.enableContinuousInput(0, 360);
-
-        mAlign = new VisionAlignCommand(pSwerveSubsystem, pVisionSubsystem, null);
 
         addRequirements(pSwerveSubsystem);
     }
@@ -95,21 +97,5 @@ public class SwerveTeleop extends Command
             mSwerveSubsystem.resetHeading();
         }
 
-        if (mLeftButton.get())
-        {
-            if(!mAlign.isScheduled())
-            {
-                mAlign.setOffset(VisionAlignCommand.kNothing);
-                mAlign.schedule();
-            }
-        } else if (mRightButton.get()) {
-            if(!mAlign.isScheduled())
-            {
-                mAlign.setOffset(VisionAlignCommand.kNothing);
-                mAlign.schedule();
-            }
-        } else {
-            mAlign.cancel();
-        }
     }
 }

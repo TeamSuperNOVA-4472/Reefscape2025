@@ -38,7 +38,7 @@ public class VisionSubsystem extends SubsystemBase
     public static final CameraInfo[] kInstalledCameras =
     {
         //TODO change back to 0.3, -0.2, 0.1 and pitch 15
-        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0, -0, 0), new Rotation3d(0, 0, 0))) // Can be changed.
+        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.3, -0.2, 0.1 ), new Rotation3d(0, 15, 0))) // Can be changed.
     };
 
     // Cameras go here.
@@ -58,6 +58,7 @@ public class VisionSubsystem extends SubsystemBase
 
     private EstimatedRobotPose poseApproximation;
     private Optional<PhotonTrackedTarget> bestTarget;
+    private PhotonTrackedTarget lastSeenTarget;
 
     // Simulation
     private VisionSystemSim simVision;
@@ -168,6 +169,7 @@ public class VisionSubsystem extends SubsystemBase
             
                 // We *should* have a decent approximation. We're done here.
                 bestTarget = Optional.of(target);
+                lastSeenTarget = target;
             }
             if  (newRobotPose.isPresent())
             {
@@ -199,6 +201,11 @@ public class VisionSubsystem extends SubsystemBase
             double currentDeg = (getPose().getRotation().toRotation2d().getDegrees()+360)%360;
             SmartDashboard.putNumber("Vision: Rotation to April Tag: ", destDeg);
             SmartDashboard.putNumber("Vision: Rotation DT: ", currentDeg);
+            if (getTargetInView().isPresent())
+            {
+                SmartDashboard.putNumber("Vision: mY: ", getCameraToTarget(getTargetInView().get()).getY());
+                SmartDashboard.putNumber("Vision: difference in Y: ", dest.getY() - getPose().getY());
+            }
         }
 
         if (RobotBase.isSimulation())
@@ -214,13 +221,10 @@ public class VisionSubsystem extends SubsystemBase
         return bestTarget;
     }
 
-    public Optional<Transform3d> getCameraToTarget()
+    public Transform3d getCameraToTarget(PhotonTrackedTarget target)
     {
-        if (bestTarget.isPresent())
-        {
-            return Optional.of(bestTarget.get().getBestCameraToTarget());
-        }
-            return Optional.empty();
+        return target.getBestCameraToTarget();
+   
     }
 
     private void updatePose(EstimatedRobotPose newPose)
@@ -247,6 +251,11 @@ public class VisionSubsystem extends SubsystemBase
     public AprilTagFieldLayout getTagLayout()
     {
         return tagLayout;
+    }
+
+    public PhotonTrackedTarget getLastSeenTarget()
+    {
+        return lastSeenTarget;
     }
 
     public boolean isActive()

@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
-public class VisionAlignCommand extends Command {
+public class VisionAlignCommand extends SequentialCommandGroup {
 
     public static final Translation2d kLeft = new Translation2d(-1.0, 0.25);
     public static final Translation2d kRight = new Translation2d(-1.0, -0.25);
@@ -24,8 +24,11 @@ public class VisionAlignCommand extends Command {
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
     private final AprilTagFieldLayout mLayout;
+    private final PhotonTrackedTarget mTarget;
 
     private SequentialCommandGroup mSequence;
+    private DriveDistanceAndHeading mRotate;
+    private DriveDistanceAndHeading mLateral;
     private Translation2d mOffset;
     private Optional<PhotonTrackedTarget> mLastTarget;
 
@@ -41,8 +44,35 @@ public class VisionAlignCommand extends Command {
         mOffset = pOffset;
 
         mLayout = mVisionSubsystem.getTagLayout();
+        mTarget = mVisionSubsystem.getLastSeenTarget();
 
-        addRequirements(pSwerveSubsystem, pVisionSubsystem);
+        mRotate = new DriveDistanceAndHeading(
+            mSwerveSubsystem,
+            () -> {
+                Pose3d dest = getDestinationAsPose();
+                double difference = getNormalizedDegreesBetweenPoses(dest, mVisionSubsystem.getPose());
+                return new Pose2d(
+                    0,
+                    0,
+                    Rotation2d.fromDegrees(difference)
+                );
+            }
+        );
+
+        mLateral = new DriveDistanceAndHeading(
+            mSwerveSubsystem, 
+            () -> {
+                Pose3d curr = getTransformToCameraAsPose(mLastTarget.get());
+                return new Pose2d(
+                    curr.getX() + mOffset.getX(),
+                    curr.getY() + mOffset.getY(),
+                    Rotation2d.fromDegrees(0)
+                );
+            }
+        );
+    
+        addCommands(mRotate, mLateral);
+        //addRequirements(pSwerveSubsystem, pVisionSubsystem);
     }
 
     // METHOD - updates target in sight if visible
@@ -79,9 +109,9 @@ public class VisionAlignCommand extends Command {
     }
     
     // Returns the Pose3d from a transform
-    private Pose3d getTransformToCameraAsPose()
+    private Pose3d getTransformToCameraAsPose(PhotonTrackedTarget target)
     {
-        return transformToPose3d(mVisionSubsystem.getCameraToTarget().get());
+        return transformToPose3d(mVisionSubsystem.getCameraToTarget(target));
     }
 
     // Returns the Pose3d of the destination
@@ -94,7 +124,7 @@ public class VisionAlignCommand extends Command {
     private double getNormalizedDegreesBetweenPoses(Pose3d pose, Pose3d subtractedPose)
     {
 
-        double normalizedDeg = normalizeDegree(getDegreesFromPose(pose), 180);
+        double normalizedDeg = normalizeDegree(getDegreesFromPose(pose), 0);
         double normalizedSubDeg = normalizeDegree(getDegreesFromPose(subtractedPose), 0);
 
         return normalizedDeg - normalizedSubDeg;
@@ -105,68 +135,8 @@ public class VisionAlignCommand extends Command {
     {
         mOffset = newOffset;
     }
-
-    // Updates the target
-    @Override
-    public void initialize() {
-        mLastTarget = updateTarget();
-    }
-    
-    // Checks if the target is empty. If it is, updates the target. If not, it checks if the module is
-    // already moving, and if it isn't, tells the swerve to perform the calculated translation.
-    @Override
-    public void execute() {
-        if (mLastTarget.isEmpty())
-        {
-            mLastTarget = updateTarget();
-        }
-        else
-        {
-            Pose3d dest = getDestinationAsPose();
-
-            double difference = getNormalizedDegreesBetweenPoses(dest, mVisionSubsystem.getPose());
-
-            mSequence = new SequentialCommandGroup(
-                new DriveDistanceAndHeading(
-                    mSwerveSubsystem,
-                    () -> {
-                        return new Pose2d(
-                            0,
-                            0,
-                            Rotation2d.fromDegrees(difference)
-                        );
-                    }
-                ),
-                new DriveDistanceAndHeading(
-                    mSwerveSubsystem,
-                    () -> {
-                        Pose3d curr = getTransformToCameraAsPose();
-                        return new Pose2d(
-                            curr.getX() + mOffset.getX(),
-                            curr.getY() + mOffset.getY(),
-                            Rotation2d.fromDegrees(0)
-                        );
-                    }
-                )
-            );
-            mSequence.schedule();
-        }
-    }
-
-    //TODO doesn't work
-    @Override
-    public void end(boolean interrupted) {
-        if(mSequence != null)
-        {
-            mSequence.cancel();
-        }
-    }
-
-    //TODO unfinished. needs to exist when appropriate
-    @Override
-    public boolean isFinished() {
-        return mSequence != null && mSequence.isFinished() ? true : false;
-    }
 }
+
+
 
 
