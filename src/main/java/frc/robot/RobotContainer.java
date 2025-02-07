@@ -55,7 +55,7 @@ public class RobotContainer
         // Initialize subsystems.
         mLightsSubsystem = new LightsSubsystem();
         mSwerveSubsystem = new SwerveSubsystem();
-        mVisionSubsystem = new VisionSubsystem();
+        mVisionSubsystem = new VisionSubsystem(mSwerveSubsystem);
 
         // Initialize commands.
         // TODO: Should weighting go here? Or in the command?
@@ -66,7 +66,10 @@ public class RobotContainer
             weightJoystick(mDriver::getLeftX, true),
             weightJoystick(mDriver::getRightX, true),
             mDriver::getAButton,
-            mSwerveSubsystem);
+            mDriver::getXButton,
+            mDriver::getBButton,
+            mSwerveSubsystem,
+            mVisionSubsystem);
 
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);

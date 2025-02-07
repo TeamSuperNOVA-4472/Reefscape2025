@@ -10,15 +10,22 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.estimation.TargetModel;
+import org.photonvision.PhotonUtils;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,7 +36,8 @@ public class VisionSubsystem extends SubsystemBase
     // TODO: More information!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.3, -0.2, 0.1), new Rotation3d(0, 15, 0))) // Can be changed.
+        //TODO change back to 0.3, -0.2, 0.1 and pitch 15
+        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.3, -0.2, 0.1 ), new Rotation3d(0, 15, 0))) // Can be changed.
     };
 
     // Cameras go here.
@@ -49,8 +57,15 @@ public class VisionSubsystem extends SubsystemBase
 
     private EstimatedRobotPose poseApproximation;
     private Optional<PhotonTrackedTarget> bestTarget;
+    private PhotonTrackedTarget lastSeenTarget;
+
+    // Simulation
+    private VisionSystemSim simVision;
+    private PhotonCameraSim[] simCameras;
+    //DEBUG DELETE ASAP
+    private SwerveSubsystem mSwerve;
     
-    public VisionSubsystem()
+    public VisionSubsystem(SwerveSubsystem pSwerve)
     {
         // If anything goes wrong during setup, do not let vision run.
         initPass = true;
@@ -75,6 +90,8 @@ public class VisionSubsystem extends SubsystemBase
 
         field = new Field2d();
         SmartDashboard.putData("Vision Pose", field);
+        SmartDashboard.putBoolean("Apriltags loaded", initPass);
+        mSwerve = pSwerve;
 
         // Initialize cameras. This means we don't need a million variables for
         // all the cameras.
@@ -88,6 +105,23 @@ public class VisionSubsystem extends SubsystemBase
                 tagLayout,
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 info.getOffset());
+            poseEstimators[i].setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        }
+
+        if (RobotBase.isSimulation())
+        {
+            simVision = new VisionSystemSim("Test");
+            simVision.addAprilTags(tagLayout);
+            simCameras = new PhotonCameraSim[kInstalledCameras.length];
+            for (int i = 0; i < cameras.length; i++)
+            {
+                simCameras[i] = new PhotonCameraSim(cameras[i]);
+                simVision.addCamera(simCameras[i], kInstalledCameras[i].getOffset());
+                simCameras[i].enableRawStream(true);
+                simCameras[i].enableProcessedStream(true);
+                simCameras[i].enableDrawWireframe(true);
+            }
+
         }
     }
 
@@ -130,6 +164,7 @@ public class VisionSubsystem extends SubsystemBase
             
                 // We *should* have a decent approximation. We're done here.
                 bestTarget = Optional.of(target);
+                lastSeenTarget = target;
             }
             if  (newRobotPose.isPresent())
             {
@@ -152,12 +187,39 @@ public class VisionSubsystem extends SubsystemBase
         {
             SmartDashboard.putString("Vision: Distance to April Tag", "No Tag in View");
         }
+
+        if (getPoseInfo()!=null&&getTargetInView().isPresent())
+        {
+            SmartDashboard.putString("Pose: ", getPose().toString());
+            Pose3d dest = tagLayout.getTagPose(getTargetInView().get().fiducialId).get();
+            double destDeg = ((dest.getRotation().toRotation2d().getDegrees())+360)%360;
+            double currentDeg = (getPose().getRotation().toRotation2d().getDegrees()+360)%360;
+            SmartDashboard.putNumber("Vision: Rotation to April Tag: ", destDeg);
+            SmartDashboard.putNumber("Vision: Rotation DT: ", currentDeg);
+            if (getTargetInView().isPresent())
+            {
+                SmartDashboard.putNumber("Vision: mY: ", getCameraToTarget(getTargetInView().get()).getY());
+                SmartDashboard.putNumber("Vision: difference in Y: ", dest.getY() - getPose().getY());
+            }
+        }
+
+        if (RobotBase.isSimulation())
+        {
+            Pose2d currentPose = mSwerve.getPose();
+            simVision.update(new Pose3d(currentPose));
+        }
     }
 
     /** Returns the best april tag target in view. */
     public Optional<PhotonTrackedTarget> getTargetInView()
     {
         return bestTarget;
+    }
+
+    public Transform3d getCameraToTarget(PhotonTrackedTarget target)
+    {
+        return target.getBestCameraToTarget();
+   
     }
 
     private void updatePose(EstimatedRobotPose newPose)
@@ -175,6 +237,7 @@ public class VisionSubsystem extends SubsystemBase
     {
         return poseApproximation.estimatedPose;
     }
+
     public double getPoseTimestamp()
     {
         return poseApproximation.timestampSeconds;
@@ -183,6 +246,11 @@ public class VisionSubsystem extends SubsystemBase
     public AprilTagFieldLayout getTagLayout()
     {
         return tagLayout;
+    }
+
+    public PhotonTrackedTarget getLastSeenTarget()
+    {
+        return lastSeenTarget;
     }
 
     public boolean isActive()

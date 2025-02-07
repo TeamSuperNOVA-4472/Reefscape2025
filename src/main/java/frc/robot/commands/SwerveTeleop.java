@@ -5,13 +5,17 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.subsystems.SwerveSubsystem.*; // For constants.
 
@@ -29,7 +33,11 @@ public class SwerveTeleop extends Command
     private final Supplier<Double> mSideInput;
     private final Supplier<Double> mTurnInput;
     private final Supplier<Boolean> mResetHeadingInput;
+    private final Supplier<Boolean> mLeftButton;
+    private final Supplier<Boolean> mRightButton;
     private final SwerveSubsystem mSwerveSubsystem;
+    private final VisionSubsystem mVisionSubsystem;
+    private final Trigger mVisionAlignTrigger;
 
     private final PIDController mGyroController = new PIDController(0.05, 0, 0.0005);
     private double mTargetHeading;
@@ -43,13 +51,21 @@ public class SwerveTeleop extends Command
             Supplier<Double> pSideInput,
             Supplier<Double> pTurnInput,
             Supplier<Boolean> pResetHeadingInput,
-            SwerveSubsystem pSwerveSubsystem)
+            Supplier<Boolean> pLeftButton,
+            Supplier<Boolean> pRightButton,
+            SwerveSubsystem pSwerveSubsystem,
+            VisionSubsystem pVisionSubsystem)
     {
         mFwdInput = pFwdInput;
         mSideInput = pSideInput;
         mTurnInput = pTurnInput;
         mResetHeadingInput = pResetHeadingInput;
+        mLeftButton = pLeftButton;
+        mRightButton = pRightButton;
         mSwerveSubsystem = pSwerveSubsystem;
+        mVisionSubsystem = pVisionSubsystem;
+        mVisionAlignTrigger = new Trigger(pLeftButton::get);
+        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kNothing));
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 
@@ -62,6 +78,7 @@ public class SwerveTeleop extends Command
     @Override
     public void execute()
     {
+        SmartDashboard.putNumber("Swerve Rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
         double updatedFwdSpeedMS = mFwdLimiter.calculate(mFwdInput.get()) * kMaxSpeedMS;
         double updatedSideSpeedMS = mSideLimiter.calculate(mSideInput.get()) * kMaxSpeedMS;
         double updatedTurnSpeedRadS = mTurnLimiter.calculate(mTurnInput.get()) * kMetersPerSecondToRadiansPerSecond * kMaxSpeedMS;
@@ -85,5 +102,6 @@ public class SwerveTeleop extends Command
         {
             mSwerveSubsystem.resetHeading();
         }
+
     }
 }
