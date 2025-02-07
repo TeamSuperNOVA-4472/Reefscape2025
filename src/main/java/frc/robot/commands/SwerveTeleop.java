@@ -10,6 +10,8 @@ import frc.robot.subsystems.VisionSubsystem;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -59,7 +61,7 @@ public class SwerveTeleop extends Command
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
         mVisionAlignTrigger = new Trigger(pLeftButton::get);
-        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kNothing));
+        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero));
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 
