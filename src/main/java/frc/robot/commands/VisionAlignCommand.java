@@ -19,7 +19,7 @@ public class VisionAlignCommand extends Command {
 
     public static final Translation2d kLeft = new Translation2d(-1.0, 0.25);
     public static final Translation2d kRight = new Translation2d(-1.0, -0.25);
-    public static final Translation2d kNothing = new Translation2d(-1.0, 0);
+    public static final Translation2d kNothing = new Translation2d(-0.5, 0);
 
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
@@ -66,26 +66,31 @@ public class VisionAlignCommand extends Command {
         return new Pose3d(transform.getTranslation(), transform.getRotation());
     }
 
+    // Normalizes the degree to 0-360
     private double normalizeDegree(double deg, double offset)
     {
         return (deg+360+offset)%360;
     }
 
+    // Gets the rotation in degrees for a Pose3d
     private double getDegreesFromPose(Pose3d pose)
     {
         return pose.getRotation().toRotation2d().getDegrees();
     }
     
+    // Returns the Pose3d from a transform
     private Pose3d getTransformToCameraAsPose()
     {
         return transformToPose3d(mVisionSubsystem.getCameraToTarget().get());
     }
 
+    // Returns the Pose3d of the destination
     private Pose3d getDestinationAsPose()
     {
         return getTagPose(mLastTarget.get()).get();
     }
     
+    // Returns the normalized difference in degrees between two Pose3ds
     private double getNormalizedDegreesBetweenPoses(Pose3d pose, Pose3d subtractedPose)
     {
 
@@ -95,6 +100,7 @@ public class VisionAlignCommand extends Command {
         return normalizedDeg - normalizedSubDeg;
     }
 
+    // Sets the offset
     public void setOffset(Translation2d newOffset)
     {
         mOffset = newOffset;

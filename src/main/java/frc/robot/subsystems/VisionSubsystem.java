@@ -38,10 +38,8 @@ public class VisionSubsystem extends SubsystemBase
     public static final CameraInfo[] kInstalledCameras =
     {
         //TODO change back to 0.3, -0.2, 0.1 and pitch 15
-        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0, 0, 0), new Rotation3d(0, 0, 0))) // Can be changed.
+        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0, -0, 0), new Rotation3d(0, 0, 0))) // Can be changed.
     };
-
-    private final Transform3d test = new Transform3d(new Translation3d(0.3, -0.2, 0.1), new Rotation3d(0, 0, 0));
 
     // Cameras go here.
     // TODO: In simulation, use PhotonCameraSim instead.
@@ -201,12 +199,6 @@ public class VisionSubsystem extends SubsystemBase
             double currentDeg = (getPose().getRotation().toRotation2d().getDegrees()+360)%360;
             SmartDashboard.putNumber("Vision: Rotation to April Tag: ", destDeg);
             SmartDashboard.putNumber("Vision: Rotation DT: ", currentDeg);
-            SmartDashboard.putNumber("Vision: Rotation CameraToTarget: ", destDeg - currentDeg);
-            SmartDashboard.putNumber("Vision: X: ", getCameraToTarget().get().getX());
-            SmartDashboard.putNumber("Vision: Y: ", getCameraToTarget().get().getY());
-
-            SmartDashboard.putNumber("Vision: X Diff: ", dest.getX() - getPose().getX());
-            SmartDashboard.putNumber("Vision: Y Diff: ", dest.getY() - getPose().getY());
         }
 
         if (RobotBase.isSimulation())
