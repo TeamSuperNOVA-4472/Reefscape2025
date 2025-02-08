@@ -49,6 +49,10 @@ public class VisionAlignCommand extends SequentialCommandGroup {
         mRotate = new DriveDistanceAndHeading(
             mSwerveSubsystem,
             () -> {
+                mLastTarget = mVisionSubsystem.getTargetInView();
+                if(mLastTarget.isEmpty()) {
+                    return new Pose2d();
+                }
                 Pose3d dest = getDestinationAsPose();
                 double difference = getNormalizedDegreesBetweenPoses(dest, mVisionSubsystem.getPose());
                 return new Pose2d(
@@ -62,6 +66,10 @@ public class VisionAlignCommand extends SequentialCommandGroup {
         mLateral = new DriveDistanceAndHeading(
             mSwerveSubsystem, 
             () -> {
+                mLastTarget = mVisionSubsystem.getTargetInView();
+                if(mLastTarget.isEmpty()) {
+                    return new Pose2d();
+                }
                 Pose3d curr = getTransformToCameraAsPose(mLastTarget.get());
                 return new Pose2d(
                     curr.getX() + mOffset.getX(),

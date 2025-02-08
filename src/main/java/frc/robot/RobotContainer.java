@@ -77,9 +77,9 @@ public class RobotContainer
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
         mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
-            // Update the swerve's odometry with the new vision estimate.
-            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
-                                                  newVisionPose.timestampSeconds);
+            // TODO: Update the swerve's odometry with the new vision estimate without breaking odometry pose.
+            // mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
+            //                                       newVisionPose.timestampSeconds);
         });
 
         // Configure other things.

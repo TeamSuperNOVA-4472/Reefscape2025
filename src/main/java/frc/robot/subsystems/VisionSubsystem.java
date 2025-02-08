@@ -57,7 +57,7 @@ public class VisionSubsystem extends SubsystemBase
     private ArrayList<Consumer<EstimatedRobotPose>> poseListeners;
 
     private EstimatedRobotPose poseApproximation;
-    private Optional<PhotonTrackedTarget> bestTarget;
+    private Optional<PhotonTrackedTarget> bestTarget = Optional.empty();
     private PhotonTrackedTarget lastSeenTarget;
 
     // Simulation
@@ -135,9 +135,6 @@ public class VisionSubsystem extends SubsystemBase
     public void periodic()
     {
         SmartDashboard.putBoolean("Vision Active", isActive());
-        if (!isActive()) return; // Disabled.
-
-        bestTarget = Optional.empty();
 
         // Process vision updates for each camera.
         for (int i = 0; i < cameras.length; i++)
