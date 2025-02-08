@@ -65,7 +65,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
                 }
             }),
             new DriveDistanceAndHeading(pSwerve, () -> offset),
-            new InstantCommand(() ->
+/* BEGIN TRANSLATION PART */            new InstantCommand(() ->
             {
                 // Reset the tag so we know if we hit it again.
                 oldTarget = activeTarget;
@@ -99,8 +99,8 @@ public class VisionAlignCommand extends SequentialCommandGroup
                     offset = new Pose2d(deltaPos, Rotation2d.kZero);
                 }
             }),
-            new DriveDistanceAndHeading(pSwerve, () -> offset),
-            new InstantCommand(() ->
+/* END TRANSLATION PART */            new DriveDistanceAndHeading(pSwerve, () -> offset),
+/* BEGIN ROTATION PART */            new InstantCommand(() ->
             {
                 // Reset the tag so we know if we hit it again.
                 oldTarget = activeTarget;
@@ -131,7 +131,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
                     offset = new Pose2d(Translation2d.kZero, Rotation2d.fromDegrees(deg));
                 }
             }),
-            new DriveDistanceAndHeading(pSwerve, () -> offset),
+/* END ROTATION PART */            new DriveDistanceAndHeading(pSwerve, () -> offset),
             new InstantCommand(() ->
             {
                 // Reset the tag so we know if we hit it again.
