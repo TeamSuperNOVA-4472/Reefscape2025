@@ -10,10 +10,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.estimation.TargetModel;
-import org.photonvision.PhotonUtils;
 import org.photonvision.simulation.PhotonCameraSim;
-import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -23,7 +20,6 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -37,8 +33,7 @@ public class VisionSubsystem extends SubsystemBase
     // TODO: More information!
     public static final CameraInfo[] kInstalledCameras =
     {
-        //TODO change back to 0.3, -0.2, 0.1 and pitch 15
-        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.3, -0.2, 0.1 ), new Rotation3d(0, 15, 0))) // Can be changed.
+        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.206375, -0.19685, 0.2032 ), new Rotation3d(0, -22.5, 0))) // Can be changed.
     };
 
     // Cameras go here.
@@ -82,8 +77,6 @@ public class VisionSubsystem extends SubsystemBase
         catch (IOException ex)
         {
             // Failed to read layout information.
-            // TODO: This fails in simulation, I think because the path is not
-            //       valid. Is there a way to avoid this?
             System.out.println("[VISION] FAILED TO LOAD APRIL TAG LAYOUTS! The vision subsystem will NOT be active.");
             initPass = false;
             return;
@@ -134,6 +127,17 @@ public class VisionSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
+        // FIXME: At the moment `bestTarget` is getting cleared too
+        //        many times. SmartDashboard is going crazy. I believe this
+        //        is because the frame rate of the camera is lower than the
+        //        refresh rate of the command scheduler, meaning we're checking
+        //        several times for the same result before the camera can generate
+        //        a new one. I don't like just keeping the last result permanently,
+        //        because that can make the robot think it sees a tag when there
+        //        is not one. We need to somehow differentiate between when
+        //        there isn't an april tag on photonvision and when we're just
+        //        waiting for a new frame.
+
         SmartDashboard.putBoolean("Vision Active", isActive());
         if (!isActive()) return; // Disabled.
 
@@ -144,7 +148,6 @@ public class VisionSubsystem extends SubsystemBase
         {
             PhotonCamera camera = cameras[i];
             PhotonPoseEstimator poseEstimator = poseEstimators[i];
-            CameraInfo cameraInfo = kInstalledCameras[i];
 
             // This includes only NEW results.
             // TODO: Maybe previous results are better than the crappy ones we

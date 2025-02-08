@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -17,32 +18,60 @@ public class WaitForTagCommand extends Command
 
     private Optional<Consumer<PhotonTrackedTarget>> callback;
     private Optional<PhotonTrackedTarget> result;
+    private Supplier<Integer> specificTagSupplier;
     private Timer timer;
 
-    public WaitForTagCommand(VisionSubsystem vision, double maxTime)
+    public WaitForTagCommand(VisionSubsystem vision, int tagId, double maxTime)
     {
-        mMaxTime = maxTime;
         mVision = vision;
+        mMaxTime = maxTime;
+        specificTagSupplier = () -> tagId;
         result = Optional.empty();
-        timer = new Timer();
         callback = Optional.empty();
+        timer = new Timer();
 
         addRequirements(vision);
     }
-    public WaitForTagCommand(VisionSubsystem vision, double maxTime, Consumer<PhotonTrackedTarget> callback)
+    // More constructors can be added if you want.
+    public WaitForTagCommand(VisionSubsystem vision, Supplier<Integer> tagSupplier, double maxTime, Consumer<PhotonTrackedTarget> callback)
     {
-        this(vision, maxTime);
+        mVision = vision;
+        mMaxTime = maxTime;
+        specificTagSupplier = tagSupplier;
+        result = Optional.empty();
         this.callback = Optional.of(callback);
+        timer = new Timer();
+
+        addRequirements(vision);
+    }
+
+    @Override
+    public void initialize()
+    {
+        result = Optional.empty();
+        timer.restart();
     }
 
     @Override
     public void execute()
     {
-        result = mVision.getTargetInView();
-        if (result.isPresent() && callback.isPresent())
+        int specificTag = specificTagSupplier.get();
+        Optional<PhotonTrackedTarget> possible = mVision.getTargetInView();
+        if (possible.isEmpty()) return; // No target seen.
+        else if (specificTag == -1 || specificTag == possible.get().fiducialId)
         {
-            callback.get().accept(result.get());
+            result = possible;
+            if (callback.isPresent())
+            {
+                callback.get().accept(result.get());
+            }
         }
+    }
+
+    @Override
+    public void end(boolean interrupted)
+    {
+        timer.stop();
     }
 
     @Override
