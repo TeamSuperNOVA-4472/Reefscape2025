@@ -10,6 +10,7 @@ import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
@@ -22,6 +23,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -35,22 +37,28 @@ public class RobotContainer
 {
     // Ports go here:
     public static final int kDriverPort = 0;
+    public static final int kPartnerPort = 1;
 
     // Subsystems go here:
-    private final CarriageSubsystem mCarriageSubsystem;
-    private final ClimbSubsystem mClimbSubsystem;
-    private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
+    //private final CarriageSubsystem mCarriageSubsystem;
+    //private final ClimbSubsystem mClimbSubsystem;
+    //private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final ElevatorSubsystem mElevatorSubsystem;
-    private final IntakeSubsystem mIntakeSubsystem;
+    //private final IntakeSubsystem mIntakeSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
 
     // Controllers go here:
     private final XboxController mDriver;
+
+    private final XboxController mPartner;
     
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
-    private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
-    private final IntakeTeleop mIntakeTeleop;
+    //private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
+    //private final IntakeTeleop mIntakeTeleop;
+
+    // TODO: Remove tester commands when robot is properly programmed
+    private final ElevatorTester mElevatorTester;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -64,14 +72,15 @@ public class RobotContainer
     {
         // Initialize controllers.
         mDriver = new XboxController(kDriverPort);
+        mPartner = new XboxController(kPartnerPort);
 
         // Initialize subsystems.
         mSwerveSubsystem = new SwerveSubsystem();
-        mCarriageSubsystem = new CarriageSubsystem();
-        mClimbSubsystem = new ClimbSubsystem();
+        //mCarriageSubsystem = new CarriageSubsystem();
+        //mClimbSubsystem = new ClimbSubsystem();
         mElevatorSubsystem = new ElevatorSubsystem();
-        mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
-        mIntakeSubsystem = new IntakeSubsystem();
+        //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
+       // mIntakeSubsystem = new IntakeSubsystem();
         
 
         // Initialize commands.
@@ -81,13 +90,19 @@ public class RobotContainer
             () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
             mDriver::getAButton,
             mSwerveSubsystem);
-        mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
-        mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
+        // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
+        // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
+
+        // TODO: remove tester commands when robot is properly programmed
+        mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(mPartner.getLeftY(), 0.1));
 
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
-        mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
-        mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        // mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+
+        // TODO: remove tester commands when robot is properly programmed
+        mElevatorSubsystem.setDefaultCommand(mElevatorTester);
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
