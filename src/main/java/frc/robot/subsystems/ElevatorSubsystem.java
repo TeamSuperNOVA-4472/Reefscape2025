@@ -19,11 +19,13 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.objectmodels.IntakePresets;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
-    public static final int kElevatorMotorID = 1;
+    public static final int kLeftElevatorMotorID = 12;
+    public static final int kRightElevatorMotorID = 13;
 
     public static final int kBottomSwitchChannel = 0;
     public static final int kTopSwitchChannel = 1;
@@ -35,9 +37,12 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double kPresetL3 = 3;
     public static final double kPresetL4 = 4;
 
-    public static final double kElevatorP = 1;
-    public static final double kElevatorI = 1;
-    public static final double kElevatorD = 1;
+    public static final double kElevatorP = 0;
+    public static final double kElevatorI = 0;
+    public static final double kElevatorD = 0;
+
+    private final TalonFX mElevatorLeft;
+    private final TalonFX mElevatorRight;
 
     private Optional<IntakePresets> activePreset = Optional.empty();
 
@@ -63,7 +68,8 @@ public class ElevatorSubsystem extends SubsystemBase
         bottomSwitch = new DigitalInput(kBottomSwitchChannel);
         topSwitch = new DigitalInput(kTopSwitchChannel);
 
-        elevatorMotor = new TalonFX(kElevatorMotorID);
+        mElevatorLeft = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
+        mElevatorRight = new TalonFX(kRightElevatorMotorID);
         elevatorMotorSim = new TalonFXSimState(elevatorMotor);
         elevSim = new ElevatorSim(LinearSystemId.createElevatorSystem(elevGearbox, 10, 0.1, 1), elevGearbox, 1, 2, true, 1, 0.01, 0);
         elevatorPID = new PIDController(kElevatorP, kElevatorI, kElevatorD);
@@ -74,7 +80,7 @@ public class ElevatorSubsystem extends SubsystemBase
 
     public void stop()
     {
-        elevatorMotor.stopMotor();
+        mElevatorLeft.stopMotor();
         isMovingUp = false;
         isMovingDown = false;
         activePreset = Optional.empty();
@@ -84,7 +90,8 @@ public class ElevatorSubsystem extends SubsystemBase
     {
         final double kVoltageTolerance = 0.1;
 
-        elevatorMotor.setVoltage(voltage);
+        mElevatorLeft.setVoltage(voltage);
+        mElevatorRight.setVoltage(-voltage);
         activePreset = Optional.empty();
 
         if (voltage > kVoltageTolerance)
@@ -142,6 +149,7 @@ public class ElevatorSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
+
         if (activePreset.isEmpty()) return; // No preset.
         else
         {
@@ -175,8 +183,8 @@ public class ElevatorSubsystem extends SubsystemBase
             }
         }
 
-        double currentPosition = elevatorMotor.getPosition().getValueAsDouble();
+        double currentPosition = mElevatorLeft.getPosition().getValueAsDouble();
         double newSpeed = elevatorPID.calculate(currentPosition);
-        elevatorMotor.set(newSpeed);
+        mElevatorLeft.set(newSpeed);
     }
 }

@@ -12,6 +12,7 @@ import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
@@ -26,6 +27,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
@@ -40,6 +42,7 @@ public class RobotContainer
 {
     // Ports go here:
     public static final int kDriverPort = 0;
+    public static final int kPartnerPort = 1;
 
     // Subsystems go here:
     private LightsSubsystem mLightsSubsystem;
@@ -54,10 +57,15 @@ public class RobotContainer
     // Controllers go here:
     private final XboxController mDriver;
 
+    private final XboxController mPartner;
+    
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
     private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     private final IntakeTeleop mIntakeTeleop;
+
+    // TODO: Remove tester commands when robot is properly programmed
+    //private final ElevatorTester mElevatorTester;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -71,6 +79,7 @@ public class RobotContainer
     {        
         // Initialize controllers.
         mDriver = new XboxController(kDriverPort);
+        mPartner = new XboxController(kPartnerPort);
 
         // Initialize subsystems.
         mLightsSubsystem = new LightsSubsystem();
