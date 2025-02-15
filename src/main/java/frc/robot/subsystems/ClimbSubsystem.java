@@ -19,11 +19,11 @@ public class ClimbSubsystem extends SubsystemBase
 {
 
     // THE CONSTANTS
-    private static final int LEFT_MOTOR = 0;
-    private static final int RIGHT_MOTOR = 0;
-    private static final int GRABBER_MOTOR = 0;
-    private static final int LEFT_ENCODER = 0;
-    private static final int RIGHT_ENCODER = 0;
+    private static final int LEFT_MOTOR = 8;
+    private static final int RIGHT_MOTOR = 7;
+    private static final int GRABBER_MOTOR = 6;
+    private static final int LEFT_ENCODER = 5;
+    private static final int RIGHT_ENCODER = 4;
     private static final double RIGHT_CLIMB_OUT_ANGLE = 0;
     private static final double LEFT_CLIMB_OUT_ANGLE = 0;
     private static final double RIGHT_CLIMB_IN_ANGLE = 0;

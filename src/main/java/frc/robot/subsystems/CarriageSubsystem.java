@@ -12,15 +12,15 @@ import frc.robot.objectmodels.IntakePresets;
 public class CarriageSubsystem extends SubsystemBase 
 {
 
-    public static final int armMotorId = 1;
+    public static final int armMotorId = 9;
 
-    public static final int wristMotorId = 1;
+    public static final int wristMotorId = 10;
 
-    public static final int armBottomSwitch = 1;
+    public static final int armBottomSwitch = 2;
 
-    public static final int armTopSwitch = 1;
+    public static final int armTopSwitch = 3;
 
-    public static final int wristSwitch = 1;
+    public static final int wristSwitch = 11;
 
     public static final int armP = 1;
 

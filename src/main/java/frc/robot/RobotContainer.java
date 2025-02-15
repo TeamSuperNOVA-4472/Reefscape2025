@@ -106,8 +106,8 @@ public class RobotContainer
 
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
-        mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
-        mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        //mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        //mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
