@@ -10,15 +10,19 @@ import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
+import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.commands.tester.ElevatorTester;
+import frc.robot.objectmodels.IntakePresets;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+
+import frc.robot.commands.MoveToLevelCommand;
 
 import org.photonvision.EstimatedRobotPose;
 
@@ -35,6 +39,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
@@ -148,6 +153,6 @@ public class RobotContainer
     // Specify which command will be used as the autonomous command.
     public Command getAutonomousCommand()
     {
-        return autoChooser.getSelected();
+        return new SequentialCommandGroup(new MoveToLevelCommand(mElevatorSubsystem, IntakePresets.kScoreL3));
     }
 }

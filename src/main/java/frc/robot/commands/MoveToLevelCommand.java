@@ -11,8 +11,8 @@ public class MoveToLevelCommand extends Command
 
     public MoveToLevelCommand(ElevatorSubsystem pElevatorSubsystem, IntakePresets pPreset)
     {
-            mElevatorSubsystem = pElevatorSubsystem;
-            mPreset = pPreset;
+        mElevatorSubsystem = pElevatorSubsystem;
+        mPreset = pPreset;
     }
 
     @Override
