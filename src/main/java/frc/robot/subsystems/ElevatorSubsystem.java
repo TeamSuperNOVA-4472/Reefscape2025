@@ -5,14 +5,15 @@ import java.util.Optional;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.objectmodels.IntakePresets;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
-    public static final int kLeftElevatorMotorID = 12;
-    public static final int kRightElevatorMotorID = 13;
+    public static final int kLeftElevatorMotorID = 0;
+    public static final int kRightElevatorMotorID = 1;
 
     public static final int kBottomSwitchChannel = 0;
     public static final int kTopSwitchChannel = 1;
@@ -64,6 +65,7 @@ public class ElevatorSubsystem extends SubsystemBase
     {
         final double kVoltageTolerance = 0.1;
 
+        //
         mElevatorLeft.setVoltage(voltage);
         mElevatorRight.setVoltage(-voltage);
         activePreset = Optional.empty();
@@ -108,6 +110,9 @@ public class ElevatorSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
+        SmartDashboard.putNumber("Left Elevator Output", mElevatorLeft.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Right Elevator Output", mElevatorRight.getPosition().getValueAsDouble());
+
 
         if (activePreset.isEmpty()) return; // No preset.
         else
