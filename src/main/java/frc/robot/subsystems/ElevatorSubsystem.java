@@ -45,8 +45,6 @@ public class ElevatorSubsystem extends SubsystemBase
 
     public ElevatorSubsystem()
     {
-        bottomSwitch = new DigitalInput(kBottomSwitchChannel);
-        topSwitch = new DigitalInput(kTopSwitchChannel);
 
         mElevatorLeft = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
         mElevatorRight = new TalonFX(kRightElevatorMotorID);
@@ -65,9 +63,9 @@ public class ElevatorSubsystem extends SubsystemBase
     {
         final double kVoltageTolerance = 0.1;
 
-        //
+        
         mElevatorLeft.setVoltage(voltage);
-        mElevatorRight.setVoltage(-voltage);
+        mElevatorRight.setVoltage(voltage);
         activePreset = Optional.empty();
 
         if (voltage > kVoltageTolerance)

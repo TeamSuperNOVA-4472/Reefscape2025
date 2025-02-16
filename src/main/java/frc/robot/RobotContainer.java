@@ -10,6 +10,7 @@ import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
@@ -40,7 +41,7 @@ public class RobotContainer
     public static final int kPartnerPort = 1;
 
     // Subsystems go here:
-    //private final CarriageSubsystem mCarriageSubsystem;
+    private final CarriageSubsystem mCarriageSubsystem;
     //private final ClimbSubsystem mClimbSubsystem;
     //private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final ElevatorSubsystem mElevatorSubsystem;
@@ -59,6 +60,7 @@ public class RobotContainer
 
     // TODO: Remove tester commands when robot is properly programmed
     private final ElevatorTester mElevatorTester;
+    private final CarriageTester mCarriageTester;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -76,7 +78,7 @@ public class RobotContainer
 
         // Initialize subsystems.
         mSwerveSubsystem = new SwerveSubsystem();
-        //mCarriageSubsystem = new CarriageSubsystem();
+        mCarriageSubsystem = new CarriageSubsystem();
         //mClimbSubsystem = new ClimbSubsystem();
         mElevatorSubsystem = new ElevatorSubsystem();
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
@@ -95,6 +97,8 @@ public class RobotContainer
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(mPartner.getLeftY(), 0.1));
+        
+        mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
 
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
@@ -103,6 +107,7 @@ public class RobotContainer
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorSubsystem.setDefaultCommand(mElevatorTester);
+        mCarriageSubsystem.setDefaultCommand(mCarriageTester);
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();

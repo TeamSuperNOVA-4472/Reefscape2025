@@ -6,15 +6,17 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.objectmodels.IntakePresets;
 
 public class CarriageSubsystem extends SubsystemBase 
 {
 
-    public static final int armMotorId = 1;
+    public static final int armMotorId = 22;
 
-    public static final int wristMotorId = 1;
+    public static final int wristMotorId = 20;
 
     public static final int armBottomSwitch = 1;
 
@@ -62,11 +64,8 @@ public class CarriageSubsystem extends SubsystemBase
 
     private TalonFX wristMotor;
 
-    private DigitalInput armBottom;
-
-    private DigitalInput armTop;
-
-    private DigitalInput wristLimit;
+    private final DutyCycleEncoder mWristEncoder;
+    private final DutyCycleEncoder mElbowEncoder;
 
     private Optional<IntakePresets> activePreset = Optional.empty();
 
@@ -76,16 +75,14 @@ public class CarriageSubsystem extends SubsystemBase
 
     public CarriageSubsystem() 
     {
-        armMotor = new TalonFX(armMotorId);
-        wristMotor = new TalonFX(wristMotorId);
-
-        armBottom = new DigitalInput(armBottomSwitch);
-        armTop = new DigitalInput(armTopSwitch);
-
-        wristLimit = new DigitalInput(wristSwitch);
+        armMotor = new TalonFX(armMotorId, "CANivore");
+        wristMotor = new TalonFX(wristMotorId, "CANivore");
 
         armPID = new PIDController(armP, armI, armD);
         wristPID = new PIDController(wristP, wristI, wristD);
+
+        mElbowEncoder = new DutyCycleEncoder(0); 
+        mWristEncoder = new DutyCycleEncoder(1); 
     }
 
     public void stop()
@@ -106,7 +103,7 @@ public class CarriageSubsystem extends SubsystemBase
         wristMotor.setVoltage(voltage);
     }
 
-    public boolean isArmAtBottom() 
+    /*public boolean isArmAtBottom() 
     {
         return armBottom.get();
     }
@@ -118,7 +115,7 @@ public class CarriageSubsystem extends SubsystemBase
     public boolean isWristAtLimit() 
     {
         return wristLimit.get();
-    }
+    }*/
 
     public void setActivePreset(IntakePresets preset)
     {
@@ -146,6 +143,9 @@ public class CarriageSubsystem extends SubsystemBase
     @Override
     public void periodic() 
     {
+        SmartDashboard.putNumber("Elbow Angle", mElbowEncoder.get());
+        SmartDashboard.putNumber("Wrist Angle", mWristEncoder.get());
+
         if (activePreset.isEmpty()) return; // No preset.
         else
         {
