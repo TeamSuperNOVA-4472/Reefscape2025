@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -30,6 +31,16 @@ public class Robot extends TimedRobot
         disabledLights = new LightStatusRequest(LightState.kDisabledStart, 100);
         autonLights = new LightStatusRequest(LightState.kAutonomous, 50);
         mRobotContainer.mLightsSubsystem.addRequests(disabledLights, autonLights);
+    }
+
+    public static boolean isRedAlliance()
+    {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent())
+        {
+            return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
     }
 
     // This function is continuously called every 20 ms (50 times per second).

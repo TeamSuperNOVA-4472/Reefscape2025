@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.objectmodels.LightState;
 import frc.robot.objectmodels.LightStatusRequest;
@@ -21,13 +20,14 @@ import frc.robot.objectmodels.lightpatterns.RandomLEDPattern;
 public class LightsSubsystem extends SubsystemBase
 {
     public static final int kLightChannel = 7;
-    public static final int kLightCount = 25;
+    public static final int kLightCount = 50;
 
     // This system uses the same buffer for each strip. This could be
     // changed if we want the two strips to show different stuff, but
     // I don't think we'll need or even want that.
     private AddressableLED light;
     private AddressableLEDBuffer lightData;
+    //private AddressableLEDBufferView lightLeft, lightRight;
 
     // Used in many animations. Reset between states.
     private int tick;
@@ -58,6 +58,9 @@ public class LightsSubsystem extends SubsystemBase
             initialized = false;
             return;
         }
+
+        //lightLeft = lightData.createView(0, 24);
+        //lightRight = lightData.createView(25, 49);
 
         requests = new ArrayList<>();
         requests.add(new LightStatusRequest(LightState.kOff, 0));
@@ -100,21 +103,25 @@ public class LightsSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
-        SmartDashboard.putBoolean("Lights Active", isActive());
+        SmartDashboard.putBoolean("Subsystems/LightsSubsystem/Light Status", isActive());
         if (!isActive()) return;
         LightState state = getActiveState();
+        LEDPattern pattern;
         switch (state)
         {
-            case kOff: animOff(); break;
-            case kDisabledStart: animDisabled(Color.kPurple); break;
-            case kAutonomous: animAuton(); break;
-            case kDisabledBetween: animDisabled(Color.kBlue); break;
-            case kDisabledError: animDisabled(Color.kOrange); break;
-            case kDisabledEnd: animDisabled(Color.kGreen); break;
-            default: animUnknown(); break;
+            case kOff: pattern = animOff(); break;
+            case kDisabledStart: pattern = animDisabled(Color.kPurple); break;
+            case kAutonomous: pattern = animAuton(); break;
+            case kDisabledBetween: pattern = animDisabled(Color.kBlue); break;
+            case kTeleopBase: pattern = animTeleopBase();
+            case kDisabledError: pattern = animDisabled(Color.kOrange); break;
+            case kDisabledEnd: pattern = animDisabled(Color.kGreen); break;
+            default: pattern = animUnknown(); break;
         }
-        SmartDashboard.putString("Light Strip State", state.toString());
 
+        //pattern.applyTo(lightLeft);
+        //pattern.applyTo(lightRight);
+        pattern.applyTo(lightData);
         light.setData(lightData);
         tick++;
     }
@@ -137,47 +144,51 @@ public class LightsSubsystem extends SubsystemBase
         {
             System.out.println("[LIGHTS] Switching state: " + prevState + " -> " + result + ".");
         }
+        SmartDashboard.putString("Subsystems/LightsSubsystem/Light State", result.toString());
         prevState = result;
         return result;
     }
 
     // When the robot is off. Shouldn't ever really be used, this state
     // is mostly intended for transitioning out of when the robot wakes up.
-    private void animOff()
+    private LEDPattern animOff()
     {
-        LEDPattern off = LEDPattern.solid(Color.kBlack);
-        off.applyTo(lightData);
+        return LEDPattern.kOff;
     }
 
-    // When the robot is disabled.
-    private void animDisabled(Color color)
+    // When the robot is disabled. Different colors for different states.
+    private LEDPattern animDisabled(Color color)
     {
-        new LEDSweepingPattern()
+        return new LEDSweepingPattern()
             .withColor(color)
             .moveMiddle()
             .tick((int)(0.25 * tick))
-            .withSustain(0.9)
-            .applyTo(lightData);
+            .withSustain(0.9);
     }
 
     // When the robot is in autonomous. Matrix-style affect.
-    private void animAuton()
+    private LEDPattern animAuton()
     {
-        new LEDRandomFadeoutPattern()
+        return new LEDRandomFadeoutPattern()
             .withColor(Color.kGreen)
             .withInterval(1)
             .withSustain(0.9)
-            .tick(tick)
-            .applyTo(lightData);
+            .tick(tick);
+    }
+
+    // When the robot is in driver control. Going for a supernova-colored bouncing effect.
+    private LEDPattern animTeleopBase()
+    {
+        // TODO
+        return LEDPattern.kOff;
     }
 
     // When the robot is in an unknown state. Should never happen.
-    private void animUnknown()
+    private LEDPattern animUnknown()
     {
         // TODO: Maybe replace this with a randomized fadeout? Could be cool.
-        new RandomLEDPattern()
+        return new RandomLEDPattern()
             .withSingleColor(Color.kRed)
-            .withGamma(0.75)
-            .applyTo(lightData);
+            .withGamma(0.75);
     }
 }
