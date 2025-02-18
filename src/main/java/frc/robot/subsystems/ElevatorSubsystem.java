@@ -61,10 +61,10 @@ public class ElevatorSubsystem extends SubsystemBase
         mElevatorLeft.getConfigurator().refresh(leftConfig);
         mElevatorLeft.getConfigurator().refresh(leftCurrentConfig);
         mElevatorLeft.getConfigurator().refresh(leftMotorConfig);
-        leftCurrentConfig.SupplyCurrentLimit = 40;
+        leftCurrentConfig.SupplyCurrentLimit = 60;
         leftCurrentConfig.SupplyCurrentLimitEnable = true;
         leftCurrentConfig.StatorCurrentLimitEnable = true;
-        leftCurrentConfig.StatorCurrentLimit = 40;
+        leftCurrentConfig.StatorCurrentLimit = 60;
         leftMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
         leftMotorConfig.NeutralMode = NeutralModeValue.Brake;
         leftConfig.withCurrentLimits(leftCurrentConfig);
