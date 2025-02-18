@@ -2,17 +2,26 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.objectmodels.IntakePresets;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
-    public static final int kLeftElevatorMotorID = 12;
-    public static final int kRightElevatorMotorID = 13;
+    public static final int kLeftElevatorMotorID = 0;
+    public static final int kRightElevatorMotorID = 1;
 
     public static final int kBottomSwitchChannel = 0;
     public static final int kTopSwitchChannel = 1;
@@ -27,14 +36,14 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double kElevatorP = 0;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
+    public static final double kG = 0.2;
 
     private final TalonFX mElevatorLeft;
-    private final TalonFX mElevatorRight;
+    //private final TalonFX mElevatorRight;
 
     private Optional<IntakePresets> activePreset = Optional.empty();
 
     private PIDController elevatorPID;
-
     private boolean isMovingUp = false;
     private boolean isMovingDown = false;
 
@@ -44,11 +53,23 @@ public class ElevatorSubsystem extends SubsystemBase
 
     public ElevatorSubsystem()
     {
-        bottomSwitch = new DigitalInput(kBottomSwitchChannel);
-        topSwitch = new DigitalInput(kTopSwitchChannel);
-
+        //motorConfigRight = new MotorOutputConfigs();
         mElevatorLeft = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
-        mElevatorRight = new TalonFX(kRightElevatorMotorID);
+        TalonFXConfiguration leftConfig = new TalonFXConfiguration();
+        CurrentLimitsConfigs leftCurrentConfig = new CurrentLimitsConfigs();
+        MotorOutputConfigs leftMotorConfig = new MotorOutputConfigs();
+        mElevatorLeft.getConfigurator().refresh(leftConfig);
+        mElevatorLeft.getConfigurator().refresh(leftCurrentConfig);
+        mElevatorLeft.getConfigurator().refresh(leftMotorConfig);
+        leftCurrentConfig.SupplyCurrentLimit = 60;
+        leftCurrentConfig.SupplyCurrentLimitEnable = true;
+        leftCurrentConfig.StatorCurrentLimitEnable = true;
+        leftCurrentConfig.StatorCurrentLimit = 60;
+        leftMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
+        leftMotorConfig.NeutralMode = NeutralModeValue.Brake;
+        leftConfig.withCurrentLimits(leftCurrentConfig);
+        leftConfig.withMotorOutput(leftMotorConfig);
+        mElevatorLeft.getConfigurator().apply(leftConfig);
         elevatorPID = new PIDController(kElevatorP, kElevatorI, kElevatorD);
     }
 
@@ -64,17 +85,18 @@ public class ElevatorSubsystem extends SubsystemBase
     {
         final double kVoltageTolerance = 0.1;
 
-        mElevatorLeft.setVoltage(voltage);
-        mElevatorRight.setVoltage(-voltage);
+        
+        mElevatorLeft.setVoltage(voltage + kG);
+        //mElevatorRight.setVoltage(voltage);
         activePreset = Optional.empty();
 
-        if (voltage > kVoltageTolerance)
+        if (voltage > kVoltageTolerance + kG)
         {
             isMovingUp = true;
             isMovingDown = false;
         }
 
-        else if (voltage < -kVoltageTolerance)
+        else if (voltage < -kVoltageTolerance + kG)
         {
             isMovingDown = true;
             isMovingUp = false;
@@ -108,6 +130,10 @@ public class ElevatorSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
+        SmartDashboard.putNumber("Left Elevator Output", mElevatorLeft.getPosition().getValueAsDouble());
+        SmartDashboard.putString("Elevator Units", mElevatorLeft.getPosition().getUnits());
+        //SmartDashboard.putNumber("Right Elevator Output", mElevatorRight.getPosition().getValueAsDouble());
+
 
         if (activePreset.isEmpty()) return; // No preset.
         else

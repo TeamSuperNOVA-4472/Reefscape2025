@@ -2,19 +2,30 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import com.ctre.phoenix6.configs.AudioConfigs;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.objectmodels.IntakePresets;
 
 public class CarriageSubsystem extends SubsystemBase 
 {
 
-    public static final int armMotorId = 1;
+    public static final int armMotorId = 22;
 
-    public static final int wristMotorId = 1;
+    public static final int wristMotorId = 20;
 
     public static final int armBottomSwitch = 1;
 
@@ -22,17 +33,17 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final int wristSwitch = 1;
 
-    public static final int armP = 1;
+    public static final double armP = 0.05;
 
-    public static final int armI = 1;
+    public static final double armI = 0;
 
-    public static final int armD = 1;
+    public static final double armD = 0.005;
 
-    public static final int wristP = 1;
+    public static final double wristP = 0.25;
 
-    public static final int wristI = 1;
+    public static final double wristI = 0;
 
-    public static final int wristD = 1;
+    public static final double wristD = 0;
 
     private static final double armPresetKAway = 0.0;
 
@@ -46,6 +57,10 @@ public class CarriageSubsystem extends SubsystemBase
 
     private static final double armPresetL4 = 4.0;
 
+    private static final double armOffset = 150;
+
+    private static final double wristOffset = 122;
+
     private static final double wristPresetKAway = 0.0;
 
     private static final double wristPresetGroundPickup = 1.0;
@@ -58,34 +73,67 @@ public class CarriageSubsystem extends SubsystemBase
 
     private static final double wristPresetL4 = 1.0;
 
+    private static final double armKG = 0.9;
+
+    private static final double wristKG = 0.3;
+
+    private static final double angleOverflowMin = 235;
+
+    private static final double maxWristVoltage = 4;
+
     private TalonFX armMotor;
 
     private TalonFX wristMotor;
 
-    private DigitalInput armBottom;
-
-    private DigitalInput armTop;
-
-    private DigitalInput wristLimit;
+    private final DutyCycleEncoder mWristEncoder;
+    private final DutyCycleEncoder mElbowEncoder;
 
     private Optional<IntakePresets> activePreset = Optional.empty();
 
     private PIDController armPID;
 
-    private PIDController wristPID;
+    private ProfiledPIDController wristPID;
 
     public CarriageSubsystem() 
     {
-        armMotor = new TalonFX(armMotorId);
-        wristMotor = new TalonFX(wristMotorId);
+        armMotor = new TalonFX(armMotorId, "CANivore");
+        wristMotor = new TalonFX(wristMotorId, "CANivore");
 
-        armBottom = new DigitalInput(armBottomSwitch);
-        armTop = new DigitalInput(armTopSwitch);
+        TalonFXConfiguration armConfig = new TalonFXConfiguration();
+        CurrentLimitsConfigs armCurrentConfig = new CurrentLimitsConfigs();
+        MotorOutputConfigs armMotorConfig = new MotorOutputConfigs();
+        armMotor.getConfigurator().refresh(armConfig);
+        armMotor.getConfigurator().refresh(armCurrentConfig);
+        armMotor.getConfigurator().refresh(armMotorConfig);
+        armCurrentConfig.SupplyCurrentLimit = 60;
+        armCurrentConfig.SupplyCurrentLimitEnable = true;
+        armCurrentConfig.StatorCurrentLimitEnable = true;
+        armCurrentConfig.StatorCurrentLimit = 60;
+        armMotorConfig.NeutralMode = NeutralModeValue.Brake;
+        armConfig.withCurrentLimits(armCurrentConfig);
+        armConfig.withMotorOutput(armMotorConfig);
+        armMotor.getConfigurator().apply(armConfig);
 
-        wristLimit = new DigitalInput(wristSwitch);
+        TalonFXConfiguration wristConfig = new TalonFXConfiguration();
+        CurrentLimitsConfigs wristCurrentConfig = new CurrentLimitsConfigs();
+        MotorOutputConfigs wristMotorConfig = new MotorOutputConfigs();
+        wristMotor.getConfigurator().refresh(wristConfig);
+        wristMotor.getConfigurator().refresh(wristCurrentConfig);
+        wristMotor.getConfigurator().refresh(wristMotorConfig);
+        wristCurrentConfig.SupplyCurrentLimit = 20;
+        wristCurrentConfig.SupplyCurrentLimitEnable = true;
+        wristCurrentConfig.StatorCurrentLimitEnable = true;
+        wristCurrentConfig.StatorCurrentLimit = 20;
+        wristMotorConfig.NeutralMode = NeutralModeValue.Brake;
+        wristConfig.withCurrentLimits(wristCurrentConfig);
+        wristConfig.withMotorOutput(wristMotorConfig);
+        wristMotor.getConfigurator().apply(wristConfig);
 
         armPID = new PIDController(armP, armI, armD);
-        wristPID = new PIDController(wristP, wristI, wristD);
+        wristPID = new ProfiledPIDController(wristP, wristI, wristD, new Constraints(360, 360));
+
+        mElbowEncoder = new DutyCycleEncoder(0); 
+        mWristEncoder = new DutyCycleEncoder(1); 
     }
 
     public void stop()
@@ -97,16 +145,26 @@ public class CarriageSubsystem extends SubsystemBase
 
     public void setArmVoltage(double voltage) 
     {
-        activePreset = Optional.empty();
-        armMotor.setVoltage(voltage);
+        armMotor.setVoltage(voltage + armKG * Math.cos(Math.toRadians(this.getArmAngle())));
     }
-    public void setWristVoltage(double voltage) 
+    
+    public void setManualArmVoltage(double voltage) 
     {
         activePreset = Optional.empty();
-        wristMotor.setVoltage(voltage);
+        armMotor.setVoltage(voltage + armKG * Math.cos(Math.toRadians(this.getArmAngle())));
     }
 
-    public boolean isArmAtBottom() 
+    public void setWristVoltage(double voltage) 
+    {
+        wristMotor.setVoltage(voltage + wristKG * Math.cos(Math.toRadians(this.getAbsoluteWristAngle())));
+    }
+
+    public void setManualWristVoltage(double voltage) 
+    {
+        activePreset = Optional.empty();
+        wristMotor.setVoltage(voltage + wristKG * Math.cos(Math.toRadians(this.getAbsoluteWristAngle())));
+    }
+    /*public boolean isArmAtBottom() 
     {
         return armBottom.get();
     }
@@ -118,7 +176,7 @@ public class CarriageSubsystem extends SubsystemBase
     public boolean isWristAtLimit() 
     {
         return wristLimit.get();
-    }
+    }*/
 
     public void setActivePreset(IntakePresets preset)
     {
@@ -140,14 +198,38 @@ public class CarriageSubsystem extends SubsystemBase
     }
     public double getWristSetpoint() 
     {
-        return wristPID.getSetpoint();
+        return 0;
+    }
+
+    public double getArmAngle(){
+        return mElbowEncoder.get()*360 - armOffset;
+    }
+
+    public double getWristAngle(){
+        double wristAngle = mWristEncoder.get()*360;
+        if (wristAngle > angleOverflowMin){
+            wristAngle -= 360;
+        }
+        return wristAngle - wristOffset;
+    }
+
+    public double getAbsoluteWristAngle(){
+        return this.getWristAngle() + this.getArmAngle();
+    }
+
+    public void resetWristPID(){
+        wristPID.reset(getWristAngle());
     }
 
     @Override
     public void periodic() 
     {
+        SmartDashboard.putNumber("Elbow Angle", this.getArmAngle());
+        SmartDashboard.putNumber("Wrist Angle", this.getWristAngle());
+        SmartDashboard.putNumber("Absolute Wrist Angle", this.getAbsoluteWristAngle());
+
         if (activePreset.isEmpty()) return; // No preset.
-        else
+        /*else
         {
             switch (activePreset.get())
             {
@@ -183,14 +265,15 @@ public class CarriageSubsystem extends SubsystemBase
 
                 default: return; // Unknown preset. Shouldn't happen.
             }
-        }
+        }*/
 
-        double armCurrentPosition = armMotor.getPosition().getValueAsDouble();
-        double armSpeed = armPID.calculate(armCurrentPosition);
-        armMotor.set(armSpeed);
+        double armCurrentPosition = this.getArmAngle();
+        double armSpeed = armPID.calculate(armCurrentPosition, 70);
+        this.setArmVoltage(0);
 
-        double wristCurrentPosition = wristMotor.getPosition().getValueAsDouble();
-        double wristSpeed = wristPID.calculate(wristCurrentPosition);
-        wristMotor.set(wristSpeed);
+        double wristCurrentPosition = this.getWristAngle();
+        double wristSpeed = wristPID.calculate(wristCurrentPosition, -90);
+        //wristSpeed = MathUtil.clamp(wristSpeed, -maxWristVoltage, maxWristVoltage);
+        this.setWristVoltage(wristSpeed);
     }
 }

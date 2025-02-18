@@ -22,6 +22,6 @@ public class ElevatorTester extends Command {
 
     @Override
     public void execute() {
-        mElevator.setVoltage(mElevatorSpeed.get());
+        //mElevator.setVoltage(mElevatorSpeed.get()*6);
     }
 }

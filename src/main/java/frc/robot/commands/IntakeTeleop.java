@@ -23,13 +23,13 @@ public class IntakeTeleop extends Command
     @Override
     public void execute()
     {
-        if(mIntakeButton.get())
-        {
-            mIntakeSubsystem.inTake();
-        }
-        else if(mOuttakeButton.get())
-        {
-            mIntakeSubsystem.outTake();
-        }
+        // if(mIntakeButton.get())
+        // {
+        //     mIntakeSubsystem.inTake();
+        // }
+        // else if(mOuttakeButton.get())
+        // {
+        //     mIntakeSubsystem.outTake();
+        // }
     }
 }

@@ -10,7 +10,9 @@ import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ElevatorTester;
+import frc.robot.commands.tester.IntakeTester;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
@@ -40,11 +42,11 @@ public class RobotContainer
     public static final int kPartnerPort = 1;
 
     // Subsystems go here:
-    //private final CarriageSubsystem mCarriageSubsystem;
+    private final CarriageSubsystem mCarriageSubsystem;
     //private final ClimbSubsystem mClimbSubsystem;
     //private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final ElevatorSubsystem mElevatorSubsystem;
-    //private final IntakeSubsystem mIntakeSubsystem;
+    private final IntakeSubsystem mIntakeSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
 
     // Controllers go here:
@@ -59,6 +61,8 @@ public class RobotContainer
 
     // TODO: Remove tester commands when robot is properly programmed
     private final ElevatorTester mElevatorTester;
+    private final CarriageTester mCarriageTester;
+    private final IntakeTester mIntakeTester;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -76,11 +80,11 @@ public class RobotContainer
 
         // Initialize subsystems.
         mSwerveSubsystem = new SwerveSubsystem();
-        //mCarriageSubsystem = new CarriageSubsystem();
+        mCarriageSubsystem = new CarriageSubsystem();
         //mClimbSubsystem = new ClimbSubsystem();
         mElevatorSubsystem = new ElevatorSubsystem();
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
-       // mIntakeSubsystem = new IntakeSubsystem();
+       mIntakeSubsystem = new IntakeSubsystem();
         
 
         // Initialize commands.
@@ -94,8 +98,10 @@ public class RobotContainer
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
 
         // TODO: remove tester commands when robot is properly programmed
-        mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(mPartner.getLeftY(), 0.1));
-
+        mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
+        
+        mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
+        mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
         // Configure subsystems.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
         // mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
@@ -103,6 +109,8 @@ public class RobotContainer
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorSubsystem.setDefaultCommand(mElevatorTester);
+        mCarriageSubsystem.setDefaultCommand(mCarriageTester);
+        mIntakeSubsystem.setDefaultCommand(mIntakeTester);
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();

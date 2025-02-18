@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -13,31 +14,49 @@ public class IntakeSubsystem extends SubsystemBase
 
     private boolean mIsIntaking;
     private boolean mIsOutTaking;
-    private SparkMax mIntakeMotor;
+    private TalonFX mAlgaeIntake;
+    private TalonFX mCoralIntake;
 
     public IntakeSubsystem()
     {
-        mIntakeMotor = new SparkMax(kIntakeMotorId, MotorType.kBrushless);
+        mCoralIntake = new TalonFX(23, "CANivore");
+        mAlgaeIntake = new TalonFX(24, "CANivore");
     }
 
-    public void inTake()
+    public void intakeCoral()
     {
-        mIntakeMotor.setVoltage(kIntakeVoltage);
+        mCoralIntake.setVoltage(kIntakeVoltage);
         mIsIntaking = true;
         mIsOutTaking = false;
 
     }
 
-    public void outTake()
+    public void outtakeCoral()
     {
-        mIntakeMotor.setVoltage(-kIntakeVoltage);
+        mCoralIntake.setVoltage(-kIntakeVoltage);
+        mIsIntaking = false;
+        mIsOutTaking = true;
+    }
+
+    public void intakeAlgae()
+    {
+        mAlgaeIntake.setVoltage(kIntakeVoltage);
+        mIsIntaking = true;
+        mIsOutTaking = false;
+
+    }
+
+    public void outtakeAlgae()
+    {
+        mAlgaeIntake.setVoltage(-kIntakeVoltage);
         mIsIntaking = false;
         mIsOutTaking = true;
     }
 
     public void stop()
     {
-        mIntakeMotor.stopMotor();
+        mCoralIntake.stopMotor();
+        mAlgaeIntake.stopMotor();
         mIsIntaking = false;
         mIsOutTaking = false;
     }
@@ -50,19 +69,6 @@ public class IntakeSubsystem extends SubsystemBase
     public boolean isOutTaking()
     {
         return mIsOutTaking;
-    }
-
-    @Override
-    public void periodic() 
-    {
-        // TODO Auto-generated method stub
-        super.periodic();
-    }
-    @Override
-    public void simulationPeriodic() 
-    {
-        // TODO Auto-generated method stub
-        super.simulationPeriodic();
     }
 
 }
