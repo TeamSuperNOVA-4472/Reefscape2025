@@ -39,7 +39,7 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double armD = 0.005;
 
-    public static final double wristP = 0.25;
+    public static final double wristP = 0.1;
 
     public static final double wristI = 0;
 
@@ -73,7 +73,7 @@ public class CarriageSubsystem extends SubsystemBase
 
     private static final double wristPresetL4 = 1.0;
 
-    private static final double armKG = 0.9;
+    private static final double armKG = 0.35;
 
     private static final double wristKG = 0.3;
 
@@ -270,7 +270,7 @@ public class CarriageSubsystem extends SubsystemBase
         double armCurrentPosition = this.getArmAngle();
         double armSpeed = armPID.calculate(armCurrentPosition, 70);
         this.setArmVoltage(0);
-
+        //SmartDashboard.putNumber("Arm Current", armMotor.getSupplyCurrent().getValueAsDouble());
         double wristCurrentPosition = this.getWristAngle();
         double wristSpeed = wristPID.calculate(wristCurrentPosition, -90);
         //wristSpeed = MathUtil.clamp(wristSpeed, -maxWristVoltage, maxWristVoltage);

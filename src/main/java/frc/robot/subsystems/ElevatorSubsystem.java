@@ -33,10 +33,13 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double kPresetL3 = 3;
     public static final double kPresetL4 = 4;
 
-    public static final double kElevatorP = 0;
+    public static final double kElevatorP = 0.6;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
     public static final double kG = 0.2;
+
+    public static final double rotationsToInches = 0.7405745;
+    public static final double initialHeight = 12.875;
 
     private final TalonFX mElevatorLeft;
     //private final TalonFX mElevatorRight;
@@ -81,7 +84,33 @@ public class ElevatorSubsystem extends SubsystemBase
         activePreset = Optional.empty();
     }
 
-    public void setVoltage(double voltage)
+    private void setVoltage(double voltage)
+    {
+        final double kVoltageTolerance = 0.1;
+
+        
+        mElevatorLeft.setVoltage(voltage + kG);
+
+        if (voltage > kVoltageTolerance + kG)
+        {
+            isMovingUp = true;
+            isMovingDown = false;
+        }
+
+        else if (voltage < -kVoltageTolerance + kG)
+        {
+            isMovingDown = true;
+            isMovingUp = false;
+        }
+
+        else
+        {
+            isMovingUp = false; 
+            isMovingDown = false;
+        }
+    }
+
+    public void setManualVoltage(double voltage)
     {
         final double kVoltageTolerance = 0.1;
 
@@ -127,16 +156,24 @@ public class ElevatorSubsystem extends SubsystemBase
         activePreset = Optional.of(preset);
     }
 
+    public void resetEncoder(){
+        mElevatorLeft.setPosition(0);
+    }
+
+    public double getElevatorHeight(){
+        return mElevatorLeft.getPosition().getValueAsDouble()*rotationsToInches + initialHeight;
+    }
+
     @Override
     public void periodic()
     {
         SmartDashboard.putNumber("Left Elevator Output", mElevatorLeft.getPosition().getValueAsDouble());
         SmartDashboard.putString("Elevator Units", mElevatorLeft.getPosition().getUnits());
-        //SmartDashboard.putNumber("Right Elevator Output", mElevatorRight.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Elevator Height", this.getElevatorHeight());
 
 
         if (activePreset.isEmpty()) return; // No preset.
-        else
+        /*else
         {
             switch (activePreset.get())
             {
@@ -166,10 +203,12 @@ public class ElevatorSubsystem extends SubsystemBase
                 
                 default: return; // Unknown preset. Shouldn't happen.
             }
-        }
+        }*/
 
-        double currentPosition = mElevatorLeft.getPosition().getValueAsDouble();
-        double newSpeed = elevatorPID.calculate(currentPosition);
-        mElevatorLeft.set(newSpeed);
+        double currentPosition = this.getElevatorHeight();
+        double newSpeed = elevatorPID.calculate(currentPosition, 20);
+        this.setVoltage(newSpeed);
+
+        SmartDashboard.putNumber("Elevator Speed", newSpeed);
     }
 }

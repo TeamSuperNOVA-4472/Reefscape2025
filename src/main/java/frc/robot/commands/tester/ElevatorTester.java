@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.objectmodels.IntakePresets;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class ElevatorTester extends Command {
@@ -17,7 +18,9 @@ public class ElevatorTester extends Command {
 
     @Override
     public void initialize() {
-        mElevator.stop();
+        //mElevator.stop();
+        mElevator.resetEncoder();
+        mElevator.setPreset(IntakePresets.kScoreL1);
     }
 
     @Override
