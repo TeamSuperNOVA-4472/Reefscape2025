@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
+import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
@@ -110,7 +112,7 @@ public class SwerveSubsystem extends SubsystemBase
     /** Creates a new ExampleSubsystem. */
     public SwerveSubsystem()
     {
-        // SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false);
         configAutoBuilder(this);
