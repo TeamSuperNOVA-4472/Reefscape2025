@@ -9,6 +9,7 @@ import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
+import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ElevatorTester;
@@ -32,6 +33,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
@@ -96,6 +99,11 @@ public class RobotContainer
             mSwerveSubsystem);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
+        Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
+        carriage.whileTrue(new SequentialCommandGroup(
+            new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, 0.0),
+            new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, -60.0),
+            new MoveToLevelCommand(mElevatorSubsystem, 30.0)));
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));

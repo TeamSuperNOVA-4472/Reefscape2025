@@ -1,21 +1,22 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.objectmodels.IntakePresets;
 import frc.robot.subsystems.CarriageSubsystem;
 
 public class MoveCarriageToPresetCommand extends Command
 {
-    public static final double kArmTolerence = 1.0;
-    public static final double kWristTolerance = 1.0;
+    public static final double kArmTolerence = 5.0;
+    public static final double kWristTolerance = 5.0;
 
     private final CarriageSubsystem mCarriageSubsystem;
 
-    private final IntakePresets preset;
+    private final Double armPreset;
+    private final Double wristPreset;
 
-    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, IntakePresets preset)
+    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, Double armPreset, Double wristPreset)
     {
-        this.preset = preset;
+        this.armPreset = armPreset;
+        this.wristPreset = wristPreset;
 
         mCarriageSubsystem = carriageSubsystem;
         addRequirements(mCarriageSubsystem);
@@ -24,7 +25,8 @@ public class MoveCarriageToPresetCommand extends Command
     @Override
     public void initialize() 
     {
-        mCarriageSubsystem.setActivePreset(preset);
+        mCarriageSubsystem.setArmPreset(armPreset);
+        mCarriageSubsystem.setWristPreset(wristPreset);
     }
 
     @Override
@@ -36,8 +38,8 @@ public class MoveCarriageToPresetCommand extends Command
     @Override
     public boolean isFinished() 
     {
-        double armDist = mCarriageSubsystem.getArmCurrentPosition() - mCarriageSubsystem.getArmSetpoint();
-        double wristDist = mCarriageSubsystem.getWristCurrentPosition() - mCarriageSubsystem.getWristSetpoint();
+        double armDist = mCarriageSubsystem.getArmAngle() - mCarriageSubsystem.getArmSetpoint();
+        double wristDist = mCarriageSubsystem.getWristAngle() - mCarriageSubsystem.getWristSetpoint();
 
         return Math.abs(armDist) < kArmTolerence && Math.abs(wristDist) < kWristTolerance;
     }

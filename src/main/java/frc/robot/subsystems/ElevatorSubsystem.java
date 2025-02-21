@@ -12,11 +12,12 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.objectmodels.IntakePresets;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
@@ -33,20 +34,20 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double kPresetL3 = 3;
     public static final double kPresetL4 = 4;
 
-    public static final double kElevatorP = 0.6;
+    public static final double kElevatorP = 0.9;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
     public static final double kG = 0.2;
 
-    public static final double rotationsToInches = 0.7405745;
+    public static final double rotationsToInches = 0.45;
     public static final double initialHeight = 12.875;
 
     private final TalonFX mElevatorLeft;
     //private final TalonFX mElevatorRight;
 
-    private Optional<IntakePresets> activePreset = Optional.empty();
+    private Optional<Double> activePreset = Optional.empty();
 
-    private PIDController elevatorPID;
+    private ProfiledPIDController elevatorPID;
     private boolean isMovingUp = false;
     private boolean isMovingDown = false;
 
@@ -64,16 +65,17 @@ public class ElevatorSubsystem extends SubsystemBase
         mElevatorLeft.getConfigurator().refresh(leftConfig);
         mElevatorLeft.getConfigurator().refresh(leftCurrentConfig);
         mElevatorLeft.getConfigurator().refresh(leftMotorConfig);
-        leftCurrentConfig.SupplyCurrentLimit = 60;
+        leftCurrentConfig.SupplyCurrentLimit = 30;
         leftCurrentConfig.SupplyCurrentLimitEnable = true;
         leftCurrentConfig.StatorCurrentLimitEnable = true;
-        leftCurrentConfig.StatorCurrentLimit = 60;
+        leftCurrentConfig.StatorCurrentLimit = 30;
         leftMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
         leftMotorConfig.NeutralMode = NeutralModeValue.Brake;
         leftConfig.withCurrentLimits(leftCurrentConfig);
         leftConfig.withMotorOutput(leftMotorConfig);
         mElevatorLeft.getConfigurator().apply(leftConfig);
-        elevatorPID = new PIDController(kElevatorP, kElevatorI, kElevatorD);
+        elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
+        activePreset = Optional.of(initialHeight);
     }
 
     public void stop()
@@ -112,30 +114,8 @@ public class ElevatorSubsystem extends SubsystemBase
 
     public void setManualVoltage(double voltage)
     {
-        final double kVoltageTolerance = 0.1;
-
-        
-        mElevatorLeft.setVoltage(voltage + kG);
-        //mElevatorRight.setVoltage(voltage);
         activePreset = Optional.empty();
-
-        if (voltage > kVoltageTolerance + kG)
-        {
-            isMovingUp = true;
-            isMovingDown = false;
-        }
-
-        else if (voltage < -kVoltageTolerance + kG)
-        {
-            isMovingDown = true;
-            isMovingUp = false;
-        }
-
-        else
-        {
-            isMovingUp = false; 
-            isMovingDown = false;
-        }
+        setVoltage(voltage);
     }
 
     public boolean isAtBottom()
@@ -151,17 +131,26 @@ public class ElevatorSubsystem extends SubsystemBase
         return isMovingUp || isMovingDown;
     }
 
-    public void setPreset(IntakePresets preset)
+    public void setPreset(Double preset)
     {
         activePreset = Optional.of(preset);
     }
 
     public void resetEncoder(){
         mElevatorLeft.setPosition(0);
+        elevatorPID.reset(initialHeight);
     }
 
     public double getElevatorHeight(){
         return mElevatorLeft.getPosition().getValueAsDouble()*rotationsToInches + initialHeight;
+    }
+
+    public double getElevatorPreset(){
+        return activePreset.orElse(0.0);
+    }
+
+    public void resetElevatorPID(){
+        elevatorPID.reset(this.getElevatorHeight());
     }
 
     @Override
@@ -173,40 +162,9 @@ public class ElevatorSubsystem extends SubsystemBase
 
 
         if (activePreset.isEmpty()) return; // No preset.
-        /*else
-        {
-            switch (activePreset.get())
-            {
-                case kAway:
-                    elevatorPID.setSetpoint(kPresetAway);
-                    break;
-                
-                case kGroundPickup:
-                    elevatorPID.setSetpoint(kPresetGroundPickup);
-                    break;
-
-                case kScoreL1:
-                    elevatorPID.setSetpoint(kPresetL1);
-                    break;
-                    
-                case kScoreL2:
-                    elevatorPID.setSetpoint(kPresetL2);
-                    break;
-                
-                case kScoreL3:
-                    elevatorPID.setSetpoint(kPresetL3);
-                    break;
-                    
-                case kScoreL4:
-                    elevatorPID.setSetpoint(kPresetL4);
-                    break;
-                
-                default: return; // Unknown preset. Shouldn't happen.
-            }
-        }*/
 
         double currentPosition = this.getElevatorHeight();
-        double newSpeed = elevatorPID.calculate(currentPosition, 20);
+        double newSpeed = elevatorPID.calculate(currentPosition, activePreset.get());
         this.setVoltage(newSpeed);
 
         SmartDashboard.putNumber("Elevator Speed", newSpeed);

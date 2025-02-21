@@ -3,7 +3,6 @@ package frc.robot.commands.tester;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.objectmodels.IntakePresets;
 import frc.robot.subsystems.CarriageSubsystem;
 
 public class CarriageTester extends Command 
@@ -23,8 +22,10 @@ public class CarriageTester extends Command
     @Override
     public void initialize() {
         //mCarriageSubsystem.stop();
-        mCarriageSubsystem.setActivePreset(IntakePresets.kAway);
+        mCarriageSubsystem.setArmPreset(20.0);
+        mCarriageSubsystem.setWristPreset(0.0);
         mCarriageSubsystem.resetWristPID();
+        mCarriageSubsystem.resetArmPID();
     }
 
     @Override
