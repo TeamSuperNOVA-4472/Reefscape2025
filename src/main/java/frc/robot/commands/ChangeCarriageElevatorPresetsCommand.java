@@ -10,6 +10,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 // - Retracts the carriage.
 // - Moves the elevator to its desired location.
 // - Places the carriage arm & wrist where they belong.
+// TODO: Is there a better, shorter name for this?
 public class ChangeCarriageElevatorPresetsCommand extends SequentialCommandGroup
 {
     public ChangeCarriageElevatorPresetsCommand(CarriageSubsystem carriage,
@@ -19,7 +20,7 @@ public class ChangeCarriageElevatorPresetsCommand extends SequentialCommandGroup
         addRequirements(carriage, elevator);
         addCommands(
             new MoveCarriageToPresetCommand(carriage, IntakePresets.kAway),
-            // new MoveToLevelCommand(elevator, newPreset),
+            new MoveToLevelCommand(elevator, newPreset),
             new MoveCarriageToPresetCommand(carriage, newPreset)
         );
     }
