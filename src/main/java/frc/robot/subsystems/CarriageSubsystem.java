@@ -238,6 +238,11 @@ public class CarriageSubsystem extends SubsystemBase
 
     public double getCarriageTargetX()
     {
+        if (elbowPreset.isEmpty() || wristPreset.isEmpty())
+        {
+            return -100;
+        }
+        
         double armX = 13 * Math.cos(Math.toRadians(getArmSetpoint()));
         double wristX = -10 * Math.cos(Math.toRadians(getWristSetpoint() + getArmSetpoint())) + -6 * Math.sin(Math.toRadians(getWristSetpoint() + getArmSetpoint()));
         return armX + wristX;
