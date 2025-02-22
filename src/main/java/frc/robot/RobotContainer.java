@@ -86,7 +86,7 @@ public class RobotContainer
         mVisionSubsystem = new VisionSubsystem(mSwerveSubsystem);
         mCarriageSubsystem = new CarriageSubsystem();
         //mClimbSubsystem = new ClimbSubsystem();
-        mElevatorSubsystem = new ElevatorSubsystem();
+        mElevatorSubsystem = new ElevatorSubsystem(mLightsSubsystem);
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
         mIntakeSubsystem = new IntakeSubsystem();
 

@@ -4,9 +4,11 @@ public enum LightState
 {
     kOff,
     kDisabledStart,
-    kAutonomous,
+    kAutonomousBase,
     kDisabledBetween,
     kTeleopBase,
+    kTeleopElevatorUp,
+    kTeleopElevatorDown,
     kDisabledError,
     kDisabledEnd
 }

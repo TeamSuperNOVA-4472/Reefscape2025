@@ -4,12 +4,14 @@ import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.AddressableLEDBufferView;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.objectmodels.LightState;
 import frc.robot.objectmodels.LightStatusRequest;
+import frc.robot.objectmodels.lightpatterns.LEDBouncingPattern;
 import frc.robot.objectmodels.lightpatterns.LEDRandomFadeoutPattern;
 import frc.robot.objectmodels.lightpatterns.LEDSweepingPattern;
 import frc.robot.objectmodels.lightpatterns.RandomLEDPattern;
@@ -27,7 +29,7 @@ public class LightsSubsystem extends SubsystemBase
     // I don't think we'll need or even want that.
     private AddressableLED light;
     private AddressableLEDBuffer lightData;
-    //private AddressableLEDBufferView lightLeft, lightRight;
+    private AddressableLEDBufferView lightLeft, lightRight;
 
     // Used in many animations. Reset between states.
     private int tick;
@@ -59,8 +61,8 @@ public class LightsSubsystem extends SubsystemBase
             return;
         }
 
-        //lightLeft = lightData.createView(0, 24);
-        //lightRight = lightData.createView(25, 49);
+        lightLeft = lightData.createView(0, 24);
+        lightRight = lightData.createView(25, 49);
 
         requests = new ArrayList<>();
         requests.add(new LightStatusRequest(LightState.kOff, 0));
@@ -111,17 +113,16 @@ public class LightsSubsystem extends SubsystemBase
         {
             case kOff: pattern = animOff(); break;
             case kDisabledStart: pattern = animDisabled(Color.kPurple); break;
-            case kAutonomous: pattern = animAuton(); break;
+            case kAutonomousBase: pattern = animAuton(); break;
             case kDisabledBetween: pattern = animDisabled(Color.kBlue); break;
-            case kTeleopBase: pattern = animTeleopBase();
+            case kTeleopBase: pattern = animTeleopBase(); break;
             case kDisabledError: pattern = animDisabled(Color.kOrange); break;
             case kDisabledEnd: pattern = animDisabled(Color.kGreen); break;
             default: pattern = animUnknown(); break;
         }
 
-        //pattern.applyTo(lightLeft);
-        //pattern.applyTo(lightRight);
-        pattern.applyTo(lightData);
+        pattern.applyTo(lightLeft);
+        pattern.applyTo(lightRight);
         light.setData(lightData);
         tick++;
     }
@@ -179,8 +180,10 @@ public class LightsSubsystem extends SubsystemBase
     // When the robot is in driver control. Going for a supernova-colored bouncing effect.
     private LEDPattern animTeleopBase()
     {
-        // TODO
-        return LEDPattern.kOff;
+        return new LEDBouncingPattern()
+            .withColor(Color.kRed)
+            .withSize(5)
+            .withTick(tick);
     }
 
     // When the robot is in an unknown state. Should never happen.

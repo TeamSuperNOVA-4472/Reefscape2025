@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.objectmodels.IntakePresets;
+import frc.robot.objectmodels.LightState;
+import frc.robot.objectmodels.LightStatusRequest;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
@@ -51,7 +53,9 @@ public class ElevatorSubsystem extends SubsystemBase
     private DigitalInput bottomSwitch;
     private DigitalInput topSwitch;
 
-    public ElevatorSubsystem()
+    private LightStatusRequest lights;
+
+    public ElevatorSubsystem(LightsSubsystem lightController)
     {
         //motorConfigRight = new MotorOutputConfigs();
         mElevatorLeft = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
@@ -71,6 +75,8 @@ public class ElevatorSubsystem extends SubsystemBase
         leftConfig.withMotorOutput(leftMotorConfig);
         mElevatorLeft.getConfigurator().apply(leftConfig);
         elevatorPID = new PIDController(kElevatorP, kElevatorI, kElevatorD);
+
+        lights = new LightStatusRequest(LightState.kTeleopElevatorUp, 201);
     }
 
     public void stop()
@@ -171,5 +177,7 @@ public class ElevatorSubsystem extends SubsystemBase
         double currentPosition = mElevatorLeft.getPosition().getValueAsDouble();
         double newSpeed = elevatorPID.calculate(currentPosition);
         mElevatorLeft.set(newSpeed);
+
+        // Lights
     }
 }

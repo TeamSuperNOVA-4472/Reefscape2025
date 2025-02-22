@@ -18,6 +18,8 @@ public class Robot extends TimedRobot
     private Command mAutonomousCommand;
 
     private final RobotContainer mRobotContainer;
+    
+    private boolean isAuton, isTeleop;
 
     // Any global initialization code should go here.
     // This method is run when the robot first starts.
@@ -28,9 +30,10 @@ public class Robot extends TimedRobot
         // bindings, and put our autonomous chooser on the dashboard.
         mRobotContainer = new RobotContainer();
 
-        disabledLights = new LightStatusRequest(LightState.kDisabledStart, 100);
-        autonLights = new LightStatusRequest(LightState.kAutonomous, 50);
-        mRobotContainer.mLightsSubsystem.addRequests(disabledLights, autonLights);
+        disabledLights = new LightStatusRequest(LightState.kDisabledStart, 1000);
+        autonLights = new LightStatusRequest(LightState.kAutonomousBase, 100);
+        teleopLights = new LightStatusRequest(LightState.kTeleopBase, 200);
+        mRobotContainer.mLightsSubsystem.addRequests(disabledLights, autonLights, teleopLights);
     }
 
     public static boolean isRedAlliance()
@@ -92,6 +95,7 @@ public class Robot extends TimedRobot
         disabledLights.state = LightState.kDisabledBetween;
     }
 
+    private LightStatusRequest teleopLights;
     // Run *once* when the robot first enters teleop mode.
     @Override
     public void teleopInit()
@@ -104,6 +108,8 @@ public class Robot extends TimedRobot
         {
             mAutonomousCommand.cancel();
         }
+        teleopLights.active = true;
+        autonLights.active = false;
         disabledLights.state = LightState.kDisabledError;
     }
 
@@ -114,6 +120,7 @@ public class Robot extends TimedRobot
     @Override
     public void teleopExit()
     {
+        teleopLights.active = false;
         disabledLights.state = LightState.kDisabledEnd;
     }
 
