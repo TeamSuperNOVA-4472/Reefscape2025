@@ -4,10 +4,10 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.ElevatorCarriageTeleop;
-import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.commands.SwerveTeleop;
@@ -19,7 +19,10 @@ import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -28,6 +31,7 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -50,11 +54,12 @@ public class RobotContainer
     //private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakeSubsystem mIntakeSubsystem;
+    private LightsSubsystem mLightsSubsystem;
+    private VisionSubsystem mVisionSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
 
     // Controllers go here:
     private final XboxController mDriver;
-
     private final XboxController mPartner;
     
     // Commands go here:
@@ -76,27 +81,32 @@ public class RobotContainer
     private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
 
     public RobotContainer()
-    {
+    {        
         // Initialize controllers.
         mDriver = new XboxController(kDriverPort);
         mPartner = new XboxController(kPartnerPort);
 
         // Initialize subsystems.
+        mLightsSubsystem = new LightsSubsystem();
         mSwerveSubsystem = new SwerveSubsystem();
         mCarriageSubsystem = new CarriageSubsystem();
         //mClimbSubsystem = new ClimbSubsystem();
         mElevatorSubsystem = new ElevatorSubsystem();
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
-       mIntakeSubsystem = new IntakeSubsystem();
+        mIntakeSubsystem = new IntakeSubsystem();
         
+        mVisionSubsystem = new VisionSubsystem(mSwerveSubsystem);
 
         // Initialize commands.
         mSwerveTeleop = new SwerveTeleop(
             () -> mFwdLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftY())),
             () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
             () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
+            mDriver::getLeftBumperButton,
+            mDriver::getRightBumperButton,
             mDriver::getAButton,
-            mSwerveSubsystem);
+            mSwerveSubsystem,
+            mVisionSubsystem);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
@@ -120,6 +130,12 @@ public class RobotContainer
         mElevatorSubsystem.setDefaultCommand(mElevatorTester);
         mCarriageSubsystem.setDefaultCommand(mCarriageTester);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
+        mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
+            // Update the swerve's odometry with the new vision estimate.
+            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
+                                                  newVisionPose.timestampSeconds);
+        });
+
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();

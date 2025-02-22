@@ -15,6 +15,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,7 +29,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
-    public static final double kMaxSpeedMS = 4.5;
+    public static final double kMaxSpeedMS = 0.5; // I'm not trustworthy. = 4.5;
     public static final double kMetersPerInch = Units.inchesToMeters(1);
     public static final double kSwerveLocYInches = 7.5;
     public static final double kSwerveLocXInches = 7;
@@ -118,6 +120,12 @@ public class SwerveSubsystem extends SubsystemBase
         configAutoBuilder(this);
     }
 
+    public void addVisionMeasurement(Pose2d visionPose, double timestamp)
+    {
+        mSwerveDrive.addVisionMeasurement(visionPose, timestamp);
+    }
+
+    // TODO: This should be moved to RobotContainer or Robot, I think.
     private boolean isRedAlliance()
     {
         var alliance = DriverStation.getAlliance();
@@ -147,6 +155,11 @@ public class SwerveSubsystem extends SubsystemBase
     public void driveRobotOriented(ChassisSpeeds pVelocity)
     {
         mSwerveDrive.drive(pVelocity);
+    }
+
+    public void driveTranslation(Translation2d pTranslation)
+    {
+        mSwerveDrive.drive(pTranslation, 0, true, false);
     }
 
     public void resetOdometry(Pose2d pPose)
