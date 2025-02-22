@@ -74,6 +74,8 @@ public class CarriageSubsystem extends SubsystemBase
 
     private PIDController wristPID;
 
+    // , Keep Note Of Ziegler Nichols Method
+
     public CarriageSubsystem() 
     {
         armMotor = new TalonFX(armMotorId);
