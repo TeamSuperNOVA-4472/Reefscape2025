@@ -91,6 +91,16 @@ public class ClimbSubsystem extends SubsystemBase
         return mRightClimbVoltage;
     }
 
+    public void setLeftClimbVoltage(double pNewVoltage)
+    {
+        mLeftClimbVoltage = pNewVoltage;
+    }
+    
+    public void setRightClimbVoltage(double pNewVoltage)
+    {
+        mRightClimbVoltage = pNewVoltage; 
+    }
+
     public double getGrabberVoltage()
     {
         return mGrabberVoltage;
@@ -121,8 +131,8 @@ public class ClimbSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
-        mLeftClimbVoltage = mLeftClimbPID.calculate(getLeftClimbAngle(), mLeftTargetAngle);
-        mRightClimbVoltage = mLeftClimbPID.calculate(getRightClimbAngle(), mRightTargetAngle);
+        //mLeftClimbVoltage = mLeftClimbPID.calculate(getLeftClimbAngle(), mLeftTargetAngle);
+        //mRightClimbVoltage = mLeftClimbPID.calculate(getRightClimbAngle(), mRightTargetAngle);
 
         mLeftClimbMotor.setVoltage(mLeftClimbVoltage);
         mRightClimbMotor.setVoltage(mRightClimbVoltage);
