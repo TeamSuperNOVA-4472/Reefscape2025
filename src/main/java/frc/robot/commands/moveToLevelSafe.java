@@ -17,6 +17,6 @@ public class moveToLevelSafe extends SequentialCommandGroup
 
         wristPreset = pCarriageSubsystem.getWristSetpoint();
 
-        addCommands(new moveOutOfDangerZone(pCarriageSubsystem), new MoveToLevelCommand(pElevatorSubsystem, pNewLevel), new MoveCarriageToPresetCommand(pCarriageSubsystem, armPreset, wristPreset));
+        addCommands(new moveOutOfDangerZone(pCarriageSubsystem), new MoveToLevelCommand(pElevatorSubsystem, pNewLevel));
     }
 }

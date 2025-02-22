@@ -69,7 +69,7 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double wristPresetMoving = 0;
 
-    public static final double armPresetMoving = 70;
+    public static final double armPresetMoving = 60;
 
     private static final double armKG = 0.44;
 
@@ -198,11 +198,11 @@ public class CarriageSubsystem extends SubsystemBase
 
     public double getArmSetpoint() 
     {
-        return elbowPreset.orElse(0.0); //TODO: Fix or remove.
+        return elbowPreset.orElse(0.0);
     }
     public double getWristSetpoint() 
     {
-        return wristPreset.orElse(0.0); //TODO: Fix or remove.
+        return wristPreset.orElse(0.0);
     }
 
     public double getArmAngle(){

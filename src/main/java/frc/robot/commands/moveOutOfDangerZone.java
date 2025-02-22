@@ -9,9 +9,7 @@ public class moveOutOfDangerZone extends Command
     CarriageSubsystem mCarriageSubsystem;
 
     double newWristTarget;
-    double newArmTarget; 
-
-    MoveCarriageToPresetCommand move;
+    double newArmTarget;
 
     public moveOutOfDangerZone(CarriageSubsystem pCarriageSubsystem)
     {
@@ -19,8 +17,6 @@ public class moveOutOfDangerZone extends Command
 
         newWristTarget = mCarriageSubsystem.getWristSetpoint();
         newArmTarget = mCarriageSubsystem.getArmSetpoint();
-
-        addRequirements(mCarriageSubsystem);
     }
 
     @Override
@@ -29,16 +25,18 @@ public class moveOutOfDangerZone extends Command
         if (mCarriageSubsystem.getCarriageTargetX() < -5)
         {
             newWristTarget = CarriageSubsystem.wristPresetMoving;
-
             newArmTarget = CarriageSubsystem.armPresetMoving;
         }
-
-        move = new MoveCarriageToPresetCommand(mCarriageSubsystem, newArmTarget, newWristTarget);
+        mCarriageSubsystem.setArmPreset(newArmTarget);
+        mCarriageSubsystem.setWristPreset(newWristTarget);
     }
 
     @Override
     public boolean isFinished()
     {
-        return move.isFinished();
+        double armDist = mCarriageSubsystem.getArmAngle() - mCarriageSubsystem.getArmSetpoint();
+        double wristDist = mCarriageSubsystem.getWristAngle() - mCarriageSubsystem.getWristSetpoint();
+
+        return Math.abs(armDist) < MoveCarriageToPresetCommand.kArmTolerence && Math.abs(wristDist) < MoveCarriageToPresetCommand.kWristTolerance;
     }
 }
