@@ -19,11 +19,11 @@ public class ClimbSubsystem extends SubsystemBase
 {
 
     // THE CONSTANTS
-    private static final int LEFT_MOTOR = 0;
-    private static final int RIGHT_MOTOR = 0;
-    private static final int GRABBER_MOTOR = 0;
-    private static final int LEFT_ENCODER = 0;
-    private static final int RIGHT_ENCODER = 0;
+    private static final int LEFT_MOTOR = 12;
+    private static final int RIGHT_MOTOR = 13;
+    private static final int GRABBER_MOTOR = 35;
+    private static final int LEFT_ENCODER = 2; //either 0, 1, 2, or 3 for both encoders
+    private static final int RIGHT_ENCODER = 3;
     private static final double RIGHT_CLIMB_OUT_ANGLE = 0;
     private static final double LEFT_CLIMB_OUT_ANGLE = 0;
     private static final double RIGHT_CLIMB_IN_ANGLE = 0;
@@ -54,7 +54,7 @@ public class ClimbSubsystem extends SubsystemBase
     // Constructor
     public ClimbSubsystem()
     {
-        mLeftClimbMotor = new TalonFX(LEFT_MOTOR); // Move these to constants at the top, DONE
+        mLeftClimbMotor = new TalonFX(LEFT_MOTOR, "CANivore"); // Move these to constants at the top, DONE
         mRightClimbMotor = new TalonFX(RIGHT_MOTOR); // Two krakens using TalonFX motor controllers
         mGrabberMotor = new SparkMax(GRABBER_MOTOR, MotorType.kBrushless);  // Two krakens using TalonFX motor controllers
 

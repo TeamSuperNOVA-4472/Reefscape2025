@@ -13,15 +13,18 @@ public class ElevatorTester extends Command {
         mElevator = pElevator;
         mElevatorSpeed = pElevatorSpeed;
         addRequirements(mElevator);
+        mElevator.resetEncoder();
+        mElevator.setPreset(ElevatorSubsystem.initialHeight);
     }
 
     @Override
     public void initialize() {
-        mElevator.stop();
+        //mElevator.stop();
+        mElevator.resetElevatorPID();
     }
 
     @Override
     public void execute() {
-        //mElevator.setVoltage(mElevatorSpeed.get()*6);
+        //mElevator.setManualVoltage(mElevatorSpeed.get()*6);
     }
 }

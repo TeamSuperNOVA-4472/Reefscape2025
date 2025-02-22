@@ -1,18 +1,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.objectmodels.IntakePresets;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class MoveToLevelCommand extends Command
 {
     private final ElevatorSubsystem mElevatorSubsystem;
-    private final IntakePresets mPreset;
+    private final Double mPreset;
 
-    public MoveToLevelCommand(ElevatorSubsystem pElevatorSubsystem, IntakePresets pPreset)
+    public MoveToLevelCommand(ElevatorSubsystem pElevatorSubsystem, Double pPreset)
     {
             mElevatorSubsystem = pElevatorSubsystem;
             mPreset = pPreset;
+            addRequirements(mElevatorSubsystem);
     }
 
     @Override
@@ -23,6 +23,6 @@ public class MoveToLevelCommand extends Command
     @Override
     public boolean isFinished()
     {
-        return !mElevatorSubsystem.isMoving();
+        return Math.abs(mElevatorSubsystem.getElevatorHeight() - mElevatorSubsystem.getElevatorPreset()) < 1.2;
     }
 }
