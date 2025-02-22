@@ -67,6 +67,10 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double wristPresetL4 = -71; // FIXME: WE'RE COOKED
 
+    public static final double wristPresetMoving = 0;
+
+    public static final double armPresetMoving = 70;
+
     private static final double armKG = 0.44;
 
     private static final double wristKG = 0.3;
@@ -223,6 +227,20 @@ public class CarriageSubsystem extends SubsystemBase
 
     public void resetArmPID(){
         armPID.reset(getArmAngle());
+    }
+
+    public double getCarriageX()
+    {
+        double armX = 13 * Math.cos(Math.toRadians(getArmAngle()));
+        double wristX = -10 * Math.cos(Math.toRadians(getAbsoluteWristAngle())) + -6 * Math.sin(Math.toRadians(getAbsoluteWristAngle()));
+        return armX + wristX;
+    }
+
+    public double getCarriageTargetX()
+    {
+        double armX = 13 * Math.cos(Math.toRadians(getArmSetpoint()));
+        double wristX = -10 * Math.cos(Math.toRadians(getWristSetpoint() + getArmSetpoint())) + -6 * Math.sin(Math.toRadians(getWristSetpoint() + getArmSetpoint()));
+        return armX + wristX;
     }
 
     @Override
