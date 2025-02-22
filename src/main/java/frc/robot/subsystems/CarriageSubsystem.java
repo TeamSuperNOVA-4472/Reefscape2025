@@ -48,13 +48,13 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double armPresetGroundPickup = 1.0;
 
-    public static final double armPresetL1 = 2.0;
+    public static final double armPresetL1 = 67;
 
-    public static final double armPresetL2 = 3.0;
+    public static final double armPresetL2 = 67;
 
-    public static final double armPresetL3 = 4.0;
+    public static final double armPresetL3 = 67;
 
-    public static final double armPresetL4 = 4.0;
+    public static final double armPresetL4 = 67; // FIXME: WE'RE COOKED
 
     private static final double armOffset = 150;
 
@@ -64,13 +64,13 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double wristPresetGroundPickup = 1.0;
 
-    public static final double wristPresetL1 = 1.0;
+    public static final double wristPresetL1 = -71;
 
-    public static final double wristPresetL2 = 1.0;
+    public static final double wristPresetL2 = -71;
 
-    public static final double wristPresetL3 = 1.0;
+    public static final double wristPresetL3 = -71;
 
-    public static final double wristPresetL4 = 1.0;
+    public static final double wristPresetL4 = -71; // FIXME: WE'RE COOKED
 
     private static final double armKG = 0.44;
 

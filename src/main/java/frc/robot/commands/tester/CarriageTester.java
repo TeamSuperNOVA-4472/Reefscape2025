@@ -21,9 +21,9 @@ public class CarriageTester extends Command
     
     @Override
     public void initialize() {
-        //mCarriageSubsystem.stop();
-        mCarriageSubsystem.setArmPreset(20.0);
-        mCarriageSubsystem.setWristPreset(0.0);
+        mCarriageSubsystem.stop();
+        //mCarriageSubsystem.setArmPreset(67.0);
+        //mCarriageSubsystem.setWristPreset(-71.0);
         mCarriageSubsystem.resetWristPID();
         mCarriageSubsystem.resetArmPID();
     }
@@ -31,8 +31,8 @@ public class CarriageTester extends Command
     @Override
     public void execute()
     {
-        //mCarriageSubsystem.setArmVoltage(mElbowVoltage.get()*6);
-        //mCarriageSubsystem.setWristVoltage(mWristVoltage.get()*6);
+        mCarriageSubsystem.setArmVoltage(mElbowVoltage.get()*6);
+        mCarriageSubsystem.setWristVoltage(mWristVoltage.get()*6);
 
     }
 }

@@ -4,13 +4,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase 
 {
 
     public static final int kIntakeMotorId = 1;
-    public static final double kIntakeVoltage = 12;
+    public static final double kCoralIntakeVoltage = 4;
+    public static final double kAlgaeIntakeVoltage = 4;
+    public static final double kAlgaeDefaultVoltage = 1;
 
     private boolean mIsIntaking;
     private boolean mIsOutTaking;
@@ -25,7 +28,7 @@ public class IntakeSubsystem extends SubsystemBase
 
     public void intakeCoral()
     {
-        mCoralIntake.setVoltage(kIntakeVoltage);
+        mCoralIntake.setVoltage(kCoralIntakeVoltage);
         mIsIntaking = true;
         mIsOutTaking = false;
 
@@ -33,14 +36,14 @@ public class IntakeSubsystem extends SubsystemBase
 
     public void outtakeCoral()
     {
-        mCoralIntake.setVoltage(-kIntakeVoltage);
+        mCoralIntake.setVoltage(-kCoralIntakeVoltage);
         mIsIntaking = false;
         mIsOutTaking = true;
     }
 
     public void intakeAlgae()
     {
-        mAlgaeIntake.setVoltage(kIntakeVoltage);
+        mAlgaeIntake.setVoltage(kAlgaeIntakeVoltage);
         mIsIntaking = true;
         mIsOutTaking = false;
 
@@ -48,7 +51,7 @@ public class IntakeSubsystem extends SubsystemBase
 
     public void outtakeAlgae()
     {
-        mAlgaeIntake.setVoltage(-kIntakeVoltage);
+        mAlgaeIntake.setVoltage(-kAlgaeIntakeVoltage);
         mIsIntaking = false;
         mIsOutTaking = true;
     }
@@ -56,7 +59,7 @@ public class IntakeSubsystem extends SubsystemBase
     public void stop()
     {
         mCoralIntake.stopMotor();
-        mAlgaeIntake.stopMotor();
+        mAlgaeIntake.setVoltage(kAlgaeDefaultVoltage);
         mIsIntaking = false;
         mIsOutTaking = false;
     }
@@ -71,4 +74,9 @@ public class IntakeSubsystem extends SubsystemBase
         return mIsOutTaking;
     }
 
+    @Override
+    public void periodic()
+    {
+        SmartDashboard.putNumber("Algae Intake Current", mAlgaeIntake.getSupplyCurrent().getValueAsDouble());
+    }
 }

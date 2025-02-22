@@ -102,8 +102,9 @@ public class RobotContainer
         Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
         carriage.whileTrue(new SequentialCommandGroup(
             new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, 0.0),
-            new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, -60.0),
-            new MoveToLevelCommand(mElevatorSubsystem, 30.0)));
+            new MoveToLevelCommand(mElevatorSubsystem, 30.0),
+            new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, -60.0)
+        ));
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
