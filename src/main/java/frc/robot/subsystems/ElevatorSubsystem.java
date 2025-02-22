@@ -33,9 +33,9 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double kPresetGroundPickup = 0;
     public static final double kPresetCoralPickup = 17.822144;
     public static final double kPresetL1 = 12.911;
-    public static final double kPresetL2 = 20.191;
-    public static final double kPresetL3 = 35.844;
-    public static final double kPresetL4 = 35.844; // FIXME: WE'RE COOKED
+    public static final double kPresetL2 = 21.191;
+    public static final double kPresetL3 = 36.844;
+    public static final double kPresetL4 = 65;
 
     public static final double kElevatorP = 0.9;
     public static final double kElevatorI = 0;
