@@ -7,11 +7,15 @@ package frc.robot;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
-import frc.robot.commands.ElevatorCarriageTeleop;
-import frc.robot.commands.MoveCarriageToPresetCommand;
-import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.Intake.AlgaeIntakePreset;
+import frc.robot.commands.Intake.IntakeCoralTeleop;
+import frc.robot.commands.Intake.LoadCoral;
+import frc.robot.commands.Intake.MoveCarriageToPresetCommand;
+import frc.robot.commands.Intake.MoveToLevelCommand;
+import frc.robot.commands.Intake.StowCarriagePosition;
 import frc.robot.commands.tester.CarriageTester;
+import frc.robot.commands.tester.ClimberTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
 import frc.robot.subsystems.CarriageSubsystem;
@@ -50,13 +54,13 @@ public class RobotContainer
 
     // Subsystems go here:
     private final CarriageSubsystem mCarriageSubsystem;
-    //private final ClimbSubsystem mClimbSubsystem;
     //private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakeSubsystem mIntakeSubsystem;
     private LightsSubsystem mLightsSubsystem;
     private VisionSubsystem mVisionSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
+    private final ClimbSubsystem mClimbSubsystem;
 
     // Controllers go here:
     private final XboxController mDriver;
@@ -64,6 +68,7 @@ public class RobotContainer
     
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
+    private final IntakeCoralTeleop mIntakeCoralTeleop;
     //private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     //private final IntakeTeleop mIntakeTeleop;
 
@@ -71,6 +76,8 @@ public class RobotContainer
     private final ElevatorTester mElevatorTester;
     private final CarriageTester mCarriageTester;
     private final IntakeTester mIntakeTester;
+    //private final ClimberTester mClimberTester;
+
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -90,7 +97,7 @@ public class RobotContainer
         mLightsSubsystem = new LightsSubsystem();
         mSwerveSubsystem = new SwerveSubsystem();
         mCarriageSubsystem = new CarriageSubsystem();
-        //mClimbSubsystem = new ClimbSubsystem();
+        mClimbSubsystem = new ClimbSubsystem();
         mElevatorSubsystem = new ElevatorSubsystem();
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
         mIntakeSubsystem = new IntakeSubsystem();
@@ -110,19 +117,54 @@ public class RobotContainer
             mVisionSubsystem);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
+
+        mIntakeCoralTeleop = new IntakeCoralTeleop(
+            mIntakeSubsystem, 
+            mCarriageSubsystem,
+            mElevatorSubsystem,
+            mPartner::getAButton, 
+            mPartner::getXButton,
+            mPartner::getBButton,
+            mPartner::getYButton);
+        
         Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
-        /*carriage.whileTrue(new SequentialCommandGroup(
-            new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, 0.0),
-            new MoveToLevelCommand(mElevatorSubsystem, 30.0),
-            new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, -60.0)
-        ));*/
+        carriage.onTrue(new LoadCoral(mElevatorSubsystem, mCarriageSubsystem));
+
+        Trigger scoreTrigger = new Trigger(mPartner::getRightBumperButton);
+        scoreTrigger.onTrue(new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem)
+        );
+
+        /*Trigger l1Trigger = new Trigger(() -> mPartner.getPOV() == 90);
+        l1Trigger.onTrue(new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem)
+        );
+
+        Trigger l2Trigger = new Trigger(() -> mPartner.getPOV() == 180);
+        l2Trigger.onTrue(new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem)
+        );
+        
+        Trigger l3Trigger = new Trigger(() -> mPartner.getPOV() == 270);
+        l3Trigger.onTrue(new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem)
+        );
+
+        Trigger l4Trigger = new Trigger(() -> mPartner.getPOV() == 0);
+        l4Trigger.onTrue(new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem)
+        );
+
+        Trigger algaeTrigger = new Trigger(() -> mPartner.getLeftTriggerAxis() > 0);
+        algaeTrigger.onTrue(new AlgaeIntakePreset(mCarriageSubsystem)
+        );*/
+
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
         
         mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
-        mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
-        // Configure subsystems.
+        mIntakeTester = new IntakeTester(
+            mPartner::getLeftBumperButton,
+            () -> mPartner.getLeftTriggerAxis() > 0.5,
+            mIntakeSubsystem);
+        //mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
+        // Configure subsystems
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
         // mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
         // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
@@ -131,12 +173,14 @@ public class RobotContainer
         mElevatorSubsystem.setDefaultCommand(mElevatorTester);
         mCarriageSubsystem.setDefaultCommand(mCarriageTester);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
+
         mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
             mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
                                                   newVisionPose.timestampSeconds);
         });
 
+        //mClimbSubsystem.setDefaultCommand(mClimberTester);
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();

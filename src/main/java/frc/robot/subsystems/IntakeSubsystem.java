@@ -1,6 +1,11 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -24,6 +29,36 @@ public class IntakeSubsystem extends SubsystemBase
     {
         mCoralIntake = new TalonFX(23, "CANivore");
         mAlgaeIntake = new TalonFX(24, "CANivore");
+        
+        TalonFXConfiguration algaeConfig = new TalonFXConfiguration();
+        CurrentLimitsConfigs algaeCurrentConfig = new CurrentLimitsConfigs();
+        MotorOutputConfigs algaeMotorConfig = new MotorOutputConfigs();
+        mAlgaeIntake.getConfigurator().refresh(algaeConfig);
+        mAlgaeIntake.getConfigurator().refresh(algaeCurrentConfig);
+        mAlgaeIntake.getConfigurator().refresh(algaeMotorConfig);
+        algaeCurrentConfig.SupplyCurrentLimit = 30;
+        algaeCurrentConfig.SupplyCurrentLimitEnable = true;
+        algaeCurrentConfig.StatorCurrentLimitEnable = true;
+        algaeCurrentConfig.StatorCurrentLimit = 30;
+        algaeMotorConfig.NeutralMode = NeutralModeValue.Brake;
+        algaeConfig.withCurrentLimits(algaeCurrentConfig);
+        algaeConfig.withMotorOutput(algaeMotorConfig);
+        mAlgaeIntake.getConfigurator().apply(algaeConfig);
+
+        TalonFXConfiguration coralConfig = new TalonFXConfiguration();
+        CurrentLimitsConfigs coralCurrentConfig = new CurrentLimitsConfigs();
+        MotorOutputConfigs coralMotorConfig = new MotorOutputConfigs();
+        mCoralIntake.getConfigurator().refresh(coralConfig);
+        mCoralIntake.getConfigurator().refresh(coralCurrentConfig);
+        mCoralIntake.getConfigurator().refresh(coralMotorConfig);
+        coralCurrentConfig.SupplyCurrentLimit = 30;
+        coralCurrentConfig.SupplyCurrentLimitEnable = true;
+        coralCurrentConfig.StatorCurrentLimitEnable = true;
+        coralCurrentConfig.StatorCurrentLimit = 30;
+        coralMotorConfig.NeutralMode = NeutralModeValue.Brake;
+        coralConfig.withCurrentLimits(coralCurrentConfig);
+        coralConfig.withMotorOutput(coralMotorConfig);
+        mCoralIntake.getConfigurator().apply(coralConfig);
     }
 
     public void intakeCoral()

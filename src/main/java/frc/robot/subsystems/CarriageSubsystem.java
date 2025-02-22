@@ -48,13 +48,19 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double armPresetGroundPickup = 1.0;
 
+    public static final double armMovingAngle = 65;
+
+    public static final double armCoralLoad = 111.348181;
+
+    public static final double armAlgaeLoad = 67;
+
     public static final double armPresetL1 = 67;
 
     public static final double armPresetL2 = 67;
 
     public static final double armPresetL3 = 67;
 
-    public static final double armPresetL4 = 67; // FIXME: WE'RE COOKED
+    public static final double armPresetL4 = 90;
 
     private static final double armOffset = 150;
 
@@ -64,13 +70,19 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double wristPresetGroundPickup = 1.0;
 
+    public static final double wristMovingAngle = 0;
+
+    public static final double wristCoralLoad = -57.339534;
+
+    public static final double wristAlgaeLoad = -90;
+
     public static final double wristPresetL1 = -71;
 
     public static final double wristPresetL2 = -71;
 
     public static final double wristPresetL3 = -71;
 
-    public static final double wristPresetL4 = -71; // FIXME: WE'RE COOKED
+    public static final double wristPresetL4 = -96;
 
     private static final double armKG = 0.44;
 
