@@ -4,9 +4,11 @@
 
 package frc.robot.commands;
 
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -50,6 +52,7 @@ public class SwerveTeleop extends Command
             Supplier<Boolean> pLeftButton,
             Supplier<Boolean> pRightButton,
             SwerveSubsystem pSwerveSubsystem,
+            IntakeSubsystem pIntakeSubsystem,
             VisionSubsystem pVisionSubsystem)
     {
         mFwdInput = pFwdInput;
@@ -61,7 +64,7 @@ public class SwerveTeleop extends Command
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
         mVisionAlignTrigger = new Trigger(pLeftButton::get);
-        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero));
+        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.of(pIntakeSubsystem::outtakeCoral)));
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 

@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.Optional;
+
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,11 +16,13 @@ public class VisionAlignCommand extends SequentialCommandGroup
 {
     private PhotonTrackedTarget activeTarget, oldTarget;
     private Pose2d offset;
+    private Optional<Runnable> runOnComplete;
 
     public VisionAlignCommand(
         SwerveSubsystem pSwerve,
         VisionSubsystem pVision,
-        Translation2d pOffsetFromTarget)
+        Translation2d pOffsetFromTarget,
+        Optional<Runnable> pRunOnComplete)
     {
         // TODO: This is ugly. There's a few things that would be nice to clean it up a litte:
         //       - For one, the offset is copy-pasted a few times. Make it a final member variable up here.
@@ -201,7 +205,13 @@ public class VisionAlignCommand extends SequentialCommandGroup
                     offset = new Pose2d(deltaPos, Rotation2d.kZero);
                 }
             }),
-            new DriveDistanceAndHeading(pSwerve, () -> offset)
+            new DriveDistanceAndHeading(pSwerve, () -> offset),
+            new InstantCommand(() -> {
+                if (runOnComplete.isPresent())
+                {
+                    runOnComplete.get().run();
+                }
+            })
         );
     }
 }
