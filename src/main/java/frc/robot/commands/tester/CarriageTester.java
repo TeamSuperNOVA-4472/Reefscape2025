@@ -17,13 +17,14 @@ public class CarriageTester extends Command
         mWristVoltage = pWristVoltage;
         mCarriageSubsystem = pCarriageSubsystem;
         addRequirements(mCarriageSubsystem);
+
+        mCarriageSubsystem.setArmPreset(67.0);
+        mCarriageSubsystem.setWristPreset(-71.0);
     }
     
     @Override
     public void initialize() {
-        mCarriageSubsystem.stop();
-        //mCarriageSubsystem.setArmPreset(67.0);
-        //mCarriageSubsystem.setWristPreset(-71.0);
+        //mCarriageSubsystem.stop();
         mCarriageSubsystem.resetWristPID();
         mCarriageSubsystem.resetArmPID();
     }
@@ -31,8 +32,8 @@ public class CarriageTester extends Command
     @Override
     public void execute()
     {
-        mCarriageSubsystem.setArmVoltage(mElbowVoltage.get()*6);
-        mCarriageSubsystem.setWristVoltage(mWristVoltage.get()*6);
+        //mCarriageSubsystem.setArmVoltage(mElbowVoltage.get()*6);
+        //mCarriageSubsystem.setWristVoltage(mWristVoltage.get()*6);
 
     }
 }

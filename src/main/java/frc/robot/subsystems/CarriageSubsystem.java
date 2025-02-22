@@ -48,6 +48,10 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double armPresetGroundPickup = 1.0;
 
+    public static final double armMovingAngle = 75;
+
+    public static final double armCoralLoad = 111.348181;
+
     public static final double armPresetL1 = 67;
 
     public static final double armPresetL2 = 67;
@@ -63,6 +67,10 @@ public class CarriageSubsystem extends SubsystemBase
     public static final double wristPresetKAway = 0.0;
 
     public static final double wristPresetGroundPickup = 1.0;
+
+    public static final double wristMovingAngle = 0;
+
+    public static final double wristCoralLoad = -57.339534;
 
     public static final double wristPresetL1 = -71;
 

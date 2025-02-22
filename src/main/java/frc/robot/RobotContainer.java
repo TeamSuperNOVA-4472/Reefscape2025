@@ -11,6 +11,7 @@ import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
@@ -100,11 +101,8 @@ public class RobotContainer
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
-        carriage.whileTrue(new SequentialCommandGroup(
-            new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, 0.0),
-            new MoveToLevelCommand(mElevatorSubsystem, 30.0),
-            new MoveCarriageToPresetCommand(mCarriageSubsystem, 0.0, -60.0)
-        ));
+        carriage.whileTrue(new LoadCoral(mElevatorSubsystem, mCarriageSubsystem)
+        );
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));

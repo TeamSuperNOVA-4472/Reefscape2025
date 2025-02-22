@@ -6,8 +6,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.configs.TalonFXConfiguration; 
+import com.ctre.phoenix6.hardware.TalonFX; 
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -27,8 +27,11 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final int kBottomSwitchChannel = 0;
     public static final int kTopSwitchChannel = 1;
 
+    
+    public static final double initialHeight = 12.875;
     public static final double kPresetAway = 0;
     public static final double kPresetGroundPickup = 0;
+    public static final double kPresetCoralPickup = 17.822144;
     public static final double kPresetL1 = 12.911;
     public static final double kPresetL2 = 20.191;
     public static final double kPresetL3 = 35.844;
@@ -40,7 +43,6 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double kG = 0.2;
 
     public static final double rotationsToInches = 0.45;
-    public static final double initialHeight = 12.875;
 
     private final TalonFX mElevatorLeft;
     //private final TalonFX mElevatorRight;

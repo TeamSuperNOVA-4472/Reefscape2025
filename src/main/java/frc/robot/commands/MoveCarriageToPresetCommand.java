@@ -30,12 +30,6 @@ public class MoveCarriageToPresetCommand extends Command
     }
 
     @Override
-    public void end(boolean stopping) 
-    {
-        mCarriageSubsystem.stop();
-    }
-
-    @Override
     public boolean isFinished() 
     {
         double armDist = mCarriageSubsystem.getArmAngle() - mCarriageSubsystem.getArmSetpoint();
