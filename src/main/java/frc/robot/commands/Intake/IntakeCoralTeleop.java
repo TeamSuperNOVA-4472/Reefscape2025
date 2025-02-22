@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.Intake;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,7 @@ import javax.print.StreamPrintService;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.Intake.CarriageAndElevatorCommand;
 import frc.robot.objectmodels.IntakePreset;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
@@ -23,7 +24,6 @@ public class IntakeCoralTeleop extends Command
 
     private CarriageAndElevatorCommand mCommand;
 
-    private Supplier<Boolean> mLoadButton;
     private Supplier<Boolean> mL1Button;
     private Supplier<Boolean> mL2Button;
     private Supplier<Boolean> mL3Button;
@@ -33,20 +33,15 @@ public class IntakeCoralTeleop extends Command
         IntakeSubsystem pIntakeSubsystem,
         CarriageSubsystem pCarriageSubsystem,
         ElevatorSubsystem pElevatorSubsytem,
-        Supplier<Boolean> pLoadButton, 
         Supplier<Boolean> pL1Button,
         Supplier<Boolean> pL2Button,
         Supplier<Boolean> pL3Button,
         Supplier<Boolean> pL4Button)
     {
-        mLoadButton = pLoadButton;
         mL1Button = pL1Button;
         mL2Button = pL2Button;
         mL3Button = pL3Button;
         mL4Button = pL4Button;
-
-        //TODO: define default arm preset
-        //TODO: define default wrist preset
 
         mIntakeSubsystem = pIntakeSubsystem;
         mCarriageSubsystem = pCarriageSubsystem;
@@ -57,12 +52,7 @@ public class IntakeCoralTeleop extends Command
 
     private Optional<IntakePreset> getPreset()
     {
-        if (mLoadButton.get())
-        {
-            //TODO: RETURN MATCH LOAD
-            return Optional.of(IntakePreset.kScoreL1);
-        }
-        else if (mL1Button.get())
+        if (mL1Button.get())
         {
             return Optional.of(IntakePreset.kScoreL1);
         }
@@ -76,8 +66,7 @@ public class IntakeCoralTeleop extends Command
         }
         else if (mL4Button.get())
         {
-            //TODO: RETURN L4 PRESET
-            return Optional.of(IntakePreset.kScoreL3);
+            return Optional.of(IntakePreset.kScoreL4);
         }
         else
         {

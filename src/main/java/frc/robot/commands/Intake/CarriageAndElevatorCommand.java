@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.Intake;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.objectmodels.IntakePreset;
@@ -21,8 +21,7 @@ public class CarriageAndElevatorCommand extends SequentialCommandGroup{
         mPreset = pPreset;
 
         addCommands(
-            //TODO: Add new command
-            //new MoveCarriageToPresetCommand(mCarriageSubsystem, mPreset),
+            new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem),
             new MoveToLevelCommand(mElevatorSubsystem, mPreset),
             new MoveCarriageToPresetCommand(mCarriageSubsystem, mPreset)
         );
