@@ -168,6 +168,7 @@ public class RobotContainer
         NamedCommands.registerCommand("ScoreLevel4Right", new DoTheThingCommand());
         NamedCommands.registerCommand("ScoreLevel4Left", new DoTheThingCommand());
         NamedCommands.registerCommand("ScoreLevel3Right", new DoTheThingCommand());
+        NamedCommands.registerCommand("ScoreLevel1", new DoTheThingCommand());
         NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
         NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
         NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
