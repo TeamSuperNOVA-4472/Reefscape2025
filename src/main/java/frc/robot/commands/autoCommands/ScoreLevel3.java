@@ -12,9 +12,8 @@ public class ScoreLevel3 extends SequentialCommandGroup
 {
     public ScoreLevel3(ElevatorSubsystem pElevatorSubsystem, CarriageSubsystem pCarriageSubsystem, IntakeSubsystem pIntakeSubsystem)
     {
-        addCommands(new CoralL3Preset(pElevatorSubsystem, pCarriageSubsystem),
+
+        addCommands(new InstantCommand(() -> System.out.print("Hello")),new CoralL3Preset(pElevatorSubsystem, pCarriageSubsystem),
         new InstantCommand(() -> pIntakeSubsystem.outtakeCoral()));
- 
-        
     }
 }
