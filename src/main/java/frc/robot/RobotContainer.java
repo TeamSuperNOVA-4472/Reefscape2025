@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.ElevatorCarriageTeleop;
@@ -23,7 +24,6 @@ import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
 import frc.robot.commands.tester.CarriageTester;
-import frc.robot.commands.tester.ClimberTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
 import frc.robot.subsystems.CarriageSubsystem;
@@ -31,7 +31,10 @@ import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -40,6 +43,7 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -62,6 +66,8 @@ public class RobotContainer
     //private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakeSubsystem mIntakeSubsystem;
+    private LightsSubsystem mLightsSubsystem;
+    private VisionSubsystem mVisionSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
     private final ClimbSubsystem mClimbSubsystem;
 
@@ -91,12 +97,13 @@ public class RobotContainer
     private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
 
     public RobotContainer()
-    {
+    {        
         // Initialize controllers.
         mDriver = new XboxController(kDriverPort);
         mPartner = new XboxController(kPartnerPort);
 
         // Initialize subsystems.
+        mLightsSubsystem = new LightsSubsystem();
         mSwerveSubsystem = new SwerveSubsystem();
         mCarriageSubsystem = new CarriageSubsystem();
         mClimbSubsystem = new ClimbSubsystem();
@@ -104,6 +111,7 @@ public class RobotContainer
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
        mIntakeSubsystem = new IntakeSubsystem();
         
+        mVisionSubsystem = new VisionSubsystem(mSwerveSubsystem);
 
         // Initialize commands.
         mSwerveTeleop = new SwerveTeleop(
@@ -111,8 +119,11 @@ public class RobotContainer
             () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
             () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
             mDriver::getAButton,
-            mSwerveSubsystem);
-        // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
+            mDriver::getXButton,
+            mDriver::getBButton,
+            mSwerveSubsystem,
+            mVisionSubsystem);
+            // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
         carriage.onTrue(new ConditionalCommand(new InstantCommand(), new LoadCoral(mElevatorSubsystem, mCarriageSubsystem), () -> mIntakeSubsystem.hasAlgae())
@@ -158,6 +169,11 @@ public class RobotContainer
         mCarriageSubsystem.setDefaultCommand(mCarriageTester);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         mClimbSubsystem.setDefaultCommand(mClimberTester);
+        /*mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
+            // Update the swerve's odometry with the new vision estimate.
+            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
+                                                  newVisionPose.timestampSeconds);
+        });*/
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
