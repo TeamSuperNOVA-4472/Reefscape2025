@@ -11,7 +11,11 @@ import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.Presets.AlgaeBarge;
 import frc.robot.commands.Presets.AlgaeIntakePreset;
+import frc.robot.commands.Presets.AlgaeL2;
+import frc.robot.commands.Presets.AlgaeL3;
+import frc.robot.commands.Presets.AlgaeProcessor;
 import frc.robot.commands.Presets.CoralL1Preset;
 import frc.robot.commands.Presets.CoralL2Preset;
 import frc.robot.commands.Presets.CoralL3Preset;
@@ -40,6 +44,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -118,23 +123,23 @@ public class RobotContainer
         );
 
         Trigger l1Trigger = new Trigger(() -> mPartner.getPOV() == 90);
-        l1Trigger.onTrue(new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem)
+        l1Trigger.onTrue(new ConditionalCommand(new AlgaeProcessor(mElevatorSubsystem, mCarriageSubsystem), new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
         );
 
         Trigger l2Trigger = new Trigger(() -> mPartner.getPOV() == 180);
-        l2Trigger.onTrue(new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem)
+        l2Trigger.onTrue(new ConditionalCommand(new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem), new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
         );
         
         Trigger l3Trigger = new Trigger(() -> mPartner.getPOV() == 270);
-        l3Trigger.onTrue(new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem)
+        l3Trigger.onTrue(new ConditionalCommand(new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem), new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
         );
 
         Trigger l4Trigger = new Trigger(() -> mPartner.getPOV() == 0);
-        l4Trigger.onTrue(new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem)
+        l4Trigger.onTrue(new ConditionalCommand(new AlgaeBarge(mElevatorSubsystem, mCarriageSubsystem), new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
         );
 
         Trigger algaeTrigger = new Trigger(() -> mPartner.getLeftTriggerAxis() > 0);
-        algaeTrigger.onTrue(new AlgaeIntakePreset(mCarriageSubsystem)
+        algaeTrigger.onTrue(new AlgaeIntakePreset(mCarriageSubsystem, mElevatorSubsystem)
         );
 
         // TODO: remove tester commands when robot is properly programmed

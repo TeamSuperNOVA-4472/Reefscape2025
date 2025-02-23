@@ -92,6 +92,18 @@ public class CarriageSubsystem extends SubsystemBase
 
     private static final double maxWristVoltage = 4;
 
+    public static final double armAlgaeBarge = 90;
+    public static final double armAlgaeProcessor = 40;
+    public static final double armAlgaeL2 = 40;
+    public static final double armAlgaeL3 = 70;
+    public static final double armAlgaeStow = 60;
+
+    public static final double wristAlgaeBarge = -100;
+    public static final double wristAlgaeProcessor = -120;
+    public static final double wristAlgaeL2 = -120;
+    public static final double wristAlgaeL3 = -120;
+    public static final double wristAlgaeStow = -60;
+
     private TalonFX armMotor;
 
     private TalonFX wristMotor;
@@ -105,6 +117,8 @@ public class CarriageSubsystem extends SubsystemBase
     private ProfiledPIDController armPID;
 
     private ProfiledPIDController wristPID;
+
+    boolean algaeMode = false;
 
     public CarriageSubsystem() 
     {
@@ -198,6 +212,13 @@ public class CarriageSubsystem extends SubsystemBase
     public void setWristPreset(Double wristPre)
     {
         wristPreset = Optional.of(wristPre);
+    }
+
+    public boolean getAlgaeMode(){
+        return algaeMode;
+    }
+    public void setAlgaeMode(boolean newMode){
+        algaeMode = newMode;
     }
 
     public double getArmCurrentPosition() 
