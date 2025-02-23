@@ -160,13 +160,13 @@ public class RobotContainer
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         mClimbSubsystem.setDefaultCommand(mClimberTester);
 
-        // Configure other things.
-        autoChooser = AutoBuilder.buildAutoChooser();
 
         // Register named commands.
         // TODO: Some of these are temporary things.
         NamedCommands.registerCommand("ScoreLevel3", new ScoreLevel3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
 
+        // Configure other things.
+        autoChooser = AutoBuilder.buildAutoChooser();
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(
