@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.objectmodels.IntakePresets;
 
 public class CarriageSubsystem extends SubsystemBase 
 {
@@ -33,53 +32,77 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final int wristSwitch = 1;
 
-    public static final double armP = 0.05;
+    public static final double armP = 0.075;
 
     public static final double armI = 0;
 
     public static final double armD = 0.005;
 
-    public static final double wristP = 0.25;
+    public static final double wristP = 0.1;
 
     public static final double wristI = 0;
 
     public static final double wristD = 0;
 
-    private static final double armPresetKAway = 0.0;
+    public static final double armPresetKAway = 0.0;
 
-    private static final double armPresetGroundPickup = 1.0;
+    public static final double armPresetGroundPickup = 1.0;
 
-    private static final double armPresetL1 = 2.0;
+    public static final double armMovingAngle = 65;
 
-    private static final double armPresetL2 = 3.0;
+    public static final double armCoralLoad = 111.348181;
 
-    private static final double armPresetL3 = 4.0;
+    public static final double armAlgaeLoad = 67;
 
-    private static final double armPresetL4 = 4.0;
+    public static final double armPresetL1 = 67;
+
+    public static final double armPresetL2 = 67;
+
+    public static final double armPresetL3 = 67;
+
+    public static final double armPresetL4 = 90;
 
     private static final double armOffset = 150;
 
     private static final double wristOffset = 122;
 
-    private static final double wristPresetKAway = 0.0;
+    public static final double wristPresetKAway = 0.0;
 
-    private static final double wristPresetGroundPickup = 1.0;
+    public static final double wristPresetGroundPickup = 1.0;
 
-    private static final double wristPresetL1 = 1.0;
+    public static final double wristMovingAngle = 0;
 
-    private static final double wristPresetL2 = 1.0;
+    public static final double wristCoralLoad = -57.339534;
 
-    private static final double wristPresetL3 = 1.0;
+    public static final double wristAlgaeLoad = -90;
 
-    private static final double wristPresetL4 = 1.0;
+    public static final double wristPresetL1 = -71;
 
-    private static final double armKG = 0.9;
+    public static final double wristPresetL2 = -71;
+
+    public static final double wristPresetL3 = -71;
+
+    public static final double wristPresetL4 = -96;
+
+    private static final double armKG = 0.44;
 
     private static final double wristKG = 0.3;
 
     private static final double angleOverflowMin = 235;
 
     private static final double maxWristVoltage = 4;
+
+    public static final double armAlgaeBarge = 90;
+    public static final double armAlgaeProcessor = 40;
+    public static final double armAlgaeL2 = 40;
+    public static final double armAlgaeL3 = 70;
+    public static final double armAlgaeStow = 60;
+
+    public static final double wristAlgaeBarge = -100;
+    public static final double wristAlgaeProcessor = -120;
+    public static final double wristAlgaeL2 = -120;
+    public static final double wristAlgaeL3 = -120;
+    public static final double wristAlgaeStow = -60;
 
     private TalonFX armMotor;
 
@@ -88,11 +111,14 @@ public class CarriageSubsystem extends SubsystemBase
     private final DutyCycleEncoder mWristEncoder;
     private final DutyCycleEncoder mElbowEncoder;
 
-    private Optional<IntakePresets> activePreset = Optional.empty();
+    private Optional<Double> wristPreset = Optional.empty();
+    private Optional<Double> elbowPreset = Optional.empty();
 
-    private PIDController armPID;
+    private ProfiledPIDController armPID;
 
     private ProfiledPIDController wristPID;
+
+    boolean algaeMode = false;
 
     public CarriageSubsystem() 
     {
@@ -129,16 +155,17 @@ public class CarriageSubsystem extends SubsystemBase
         wristConfig.withMotorOutput(wristMotorConfig);
         wristMotor.getConfigurator().apply(wristConfig);
 
-        armPID = new PIDController(armP, armI, armD);
+        armPID = new ProfiledPIDController(armP, armI, armD, new Constraints(720, 720));
         wristPID = new ProfiledPIDController(wristP, wristI, wristD, new Constraints(360, 360));
 
         mElbowEncoder = new DutyCycleEncoder(0); 
-        mWristEncoder = new DutyCycleEncoder(1); 
+        mWristEncoder = new DutyCycleEncoder(1);
     }
 
     public void stop()
     {
-        activePreset = Optional.empty();
+        elbowPreset = Optional.empty();
+        wristPreset = Optional.empty();
         armMotor.stopMotor();
         wristMotor.stopMotor();
     }
@@ -150,7 +177,7 @@ public class CarriageSubsystem extends SubsystemBase
     
     public void setManualArmVoltage(double voltage) 
     {
-        activePreset = Optional.empty();
+        elbowPreset = Optional.empty();
         armMotor.setVoltage(voltage + armKG * Math.cos(Math.toRadians(this.getArmAngle())));
     }
 
@@ -161,7 +188,7 @@ public class CarriageSubsystem extends SubsystemBase
 
     public void setManualWristVoltage(double voltage) 
     {
-        activePreset = Optional.empty();
+        wristPreset = Optional.empty();
         wristMotor.setVoltage(voltage + wristKG * Math.cos(Math.toRadians(this.getAbsoluteWristAngle())));
     }
     /*public boolean isArmAtBottom() 
@@ -178,9 +205,20 @@ public class CarriageSubsystem extends SubsystemBase
         return wristLimit.get();
     }*/
 
-    public void setActivePreset(IntakePresets preset)
+    public void setArmPreset(Double armPreset)
     {
-        activePreset = Optional.of(preset);
+        elbowPreset = Optional.of(armPreset);
+    }
+    public void setWristPreset(Double wristPre)
+    {
+        wristPreset = Optional.of(wristPre);
+    }
+
+    public boolean getAlgaeMode(){
+        return algaeMode;
+    }
+    public void setAlgaeMode(boolean newMode){
+        algaeMode = newMode;
     }
 
     public double getArmCurrentPosition() 
@@ -194,11 +232,11 @@ public class CarriageSubsystem extends SubsystemBase
 
     public double getArmSetpoint() 
     {
-        return armPID.getSetpoint();
+        return elbowPreset.orElse(0.0); //TODO: Fix or remove.
     }
     public double getWristSetpoint() 
     {
-        return 0;
+        return wristPreset.orElse(0.0); //TODO: Fix or remove.
     }
 
     public double getArmAngle(){
@@ -221,6 +259,10 @@ public class CarriageSubsystem extends SubsystemBase
         wristPID.reset(getWristAngle());
     }
 
+    public void resetArmPID(){
+        armPID.reset(getArmAngle());
+    }
+
     @Override
     public void periodic() 
     {
@@ -228,52 +270,13 @@ public class CarriageSubsystem extends SubsystemBase
         SmartDashboard.putNumber("Wrist Angle", this.getWristAngle());
         SmartDashboard.putNumber("Absolute Wrist Angle", this.getAbsoluteWristAngle());
 
-        if (activePreset.isEmpty()) return; // No preset.
-        /*else
-        {
-            switch (activePreset.get())
-            {
-                case kAway:
-                    armPID.setSetpoint(armPresetKAway);
-                    wristPID.setSetpoint(wristPresetKAway);
-                    break;
-
-                case kGroundPickup:
-                    armPID.setSetpoint(armPresetGroundPickup);
-                    wristPID.setSetpoint(wristPresetGroundPickup);
-                    break;
-
-                case kScoreL1:
-                    armPID.setSetpoint(armPresetL1);
-                    wristPID.setSetpoint(wristPresetL1);
-                    break;
-
-                case kScoreL2:
-                    armPID.setSetpoint(armPresetL2);
-                    wristPID.setSetpoint(wristPresetL2);
-                    break;
-
-                case kScoreL3:
-                    armPID.setSetpoint(armPresetL3);
-                    wristPID.setSetpoint(wristPresetL3);
-                    break;
-
-                case kScoreL4:
-                    armPID.setSetpoint(armPresetL4);
-                    wristPID.setSetpoint(wristPresetL4);
-                    break;
-
-                default: return; // Unknown preset. Shouldn't happen.
-            }
-        }*/
+        if (elbowPreset.isEmpty() || wristPreset.isEmpty()) return; // No preset.
 
         double armCurrentPosition = this.getArmAngle();
-        double armSpeed = armPID.calculate(armCurrentPosition, 70);
-        this.setArmVoltage(0);
-
+        double armSpeed = armPID.calculate(armCurrentPosition, elbowPreset.get());
+        this.setArmVoltage(armSpeed);
         double wristCurrentPosition = this.getWristAngle();
-        double wristSpeed = wristPID.calculate(wristCurrentPosition, -90);
-        //wristSpeed = MathUtil.clamp(wristSpeed, -maxWristVoltage, maxWristVoltage);
+        double wristSpeed = wristPID.calculate(wristCurrentPosition, wristPreset.get());
         this.setWristVoltage(wristSpeed);
     }
 }
