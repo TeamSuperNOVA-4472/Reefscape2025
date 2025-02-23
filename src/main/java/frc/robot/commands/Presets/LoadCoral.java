@@ -1,5 +1,6 @@
 package frc.robot.commands.Presets;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.MoveToLevelCommand;
@@ -15,7 +16,8 @@ public class LoadCoral extends SequentialCommandGroup
             new MoveToLevelCommand(pElevator, ElevatorSubsystem.initialHeight),
             new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armMovingAngle, CarriageSubsystem.wristCoralLoad),
             new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armCoralLoad, CarriageSubsystem.wristCoralLoad),
-            new MoveToLevelCommand(pElevator, ElevatorSubsystem.kPresetCoralPickup)
+            new MoveToLevelCommand(pElevator, ElevatorSubsystem.kPresetCoralPickup),
+            new InstantCommand(() -> pCarriage.setAlgaeMode(false))
         );
     }
 }

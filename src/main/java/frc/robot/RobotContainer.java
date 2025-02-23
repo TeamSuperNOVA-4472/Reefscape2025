@@ -115,11 +115,11 @@ public class RobotContainer
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
-        carriage.onTrue(new LoadCoral(mElevatorSubsystem, mCarriageSubsystem)
+        carriage.onTrue(new ConditionalCommand(new InstantCommand(), new LoadCoral(mElevatorSubsystem, mCarriageSubsystem), () -> mIntakeSubsystem.hasAlgae())
         );
 
         Trigger scoreTrigger = new Trigger(mPartner::getRightBumperButton);
-        scoreTrigger.onTrue(new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem)
+        scoreTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem), () -> mIntakeSubsystem.hasAlgae())
         );
 
         Trigger l1Trigger = new Trigger(() -> mPartner.getPOV() == 90);
