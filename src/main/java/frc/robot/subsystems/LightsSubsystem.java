@@ -13,6 +13,7 @@ import frc.robot.objectmodels.LightState;
 import frc.robot.objectmodels.LightStatusRequest;
 import frc.robot.objectmodels.lightpatterns.LEDBouncingPattern;
 import frc.robot.objectmodels.lightpatterns.LEDRandomFadeoutPattern;
+import frc.robot.objectmodels.lightpatterns.LEDSlidingPattern;
 import frc.robot.objectmodels.lightpatterns.LEDSweepingPattern;
 import frc.robot.objectmodels.lightpatterns.RandomLEDPattern;
 
@@ -114,8 +115,12 @@ public class LightsSubsystem extends SubsystemBase
             case kOff: pattern = animOff(); break;
             case kDisabledStart: pattern = animDisabled(Color.kPurple); break;
             case kAutonomousBase: pattern = animAuton(); break;
+            case kAutonomousElevatorUp: pattern = animElevator(Color.kGreen, true); break;
+            case kAutonomousElevatorDown: pattern = animElevator(Color.kGreen, false); break;
             case kDisabledBetween: pattern = animDisabled(Color.kBlue); break;
             case kTeleopBase: pattern = animTeleopBase(); break;
+            case kTeleopElevatorUp: pattern = animElevator(Color.kRed, true); break;
+            case kTeleopElevatorDown: pattern = animElevator(Color.kRed, false); break;
             case kDisabledError: pattern = animDisabled(Color.kOrange); break;
             case kDisabledEnd: pattern = animDisabled(Color.kGreen); break;
             default: pattern = animUnknown(); break;
@@ -183,7 +188,17 @@ public class LightsSubsystem extends SubsystemBase
         return new LEDBouncingPattern()
             .withColor(Color.kRed)
             .withSize(5)
-            .withTick(tick);
+            .withTick((int)(tick / 3.0 * 2));
+    }
+
+    // Play a cool sliding effect when the elevator is moving 
+    private LEDPattern animElevator(Color color, boolean up)
+    {
+        return new LEDSlidingPattern()
+            .withColor(color)
+            .withOnSize(5)
+            .withOffSize(5)
+            .withTick(tick / 3 * (up ? 1 : -1));
     }
 
     // When the robot is in an unknown state. Should never happen.

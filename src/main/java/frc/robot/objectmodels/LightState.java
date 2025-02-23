@@ -5,6 +5,8 @@ public enum LightState
     kOff,
     kDisabledStart,
     kAutonomousBase,
+    kAutonomousElevatorUp,
+    kAutonomousElevatorDown,
     kDisabledBetween,
     kTeleopBase,
     kTeleopElevatorUp,

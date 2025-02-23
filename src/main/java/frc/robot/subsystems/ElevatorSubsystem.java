@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.objectmodels.IntakePresets;
 import frc.robot.objectmodels.LightState;
 import frc.robot.objectmodels.LightStatusRequest;
@@ -76,7 +77,8 @@ public class ElevatorSubsystem extends SubsystemBase
         mElevatorLeft.getConfigurator().apply(leftConfig);
         elevatorPID = new PIDController(kElevatorP, kElevatorI, kElevatorD);
 
-        lights = new LightStatusRequest(LightState.kTeleopElevatorUp, 201);
+        lights = new LightStatusRequest(LightState.kOff, -1);
+        lightController.addRequest(lights);
     }
 
     public void stop()
@@ -140,6 +142,7 @@ public class ElevatorSubsystem extends SubsystemBase
         SmartDashboard.putString("Elevator Units", mElevatorLeft.getPosition().getUnits());
         //SmartDashboard.putNumber("Right Elevator Output", mElevatorRight.getPosition().getValueAsDouble());
 
+        periodicLights();
 
         if (activePreset.isEmpty()) return; // No preset.
         else
@@ -177,7 +180,36 @@ public class ElevatorSubsystem extends SubsystemBase
         double currentPosition = mElevatorLeft.getPosition().getValueAsDouble();
         double newSpeed = elevatorPID.calculate(currentPosition);
         mElevatorLeft.set(newSpeed);
+    }
 
+    private void periodicLights()
+    {
         // Lights
+        final double kLightSpeedTolerance = 0.1;
+        if (Robot.sIsTeleop()) lights.priority = 201;
+        else lights.priority = 101;
+
+        double speed = mElevatorLeft.get();
+        if (speed > kLightSpeedTolerance)
+        {
+            lights.active = true;
+            if (Robot.sIsTeleop())
+            {
+                lights.priority = 201;
+                lights.state = LightState.kTeleopElevatorUp;
+            }
+            else
+            {
+                lights.priority = 101;
+                lights.state = LightState.kAutonomousElevatorUp;
+            }
+        }
+        else if (speed < -kLightSpeedTolerance)
+        {
+            lights.active = true;
+            if (Robot.sIsTeleop()) lights.state = LightState.kTeleopElevatorDown;
+            else lights.state = LightState.kAutonomousElevatorDown;
+        }
+        else lights.active = false;
     }
 }

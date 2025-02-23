@@ -15,11 +15,11 @@ import frc.robot.objectmodels.LightStatusRequest;
 // Most of this is run automatically.
 public class Robot extends TimedRobot
 {
+    private static Robot self; // Kind of scuffed, but we need to expose instance methods as static ones.
+
     private Command mAutonomousCommand;
 
     private final RobotContainer mRobotContainer;
-    
-    private boolean isAuton, isTeleop;
 
     // Any global initialization code should go here.
     // This method is run when the robot first starts.
@@ -30,10 +30,14 @@ public class Robot extends TimedRobot
         // bindings, and put our autonomous chooser on the dashboard.
         mRobotContainer = new RobotContainer();
 
+        // Set up light status requests. Used for the base autonomous, teleop, and disabled effects.
         disabledLights = new LightStatusRequest(LightState.kDisabledStart, 1000);
         autonLights = new LightStatusRequest(LightState.kAutonomousBase, 100);
         teleopLights = new LightStatusRequest(LightState.kTeleopBase, 200);
         mRobotContainer.mLightsSubsystem.addRequests(disabledLights, autonLights, teleopLights);
+        
+        // Apply static variable.
+        self = this;
     }
 
     public static boolean isRedAlliance()
@@ -122,6 +126,15 @@ public class Robot extends TimedRobot
     {
         teleopLights.active = false;
         disabledLights.state = LightState.kDisabledEnd;
+    }
+
+    public static boolean sIsTeleop()
+    {
+        return self.isTeleop();
+    }
+    public static boolean sIsAutonomous()
+    {
+        return self.isAutonomous();
     }
 
     // Run *once* when the robot is in test mode.
