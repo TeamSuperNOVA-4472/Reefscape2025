@@ -24,7 +24,6 @@ import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
 import frc.robot.commands.tester.CarriageTester;
-import frc.robot.commands.tester.ClimberTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
 import frc.robot.subsystems.CarriageSubsystem;
