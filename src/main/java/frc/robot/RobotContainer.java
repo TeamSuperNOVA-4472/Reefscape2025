@@ -22,6 +22,7 @@ import frc.robot.commands.Presets.CoralL3Preset;
 import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
+import frc.robot.commands.autoCommands.ScoreLevel1;
 import frc.robot.commands.autoCommands.ScoreLevel3;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ClimberTester;
@@ -163,7 +164,7 @@ public class RobotContainer
 
         // Register named commands.
         // TODO: Some of these are temporary things.
-        NamedCommands.registerCommand("ScoreLevel3", new ScoreLevel3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("ScoreLevel1", new ScoreLevel1(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
