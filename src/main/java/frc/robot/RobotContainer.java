@@ -22,6 +22,7 @@ import frc.robot.commands.Presets.CoralL3Preset;
 import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
+import frc.robot.commands.autoCommands.ScoreLevel3;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ClimberTester;
 import frc.robot.commands.tester.ElevatorTester;
@@ -164,25 +165,12 @@ public class RobotContainer
 
         // Register named commands.
         // TODO: Some of these are temporary things.
-        NamedCommands.registerCommand("DoTheThingCommand", new DoTheThingCommand());
-        NamedCommands.registerCommand("ScoreLevel4Right", new DoTheThingCommand());
-        NamedCommands.registerCommand("ScoreLevel4Left", new DoTheThingCommand());
-        NamedCommands.registerCommand("ScoreLevel3Right", new DoTheThingCommand());
-        NamedCommands.registerCommand("ScoreLevel1", new DoTheThingCommand());
-        NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
-        NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
-        NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
+        NamedCommands.registerCommand("ScoreLevel3", new ScoreLevel3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(
                 new InstantCommand(() -> System.out.println("The Event has triggered")));
-
-        autoChooser.addOption("DriveDoTheThingDriveBack", new PathPlannerAuto("DriveDoTheThingDriveBack"));
-        autoChooser.addOption("ReefScoreTopLeft", new PathPlannerAuto("ReefScoreTopLeft"));
-        autoChooser.addOption("MidRightReefScore", new PathPlannerAuto("MidRightReefScore"));
-        autoChooser.addOption("RightReefScoreToAlgae", new PathPlannerAuto("RightReefScoreToAlgae"));
-        autoChooser.addOption("AmbitiousTopLeftScore", new PathPlannerAuto("AmbitiousTopLeftScore"));
-        autoChooser.addOption("ReefScoreBottomRight", new PathPlannerAuto("ReefScoreBottomRight"));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
