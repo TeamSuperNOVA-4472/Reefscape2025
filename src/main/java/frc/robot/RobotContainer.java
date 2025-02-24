@@ -4,13 +4,14 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.commands.Presets.AlgaeBarge;
 import frc.robot.commands.Presets.AlgaeIntakePreset;
 import frc.robot.commands.Presets.AlgaeL2;
@@ -35,6 +36,8 @@ import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
+import org.photonvision.EstimatedRobotPose;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -51,8 +54,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
+import static frc.robot.OperatorConfig.weightJoystick;
+
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
+@SuppressWarnings("unused")
 public class RobotContainer
 {
     // Ports go here:
@@ -60,6 +66,8 @@ public class RobotContainer
     public static final int kPartnerPort = 1;
 
     // Subsystems go here:
+    public LightsSubsystem mLightsSubsystem;
+    private VisionSubsystem mVisionSubsystem;
     private final CarriageSubsystem mCarriageSubsystem;
     //private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final ElevatorSubsystem mElevatorSubsystem;
@@ -69,7 +77,6 @@ public class RobotContainer
 
     // Controllers go here:
     private final XboxController mDriver;
-
     private final XboxController mPartner;
     
     // Commands go here:
@@ -87,11 +94,6 @@ public class RobotContainer
     // Extras:
     private final SendableChooser<Command> autoChooser;
 
-    // TODO: I think these should be defined and handled by the swerve subsystem or command, not here.
-    private final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
-    private final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
-    private final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
-
     public RobotContainer()
     {
         // Initialize controllers.
@@ -99,21 +101,28 @@ public class RobotContainer
         mPartner = new XboxController(kPartnerPort);
 
         // Initialize subsystems.
+        mLightsSubsystem = new LightsSubsystem();
         mSwerveSubsystem = new SwerveSubsystem();
+        mVisionSubsystem = new VisionSubsystem(mSwerveSubsystem);
         mCarriageSubsystem = new CarriageSubsystem();
+        mElevatorSubsystem = new ElevatorSubsystem(mLightsSubsystem);
         mClimbSubsystem = new ClimbSubsystem();
-        mElevatorSubsystem = new ElevatorSubsystem();
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
-       mIntakeSubsystem = new IntakeSubsystem();
-        
+        mIntakeSubsystem = new IntakeSubsystem();
 
         // Initialize commands.
+        // TODO: Should weighting go here? Or in the command?
+        //       Also, we should add a comment explaining why
+        //       we need to invert these.
         mSwerveTeleop = new SwerveTeleop(
-            () -> mFwdLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftY())),
-            () -> mSideLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getLeftX())),
-            () -> mTurnLimiter.calculate(OperatorConstants.getControllerProfileValue(-mDriver.getRightX())),
+            weightJoystick(mDriver::getLeftY, true),
+            weightJoystick(mDriver::getLeftX, true),
+            weightJoystick(mDriver::getRightX, true),
             mDriver::getAButton,
-            mSwerveSubsystem);
+            mDriver::getXButton,
+            mDriver::getBButton,
+            mSwerveSubsystem,
+            mVisionSubsystem);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
@@ -152,6 +161,12 @@ public class RobotContainer
         mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
         // Configure subsystems
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+        /*mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
+            // Update the swerve's odometry with the new vision estimate.
+            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
+                                                  newVisionPose.timestampSeconds);
+        });*/ // FIXME: This causes weird things.
+
         // mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
         // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
 
