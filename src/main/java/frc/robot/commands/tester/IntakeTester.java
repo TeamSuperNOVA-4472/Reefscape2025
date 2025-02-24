@@ -3,6 +3,7 @@ package frc.robot.commands.tester;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -26,28 +27,27 @@ public class IntakeTester extends Command {
         mAlgaeOuttake = pAlgaeOuttake;
         mIntakeSubsystem = pIntakeSubsystem;
         addRequirements(mIntakeSubsystem);
-    }
-
-    @Override
-    public void initialize() {
         mIntakeSubsystem.stop();
     }
 
     @Override
     public void execute() {
-        if(mAlgaeIntake.get()) {
-            mIntakeSubsystem.intakeAlgae();
-        }
-        else if(mAlgaeOuttake.get()) {
-            mIntakeSubsystem.outtakeAlgae();
-        }
-        else if(mCoralIntake.get()) {
-            mIntakeSubsystem.intakeCoral();
-        }
-        else if(mCoralOuttake.get()) {
-            mIntakeSubsystem.outtakeCoral();
-        } else {
-            mIntakeSubsystem.stop();
+        if (DriverStation.isTeleop()) 
+        {       
+            if(mAlgaeIntake.get()) {
+                mIntakeSubsystem.intakeAlgae();
+            }
+            else if(mAlgaeOuttake.get()) {
+                mIntakeSubsystem.outtakeAlgae();
+            }
+            else if(mCoralIntake.get()) {
+                mIntakeSubsystem.intakeCoral();
+            }
+            else if(mCoralOuttake.get()) {
+                mIntakeSubsystem.outtakeCoral();
+            } else {
+                mIntakeSubsystem.stop();
+            }
         }
     }
 }
