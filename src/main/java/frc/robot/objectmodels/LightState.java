@@ -3,8 +3,14 @@ package frc.robot.objectmodels;
 public enum LightState
 {
     kOff,
-    kDisconnected,
-    //kDisabled,
-    //kAutonomous,
-    //kTeleop
+    kDisabledStart,
+    kAutonomousBase,
+    kAutonomousElevatorUp,
+    kAutonomousElevatorDown,
+    kDisabledBetween,
+    kTeleopBase,
+    kTeleopElevatorUp,
+    kTeleopElevatorDown,
+    kDisabledError,
+    kDisabledEnd
 }

@@ -15,15 +15,17 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
+import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
@@ -112,7 +114,7 @@ public class SwerveSubsystem extends SubsystemBase
     /** Creates a new ExampleSubsystem. */
     public SwerveSubsystem()
     {
-        // SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false);
         configAutoBuilder(this);
@@ -123,21 +125,10 @@ public class SwerveSubsystem extends SubsystemBase
         mSwerveDrive.addVisionMeasurement(visionPose, timestamp);
     }
 
-    // TODO: This should be moved to RobotContainer or Robot, I think.
-    private boolean isRedAlliance()
-    {
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isPresent())
-        {
-            return alliance.get() == DriverStation.Alliance.Red;
-        }
-        return false;
-    }
-
     // Drive in some direction with its reference point set to the field itself.
     public void driveFieldOriented(ChassisSpeeds pVelocity)
     {
-        if (isRedAlliance())
+        if (Robot.isRedAlliance())
         {
             ChassisSpeeds fieldOrientedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(
                     pVelocity,
@@ -169,7 +160,7 @@ public class SwerveSubsystem extends SubsystemBase
     public void resetHeading()
     {
         Rotation2d newHeading = Rotation2d.fromRadians(0);
-        if (isRedAlliance())
+        if (Robot.isRedAlliance())
         {
             newHeading = Rotation2d.fromRadians(Math.PI);
         }

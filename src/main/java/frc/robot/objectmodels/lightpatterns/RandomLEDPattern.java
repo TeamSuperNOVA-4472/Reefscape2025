@@ -10,12 +10,9 @@ import edu.wpi.first.wpilibj.util.Color;
 // I GIVE YOU OVERENGINEERED RANDOM LED PATTERN
 public class RandomLEDPattern implements LEDPattern
 {
-    // Gamma is tricky to explain. Look it up on wikipedia.
-    // Set to 1.0 to disable it. Default is 2.2.
-    public static final double kInterpolationGamma = 2.2;
-
     private boolean isGradient;
     private Color colorA, colorB;
+    private double gamma = 1.0;
 
     public RandomLEDPattern()
     {
@@ -42,6 +39,13 @@ public class RandomLEDPattern implements LEDPattern
         this.colorB = colorB;
         return this;
     }
+    /** Sets a new gamma for color interpolation. */
+    public RandomLEDPattern withGamma(double gamma)
+    {
+        this.gamma = gamma;
+        return this;
+    }
+    /** Reset all pattern properties. */
     public RandomLEDPattern pureRandom()
     {
         // Chooses any possible color.
@@ -68,6 +72,11 @@ public class RandomLEDPattern implements LEDPattern
     {
         return isGradient;
     }
+    /** Returns the gamma value the pattern will use for interpolation. */
+    public double getGamma()
+    {
+        return gamma;
+    }
 
     /** Pick a random color according to the rules set. */
     public Color get()
@@ -80,12 +89,12 @@ public class RandomLEDPattern implements LEDPattern
             // Factors in gamma. Raise each component to the gamma power,
             // then interpolate, and then apply the inverse power.
             // Makes the colors look better? Yes. Overly complex? Absolutely.
-            double rGammaA = Math.pow(colorA.red, kInterpolationGamma),
-                   gGammaA = Math.pow(colorA.green, kInterpolationGamma),
-                   bGammaA = Math.pow(colorA.blue, kInterpolationGamma),
-                   rGammaB = Math.pow(colorB.red, kInterpolationGamma),
-                   gGammaB = Math.pow(colorB.green, kInterpolationGamma),
-                   bGammaB = Math.pow(colorB.blue, kInterpolationGamma);
+            double rGammaA = Math.pow(colorA.red, gamma),
+                   gGammaA = Math.pow(colorA.green, gamma),
+                   bGammaA = Math.pow(colorA.blue, gamma),
+                   rGammaB = Math.pow(colorB.red, gamma),
+                   gGammaB = Math.pow(colorB.green, gamma),
+                   bGammaB = Math.pow(colorB.blue, gamma);
 
             // TODO: This could also be optimized.
             // Since the colors aren't changed per method call, these values
@@ -97,7 +106,7 @@ public class RandomLEDPattern implements LEDPattern
                    newB = bGammaA + factor * (bGammaB - bGammaA);
 
             // Inverse gamma.
-            final double invGamma = 1 / kInterpolationGamma;
+            final double invGamma = 1 / gamma;
             newR = Math.pow(newR, invGamma);
             newG = Math.pow(newG, invGamma);
             newB = Math.pow(newB, invGamma);

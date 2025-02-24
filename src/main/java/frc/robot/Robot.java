@@ -4,14 +4,19 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.objectmodels.LightState;
+import frc.robot.objectmodels.LightStatusRequest;
 
 // This code shouldn't be messed with in most scenarios.
 // Most of this is run automatically.
 public class Robot extends TimedRobot
 {
+    private static Robot self; // Kind of scuffed, but we need to expose instance methods as static ones.
+
     private Command mAutonomousCommand;
 
     private final RobotContainer mRobotContainer;
@@ -24,6 +29,25 @@ public class Robot extends TimedRobot
         // Instantiate our RobotContainer. This will perform all our button
         // bindings, and put our autonomous chooser on the dashboard.
         mRobotContainer = new RobotContainer();
+
+        // Set up light status requests. Used for the base autonomous, teleop, and disabled effects.
+        disabledLights = new LightStatusRequest(LightState.kDisabledStart, 1000);
+        autonLights = new LightStatusRequest(LightState.kAutonomousBase, 100);
+        teleopLights = new LightStatusRequest(LightState.kTeleopBase, 200);
+        mRobotContainer.mLightsSubsystem.addRequests(disabledLights, autonLights, teleopLights);
+        
+        // Apply static variable.
+        self = this;
+    }
+
+    public static boolean isRedAlliance()
+    {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent())
+        {
+            return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
     }
 
     // This function is continuously called every 20 ms (50 times per second).
@@ -37,19 +61,29 @@ public class Robot extends TimedRobot
         CommandScheduler.getInstance().run();
     }
 
-    // Run *once* when the robot is first disabled.
+    private LightStatusRequest disabledLights;
+    // Run *once* when the robot becomes disabled.
     @Override
-    public void disabledInit() { }
-
-    // Run continuously when the robot is disabled.
+    public void disabledInit()
+    {
+        disabledLights.active = true;
+    }
+    // Run *once* when the robot is no longer disabled.
     @Override
-    public void disabledPeriodic() { }
+    public void disabledExit()
+    {
+        disabledLights.active = false;
+    }
 
+    private LightStatusRequest autonLights;
     // Run *once* when the robot first goes into autonomous.
     @Override
     public void autonomousInit()
     {
         mAutonomousCommand = mRobotContainer.getAutonomousCommand();
+        // TODO: Light state for when autonomous fails?
+        autonLights.active = true;
+        disabledLights.state = LightState.kDisabledError;
 
         // Schedule the autonomous command (example)
         if (mAutonomousCommand != null)
@@ -57,11 +91,15 @@ public class Robot extends TimedRobot
             mAutonomousCommand.schedule();
         }
     }
-
-    // Run continuously when the robot is in autonomous mode.
+    // Run *once* when the robot exits autonomous.
     @Override
-    public void autonomousPeriodic() { }
+    public void autonomousExit()
+    {
+        autonLights.active = false;
+        disabledLights.state = LightState.kDisabledBetween;
+    }
 
+    private LightStatusRequest teleopLights;
     // Run *once* when the robot first enters teleop mode.
     @Override
     public void teleopInit()
@@ -74,11 +112,30 @@ public class Robot extends TimedRobot
         {
             mAutonomousCommand.cancel();
         }
+        teleopLights.active = true;
+        autonLights.active = false;
+        disabledLights.state = LightState.kDisabledError;
     }
 
     // Run continuously when the robot is in teleop mode.
     @Override
     public void teleopPeriodic() { }
+
+    @Override
+    public void teleopExit()
+    {
+        teleopLights.active = false;
+        disabledLights.state = LightState.kDisabledEnd;
+    }
+
+    public static boolean sIsTeleop()
+    {
+        return self.isTeleop();
+    }
+    public static boolean sIsAutonomous()
+    {
+        return self.isAutonomous();
+    }
 
     // Run *once* when the robot is in test mode.
     // TODO: Is test mode the same thing as unit testing the robot?

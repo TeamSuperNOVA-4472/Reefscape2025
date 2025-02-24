@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MidtoRightReef"
+            "pathName": "BottomAlgae"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "ScoreLevel1"
+            "pathName": "BottomAlgaeToProcessor"
           }
         }
       ]
