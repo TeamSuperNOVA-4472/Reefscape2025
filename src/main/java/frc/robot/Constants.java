@@ -22,7 +22,6 @@ public final class Constants
         static
         {
             kControllerProfileMap.put(0.0, 0.0);
-            kControllerProfileMap.put(0.8, 1.0 / 3.0);
             kControllerProfileMap.put(1.0, 1.0);
         }
 

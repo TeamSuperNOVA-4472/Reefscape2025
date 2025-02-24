@@ -33,7 +33,7 @@ public class VisionSubsystem extends SubsystemBase
     // TODO: More information!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.206375, -0.19685, 0.2032 ), new Rotation3d(0, -22.5, 0))) // Can be changed.
+        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.288671, 0.288671, 0.2032 ), new Rotation3d(0, -22.5, 0))) // Can be changed.
     };
 
     // Cameras go here.

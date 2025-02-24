@@ -85,7 +85,7 @@ public class RobotContainer
     // TODO: Remove tester commands when robot is properly programmed
     private final ElevatorTester mElevatorTester;
     private final CarriageTester mCarriageTester;
-    private final IntakeTester mIntakeTester;
+    //private final IntakeTester mIntakeTester;
     private final ClimberTester mClimberTester;
 
 
@@ -126,27 +126,27 @@ public class RobotContainer
             mVisionSubsystem);
             // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
-        Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
+        Trigger carriage = new Trigger(mPartner::getRightBumperButton);
         carriage.onTrue(new ConditionalCommand(new InstantCommand(), new LoadCoral(mElevatorSubsystem, mCarriageSubsystem), () -> mIntakeSubsystem.hasAlgae())
         );
 
-        Trigger scoreTrigger = new Trigger(mPartner::getRightBumperButton);
+        Trigger scoreTrigger = new Trigger(mPartner::getLeftBumperButton);
         scoreTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem), () -> mIntakeSubsystem.hasAlgae())
         );
 
-        Trigger l1Trigger = new Trigger(() -> mPartner.getPOV() == 90);
+        Trigger l1Trigger = new Trigger(() -> mPartner.getAButton());
         l1Trigger.onTrue(new ConditionalCommand(new AlgaeProcessor(mElevatorSubsystem, mCarriageSubsystem), new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
         );
 
-        Trigger l2Trigger = new Trigger(() -> mPartner.getPOV() == 180);
+        Trigger l2Trigger = new Trigger(() -> mPartner.getXButton());
         l2Trigger.onTrue(new ConditionalCommand(new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem), new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
         );
         
-        Trigger l3Trigger = new Trigger(() -> mPartner.getPOV() == 270);
+        Trigger l3Trigger = new Trigger(() -> mPartner.getBButton());
         l3Trigger.onTrue(new ConditionalCommand(new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem), new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
         );
 
-        Trigger l4Trigger = new Trigger(() -> mPartner.getPOV() == 0);
+        Trigger l4Trigger = new Trigger(() -> mPartner.getYButton());
         l4Trigger.onTrue(new ConditionalCommand(new AlgaeBarge(mElevatorSubsystem, mCarriageSubsystem), new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
         );
 
@@ -158,7 +158,7 @@ public class RobotContainer
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
         
         mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
-        mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
+        //mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
         mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
         // Configure subsystems
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
@@ -168,7 +168,7 @@ public class RobotContainer
         // TODO: remove tester commands when robot is properly programmed
         mElevatorSubsystem.setDefaultCommand(mElevatorTester);
         mCarriageSubsystem.setDefaultCommand(mCarriageTester);
-        mIntakeSubsystem.setDefaultCommand(mIntakeTester);
+        //mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         mClimbSubsystem.setDefaultCommand(mClimberTester);
         /*mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
