@@ -61,7 +61,7 @@ public class SwerveTeleop extends Command
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
         mVisionAlignTrigger = new Trigger(pLeftButton::get);
-        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero));
+        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.empty()));
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 

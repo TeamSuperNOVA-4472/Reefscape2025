@@ -8,6 +8,7 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.VisionAlignCommand;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -20,6 +21,7 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -94,6 +96,7 @@ public class RobotContainer
         NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
         NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
         NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
+        NamedCommands.registerCommand("ReefVisionAlign", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, new Translation2d(0, 0)));
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(
@@ -105,6 +108,7 @@ public class RobotContainer
         autoChooser.addOption("RightReefScoreToAlgae", new PathPlannerAuto("RightReefScoreToAlgae"));
         autoChooser.addOption("AmbitiousTopLeftScore", new PathPlannerAuto("AmbitiousTopLeftScore"));
         autoChooser.addOption("ReefScoreBottomRight", new PathPlannerAuto("ReefScoreBottomRight"));
+        autoChooser.addOption("AmbitiousTopLeftScore w- Vision", new PathPlannerAuto("AmbitiousTopLeftScore w- Vision"));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
