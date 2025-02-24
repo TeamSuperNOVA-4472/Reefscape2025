@@ -35,7 +35,7 @@ public class VisionSubsystem extends SubsystemBase
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.3, -0.2, 0.1 ), new Rotation3d(0, 15, 0))) // Can be changed.
+        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.206375, -0.19685, 0.2032 ), new Rotation3d(0, -22.5, 0))) // Can be changed.
     };
 
     // Cameras go here.
@@ -61,7 +61,6 @@ public class VisionSubsystem extends SubsystemBase
     private VisionSystemSim simVision;
     private PhotonCameraSim[] simCameras;
     // FIXME: DEBUG DELETE ASAP
-    //        Note: We'll probably have to do a decent rewrite to properly fix this.
     private SwerveSubsystem mSwerve;
 
     private Timer statusCheckTimer;
@@ -82,8 +81,6 @@ public class VisionSubsystem extends SubsystemBase
         catch (IOException ex)
         {
             // Failed to read layout information.
-            // TODO: This fails in simulation, I think because the path is not
-            //       valid. Is there a way to avoid this?
             System.out.println("[VISION] FAILED TO LOAD APRIL TAG LAYOUTS! The vision subsystem will NOT be active.");
             initPass = false;
             return;
