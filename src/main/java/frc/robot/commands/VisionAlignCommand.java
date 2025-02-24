@@ -36,7 +36,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
     private Translation2d offsetFromTarget;
 
     // Represents the camera offset to the robot center. TWEAK
-    private final Translation2d camOffsetToRobotCenter = new Translation2d(0.4, 0);
+    private final Translation2d camOffsetToRobotCenter = new Translation2d(0.6, -0.30); // 0.267
 
     // Used for print statements.
     private int translationIter = 0, rotationIter = 0;
@@ -95,6 +95,9 @@ public class VisionAlignCommand extends SequentialCommandGroup
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
+            // One more thing. Apply the offset.
+            new DriveDistanceAndHeading(pSwerve, () -> new Pose2d(offsetFromTarget, Rotation2d.kZero)),
+
             // Runnable to invoke on completion of the command.
             // Sophia's code again, just condensed a little.
             new InstantCommand(() -> { if (runOnComplete.isPresent()) runOnComplete.get().run(); })
@@ -135,7 +138,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
             Translation2d deltaPos = activeTarget.getBestCameraToTarget().getTranslation().toTranslation2d();
             System.out.printf("[ALIGN] Translation step %d spots AprilTag #%d\n", translationIter, activeTarget.fiducialId);
             
-            deltaPos = deltaPos.minus(camOffsetToRobotCenter.plus(offsetFromTarget));
+            deltaPos = deltaPos.minus(camOffsetToRobotCenter);
             drivePerIterOffset = new Pose2d(deltaPos, Rotation2d.kZero);
         }
     }
