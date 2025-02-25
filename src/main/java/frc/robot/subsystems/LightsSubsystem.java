@@ -62,8 +62,9 @@ public class LightsSubsystem extends SubsystemBase
             return;
         }
 
-        lightLeft = lightData.createView(0, 24);
-        lightRight = lightData.createView(25, 49);
+        // original, [0, 24] - [25, 49]
+        lightLeft = lightData.createView(4, 20);
+        lightRight = lightData.createView(29, 45);
 
         requests = new ArrayList<>();
         requests.add(new LightStatusRequest(LightState.kOff, 0));
@@ -198,7 +199,7 @@ public class LightsSubsystem extends SubsystemBase
             .withColor(color)
             .withOnSize(5)
             .withOffSize(5)
-            .withTick(tick / 3 * (up ? 1 : -1));
+            .withTick(tick * (up ? 1 : -1));
     }
 
     // When the robot is in an unknown state. Should never happen.
