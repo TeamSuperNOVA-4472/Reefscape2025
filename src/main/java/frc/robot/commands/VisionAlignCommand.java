@@ -29,6 +29,10 @@ import frc.robot.subsystems.VisionSubsystem;
 //        when used with PathPlanner.
 public class VisionAlignCommand extends SequentialCommandGroup
 {
+
+    public static final Translation2d kReefLeftOffset = new Translation2d(-0.3, -0.1651);
+    public static final Translation2d kReefRightOffset = new Translation2d(-0.3, 0.1651);
+
     private PhotonTrackedTarget activeTarget, oldTarget;
     private Pose2d drivePerIterOffset;
 
