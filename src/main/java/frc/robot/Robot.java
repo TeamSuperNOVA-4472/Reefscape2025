@@ -34,6 +34,7 @@ public class Robot extends TimedRobot
         disabledLights = new LightStatusRequest(LightState.kDisabledStart, 1000);
         autonLights = new LightStatusRequest(LightState.kAutonomousBase, 100);
         teleopLights = new LightStatusRequest(LightState.kTeleopBase, 200);
+        teleopLights.active = false;
         mRobotContainer.mLightsSubsystem.addRequests(disabledLights, autonLights, teleopLights);
         
         // Apply static variable.
