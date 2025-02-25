@@ -2,14 +2,12 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.objectmodels.IntakePresets;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 
 public class ElevatorCarriageTeleop extends Command 
 {
     private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final XboxController mController;
-    private IntakePresets mIntakePresets;
     public ElevatorCarriageTeleop(ElevatorCarriageSubsystem pElevatorCarriageSubsystem, XboxController pController)
     {
         mElevatorCarriageSubsystem = pElevatorCarriageSubsystem;
@@ -20,7 +18,7 @@ public class ElevatorCarriageTeleop extends Command
     @Override
     public void execute()
     {
-        if(mIntakePresets == IntakePresets.kScoreL1)
+        /*if(mIntakePresets == IntakePresets.kScoreL1)
         {
             //do level one command
         }
@@ -43,6 +41,6 @@ public class ElevatorCarriageTeleop extends Command
         else if(mIntakePresets == IntakePresets.kGroundPickup)
         {
             //do ground pickup command
-        }
+        }*/
     }
 }
