@@ -20,25 +20,25 @@ public class DriveDistanceAndHeading extends Command {
 
     private final Supplier<Pose2d> mOffset;
     private final ProfiledPIDController mGyroController = new ProfiledPIDController(
-        0.1,
+        0.15,
         0,
         0.001,
         new Constraints(720,360));
     private final ProfiledPIDController mXController = new ProfiledPIDController(
-        2,
+        4,
         0,
         0,
         new Constraints(
-            1.0,
-            1.0
+            3.0,
+            3.0
         ));
     private final ProfiledPIDController mYController = new ProfiledPIDController(
-        2,
+        4,
         0,
         0,
         new Constraints(
-            1.0,
-            1.0
+            3.0,
+            3.0
         ));
     private final Timer mTimer = new Timer();
 
@@ -53,9 +53,10 @@ public class DriveDistanceAndHeading extends Command {
         mSwerveSubsystem =pSwerveSubsystem;
         mOffset = pOffset;
         mGyroController.enableContinuousInput(0, 360);
+        // TODO: Maybe the tolerances should be variables?
         mXController.setTolerance(0.05);
-        mYController.setTolerance(0.05);
-        mGyroController.setTolerance(2);
+        mYController.setTolerance(0.01);
+        mGyroController.setTolerance(1);
         addRequirements(mSwerveSubsystem);
     }
 

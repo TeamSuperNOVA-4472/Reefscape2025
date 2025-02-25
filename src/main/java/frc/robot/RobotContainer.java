@@ -11,6 +11,7 @@ import frc.robot.commands.IntakeTeleop;
 import frc.robot.commands.MoveCarriageToPresetCommand;
 import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.VisionAlignCommand;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.commands.Presets.AlgaeBarge;
 import frc.robot.commands.Presets.AlgaeIntakePreset;
@@ -45,6 +46,8 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -55,6 +58,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.OperatorConfig.weightJoystick;
+
+import java.util.Optional;
 
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
@@ -180,9 +185,11 @@ public class RobotContainer
         // Register named commands.
         // TODO: Some of these are temporary things.
         NamedCommands.registerCommand("ScoreLevel1", new ScoreLevel1(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, new Translation2d(-0.3, -0.1651), Optional.empty()));
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser.addOption("Just Vision Test", new PathPlannerAuto("Just Vision Test"));
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(

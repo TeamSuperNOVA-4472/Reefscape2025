@@ -39,7 +39,7 @@ public final class OperatorConfig
         // └------------------------
 
         kControllerProfileMap.put(0.0, 0.0);
-        kControllerProfileMap.put(0.8, 0.3);
+        //kControllerProfileMap.put(0.8, 0.3);
         kControllerProfileMap.put(1.0, 1.0);
     }
 
