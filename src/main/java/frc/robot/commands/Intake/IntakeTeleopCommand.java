@@ -5,12 +5,12 @@ import frc.robot.objectmodels.IntakePreset;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
-public class CarriageAndElevatorCommand extends SequentialCommandGroup{
+public class IntakeTeleopCommand extends SequentialCommandGroup{
     private final CarriageSubsystem mCarriageSubsystem;
     private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakePreset mPreset;
 
-    public CarriageAndElevatorCommand(
+    public IntakeTeleopCommand(
         CarriageSubsystem pCarriageSubsystem,
         ElevatorSubsystem pElevatorSubsystem,
         IntakePreset pPreset
