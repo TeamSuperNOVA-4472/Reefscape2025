@@ -134,10 +134,7 @@ public class RobotContainer
             weightJoystick(mDriver::getLeftX, true),
             weightJoystick(mDriver::getRightX, true),
             mDriver::getAButton,
-            mDriver::getXButton,
-            mDriver::getBButton,
-            mSwerveSubsystem,
-            mVisionSubsystem);
+            mSwerveSubsystem);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         Trigger carriage = new Trigger(() -> (mPartner.getRightBumperButton() && !mIntakeSubsystem.hasCoral()));
@@ -195,24 +192,23 @@ public class RobotContainer
         algaeProcessTrigger.whileTrue(
             new AlgaeProcessor(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
-        algaeProcessTrigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
 
         Trigger algaeOut = new Trigger(() -> mPartner.getPOV() == 0);
         algaeOut.onTrue(
             new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
         );
-        algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));
+        algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
+
         Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
-        alignLeft.onTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
+        alignLeft.onTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.empty()));
 
         Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
-        alignRight.onTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
+        alignRight.onTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.empty()));
 
         Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
         algaeBarge.whileTrue(
             new AlgaeBarge(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
-        algaeBarge.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
 
         Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton); //TODO: add climb commands.
         Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
