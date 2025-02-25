@@ -11,7 +11,13 @@ public class IntakePreset {
     public static final IntakePreset kScoreL1 = new IntakePreset(67, -71, 12.911);
     public static final IntakePreset kScoreL2 = new IntakePreset(67, -71, 20.191);
     public static final IntakePreset kScoreL3 = new IntakePreset(67, -71, 35.844);
-    public static final IntakePreset kScoreL4 = new IntakePreset(90, -96, 65);
+    public static final IntakePreset kScoreL4 = new IntakePreset(90, -96, 65.5);
+
+    public static final IntakePreset kProcessorAlgae = new IntakePreset(40, -120, 12.875);
+    public static final IntakePreset kBargeAlgae = new IntakePreset(90,-100, 12.875);
+
+    public static final IntakePreset kAlgaeL2 = new IntakePreset(40,-120,24);
+    public static final IntakePreset kAlgaeL3 = new IntakePreset(70, -120, 30.344);
 
     public final double armPreset, wristPreset, elevatorPreset;
 

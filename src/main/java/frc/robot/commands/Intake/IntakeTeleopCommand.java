@@ -6,9 +6,9 @@ import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class IntakeCoralTeleopCommand extends SequentialCommandGroup{
+public class IntakeTeleopCommand extends SequentialCommandGroup{
 
-    public IntakeCoralTeleopCommand(
+    public IntakeTeleopCommand(
         CarriageSubsystem pCarriageSubsystem,
         ElevatorSubsystem pElevatorSubsystem,
         IntakeSubsystem pIntakeSubsystem,
@@ -16,6 +16,7 @@ public class IntakeCoralTeleopCommand extends SequentialCommandGroup{
     )
     {
         addCommands(
+            // Takes a preset and moves the robot
             new MoveToLevelSafe(pCarriageSubsystem, pElevatorSubsystem, pIntakeSubsystem, pPreset),
             new MoveCarriageToPresetCommand(pCarriageSubsystem, pPreset)
         );

@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -27,6 +26,11 @@ import static frc.robot.subsystems.SwerveSubsystem.*; // For constants.
 //       Is this mostly last year's code?
 public class SwerveTeleop extends Command
 {
+    // TODO: how is this different from a clamp? Might want to consider doing that.
+    public static final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
+    public static final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
+    public static final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
+
     private final Supplier<Double> mFwdInput;
     private final Supplier<Double> mSideInput;
     private final Supplier<Double> mTurnInput;
@@ -52,7 +56,6 @@ public class SwerveTeleop extends Command
             Supplier<Boolean> pLeftButton,
             Supplier<Boolean> pRightButton,
             SwerveSubsystem pSwerveSubsystem,
-            IntakeSubsystem pIntakeSubsystem,
             VisionSubsystem pVisionSubsystem)
     {
         mFwdInput = pFwdInput;
@@ -64,7 +67,7 @@ public class SwerveTeleop extends Command
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
         mVisionAlignTrigger = new Trigger(pLeftButton::get);
-        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.of(pIntakeSubsystem::outtakeCoral)));
+        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.empty()));
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 
@@ -78,9 +81,9 @@ public class SwerveTeleop extends Command
     public void execute()
     {
         SmartDashboard.putNumber("Swerve Rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
-        double updatedFwdSpeedMS = mFwdInput.get() * kMaxSpeedMS;
-        double updatedSideSpeedMS = mSideInput.get() * kMaxSpeedMS;
-        double updatedTurnSpeedRadS = mTurnInput.get() * kMetersPerSecondToRadiansPerSecond * kMaxSpeedMS;
+        double updatedFwdSpeedMS = mFwdLimiter.calculate(mFwdInput.get()) * kMaxSpeedMS;
+        double updatedSideSpeedMS = mSideLimiter.calculate(mSideInput.get()) * kMaxSpeedMS;
+        double updatedTurnSpeedRadS = mTurnLimiter.calculate(mTurnInput.get()) * kMetersPerSecondToRadiansPerSecond * kMaxSpeedMS;
 
         if (updatedTurnSpeedRadS == 0.0 && (updatedFwdSpeedMS != 0 || updatedSideSpeedMS != 0))
         {
