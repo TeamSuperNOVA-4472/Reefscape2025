@@ -28,7 +28,7 @@ public class ClimberTester extends Command
     @Override
     public void execute() 
     {
-        if(mClimbIn.get())
+        /*if(mClimbIn.get())
         {
             mClimb.setGrabberVoltage(-4);
         } 
@@ -50,6 +50,6 @@ public class ClimberTester extends Command
         {
             mClimb.setLeftClimbVoltage(0);
             mClimb.setRightClimbVoltage(0);
-        } 
+        }*/
     }
 }

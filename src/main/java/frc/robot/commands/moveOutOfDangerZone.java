@@ -2,27 +2,34 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CarriageSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
 public class moveOutOfDangerZone extends Command
 {
-
+    IntakeSubsystem mIntakeSubsystem;
     CarriageSubsystem mCarriageSubsystem;
 
     double newWristTarget;
     double newArmTarget;
 
-    public moveOutOfDangerZone(CarriageSubsystem pCarriageSubsystem)
+    public moveOutOfDangerZone(CarriageSubsystem pCarriageSubsystem, IntakeSubsystem pIntakeSubsystem)
     {
         mCarriageSubsystem = pCarriageSubsystem;
-
-        newWristTarget = mCarriageSubsystem.getWristSetpoint();
-        newArmTarget = mCarriageSubsystem.getArmSetpoint();
+        mIntakeSubsystem = pIntakeSubsystem;
+        addRequirements(mCarriageSubsystem);
     }
 
     @Override
     public void initialize()
     {
-        if (mCarriageSubsystem.getCarriageTargetX() < -5)
+        newWristTarget = mCarriageSubsystem.getWristSetpoint();
+        newArmTarget = mCarriageSubsystem.getArmSetpoint();
+        if (mIntakeSubsystem.hasAlgae())
+        {
+            newArmTarget = CarriageSubsystem.armAlgaeStow;
+            newWristTarget = CarriageSubsystem.wristAlgaeStow;
+        } 
+        else if (mCarriageSubsystem.getCarriageTargetX() < -5)
         {
             newWristTarget = CarriageSubsystem.wristPresetMoving;
             newArmTarget = CarriageSubsystem.armPresetMoving;

@@ -116,7 +116,7 @@ public class IntakeSubsystem extends SubsystemBase
     }
 
     public boolean hasAlgae(){
-        return Math.abs(algaeTargetVoltage) > 0 && Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 0.2;
+        return Math.abs(algaeTargetVoltage) > 0 && Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 1;
     }
 
     @Override

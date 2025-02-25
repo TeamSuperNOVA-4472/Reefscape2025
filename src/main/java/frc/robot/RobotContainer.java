@@ -128,37 +128,64 @@ public class RobotContainer
             mVisionSubsystem);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
-        Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
-        carriage.onTrue(new ConditionalCommand(new InstantCommand(), new LoadCoral(mElevatorSubsystem, mCarriageSubsystem), () -> mIntakeSubsystem.hasAlgae())
+        Trigger carriage = new Trigger(mPartner::getRightBumperButton);
+        carriage.onTrue(
+            new ConditionalCommand(
+                new InstantCommand(),
+                new LoadCoral(mElevatorSubsystem, mCarriageSubsystem), 
+                () -> mIntakeSubsystem.hasAlgae()).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeCoral()))
+        );
+        carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem)));
+
+        Trigger scoreTrigger = new Trigger(() -> mPartner.getRightTriggerAxis() > 0);
+        scoreTrigger.onTrue(
+            new InstantCommand(() -> mIntakeSubsystem.outtakeCoral())
+        );
+        scoreTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));
+
+        Trigger l1Trigger = new Trigger(mPartner::getAButton);
+        l1Trigger.onTrue(
+            new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
 
-        Trigger scoreTrigger = new Trigger(mPartner::getRightBumperButton);
-        scoreTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem), () -> mIntakeSubsystem.hasAlgae())
-        );
-
-        Trigger l1Trigger = new Trigger(() -> mPartner.getPOV() == 90);
-        l1Trigger.onTrue(new ConditionalCommand(new AlgaeProcessor(mElevatorSubsystem, mCarriageSubsystem), new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
-        );
-
-        Trigger l2Trigger = new Trigger(() -> mPartner.getPOV() == 180);
-        l2Trigger.onTrue(new ConditionalCommand(new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem), new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
+        Trigger l2Trigger = new Trigger(mPartner::getXButton);
+        l2Trigger.onTrue(
+            new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
         
-        Trigger l3Trigger = new Trigger(() -> mPartner.getPOV() == 270);
-        l3Trigger.onTrue(new ConditionalCommand(new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem), new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
+        Trigger l3Trigger = new Trigger(mPartner::getBButton);
+        l3Trigger.onTrue( 
+            new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
 
-        Trigger l4Trigger = new Trigger(() -> mPartner.getPOV() == 0);
-        l4Trigger.onTrue(new ConditionalCommand(new AlgaeBarge(mElevatorSubsystem, mCarriageSubsystem), new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem), () -> mCarriageSubsystem.getAlgaeMode())
+        Trigger l4Trigger = new Trigger(mPartner::getYButton);
+        l4Trigger.onTrue(
+            new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
 
-        Trigger algaeTrigger = new Trigger(() -> mPartner.getLeftTriggerAxis() > 0);
-        algaeTrigger.onTrue(new AlgaeIntakePreset(mCarriageSubsystem, mElevatorSubsystem)
+        Trigger algaeTrigger = new Trigger(mPartner::getLeftBumperButton);
+        algaeTrigger.onTrue(
+            new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)//.andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
         );
+
+        Trigger algaeHighTrigger = new Trigger(() -> mPartner.getLeftTriggerAxis() > 0);
+        algaeHighTrigger.onTrue(
+            new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)//.andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
+        );
+
+        Trigger algaeProcessTrigger = new Trigger(() -> mPartner.getPOV() == 180);
+        algaeProcessTrigger.onTrue(
+            new AlgaeProcessor(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
+        );
+
+        Trigger algaeOut = new Trigger(() -> mPartner.getPOV() == 0);
+        algaeOut.onTrue(
+            new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
+        );
+        algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
-        
         mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
         mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
         mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
@@ -174,10 +201,10 @@ public class RobotContainer
         // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
 
         // TODO: remove tester commands when robot is properly programmed
-        mElevatorSubsystem.setDefaultCommand(mElevatorTester);
-        mCarriageSubsystem.setDefaultCommand(mCarriageTester);
-        mIntakeSubsystem.setDefaultCommand(mIntakeTester);
-        mClimbSubsystem.setDefaultCommand(mClimberTester);
+        //mElevatorSubsystem.setDefaultCommand(mElevatorTester);
+        //mCarriageSubsystem.setDefaultCommand(mCarriageTester);
+        //mIntakeSubsystem.setDefaultCommand(mIntakeTester);
+        //mClimbSubsystem.setDefaultCommand(mClimberTester);
 
 
         // Register named commands.
@@ -197,6 +224,6 @@ public class RobotContainer
     // Specify which command will be used as the autonomous command.
     public Command getAutonomousCommand()
     {
-        return new SequentialCommandGroup(new MoveCarriageToPresetCommand(mCarriageSubsystem, 90.0, -90.0), new moveToLevelSafe(mCarriageSubsystem, mElevatorSubsystem, 20.0));
+        return autoChooser.getSelected();
     }
 }

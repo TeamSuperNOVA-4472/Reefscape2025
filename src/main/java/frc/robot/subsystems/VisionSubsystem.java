@@ -74,7 +74,7 @@ public class VisionSubsystem extends SubsystemBase
         try
         {
             // There's a file created by wpilib that has the layout for the new game.
-            String layoutPath = AprilTagFields.k2025Reefscape.m_resourceFile;
+            String layoutPath = AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile;
             System.out.println("[VISION] April Tag Layout Path: " + layoutPath);
             tagLayout = AprilTagFieldLayout.loadFromResource(layoutPath);
         }

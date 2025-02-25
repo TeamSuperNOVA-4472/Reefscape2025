@@ -145,10 +145,10 @@ public class CarriageSubsystem extends SubsystemBase
         wristMotor.getConfigurator().refresh(wristConfig);
         wristMotor.getConfigurator().refresh(wristCurrentConfig);
         wristMotor.getConfigurator().refresh(wristMotorConfig);
-        wristCurrentConfig.SupplyCurrentLimit = 20;
+        wristCurrentConfig.SupplyCurrentLimit = 25;
         wristCurrentConfig.SupplyCurrentLimitEnable = true;
         wristCurrentConfig.StatorCurrentLimitEnable = true;
-        wristCurrentConfig.StatorCurrentLimit = 20;
+        wristCurrentConfig.StatorCurrentLimit = 25;
         wristMotorConfig.NeutralMode = NeutralModeValue.Brake;
         wristConfig.withCurrentLimits(wristCurrentConfig);
         wristConfig.withMotorOutput(wristMotorConfig);
@@ -278,6 +278,7 @@ public class CarriageSubsystem extends SubsystemBase
         
         double armX = 13 * Math.cos(Math.toRadians(getArmSetpoint()));
         double wristX = -10 * Math.cos(Math.toRadians(getWristSetpoint() + getArmSetpoint())) + -6 * Math.sin(Math.toRadians(getWristSetpoint() + getArmSetpoint()));
+        SmartDashboard.putNumber("GetTargetX Value", armX + wristX);
         return armX + wristX;
     }
 
