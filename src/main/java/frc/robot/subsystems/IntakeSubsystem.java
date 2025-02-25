@@ -16,9 +16,12 @@ public class IntakeSubsystem extends SubsystemBase
 {
 
     public static final int kIntakeMotorId = 1;
-    public static final double kCoralIntakeVoltage = 4;
-    public static final double kAlgaeIntakeVoltage = 4;
+    public static final double kCoralIntakeVoltage = -4;
+    public static final double kAlgaeIntakeVoltage = 6;
     public static final double kAlgaeDefaultVoltage = 1;
+    public static final double kAlgaeCurrentThreshold = 2;
+
+    private double algaeTargetVoltage = kAlgaeDefaultVoltage;
 
     private boolean mIsIntaking;
     private boolean mIsOutTaking;
@@ -79,6 +82,7 @@ public class IntakeSubsystem extends SubsystemBase
     public void intakeAlgae()
     {
         mAlgaeIntake.setVoltage(kAlgaeIntakeVoltage);
+        algaeTargetVoltage = kAlgaeIntakeVoltage;
         mIsIntaking = true;
         mIsOutTaking = false;
 
@@ -87,6 +91,7 @@ public class IntakeSubsystem extends SubsystemBase
     public void outtakeAlgae()
     {
         mAlgaeIntake.setVoltage(-kAlgaeIntakeVoltage);
+        algaeTargetVoltage = -kAlgaeIntakeVoltage;
         mIsIntaking = false;
         mIsOutTaking = true;
     }
@@ -95,6 +100,7 @@ public class IntakeSubsystem extends SubsystemBase
     {
         mCoralIntake.stopMotor();
         mAlgaeIntake.setVoltage(kAlgaeDefaultVoltage);
+        algaeTargetVoltage = kAlgaeDefaultVoltage;
         mIsIntaking = false;
         mIsOutTaking = false;
     }
@@ -109,9 +115,17 @@ public class IntakeSubsystem extends SubsystemBase
         return mIsOutTaking;
     }
 
+    public boolean hasAlgae(){
+        return Math.abs(algaeTargetVoltage) > 0 && Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 1;
+    }
+
     @Override
     public void periodic()
     {
         SmartDashboard.putNumber("Algae Intake Current", mAlgaeIntake.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Algae Target Voltage", algaeTargetVoltage);
+        SmartDashboard.putNumber("Algae Actual Voltage", mAlgaeIntake.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Algae Actual Velocity", mAlgaeIntake.getVelocity().getValueAsDouble());
+        SmartDashboard.putBoolean("Algae in Intake", this.hasAlgae());
     }
 }

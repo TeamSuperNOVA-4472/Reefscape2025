@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,14 +31,14 @@ import frc.robot.objectmodels.CameraInfo;
 
 public class VisionSubsystem extends SubsystemBase
 {
-    // TODO: More information!
+    // The first camera in this array is considered the "main camera."
+    // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
     {
         new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.206375, -0.19685, 0.2032 ), new Rotation3d(0, -22.5, 0))) // Can be changed.
     };
 
     // Cameras go here.
-    // TODO: In simulation, use PhotonCameraSim instead.
     private PhotonCamera[] cameras;
 
     private Field2d field;
@@ -47,6 +48,7 @@ public class VisionSubsystem extends SubsystemBase
 
     // Checks that must pass for vision to be active.
     private boolean initPass;
+    private boolean mainConnectedPass;
     private boolean enabled = true;
 
     private ArrayList<Consumer<EstimatedRobotPose>> poseListeners;
@@ -60,6 +62,8 @@ public class VisionSubsystem extends SubsystemBase
     private PhotonCameraSim[] simCameras;
     // FIXME: DEBUG DELETE ASAP
     private SwerveSubsystem mSwerve;
+
+    private Timer statusCheckTimer;
     
     public VisionSubsystem(SwerveSubsystem pSwerve)
     {
@@ -83,8 +87,7 @@ public class VisionSubsystem extends SubsystemBase
         }
 
         field = new Field2d();
-        SmartDashboard.putData("Vision Pose", field);
-        SmartDashboard.putBoolean("Apriltags loaded", initPass);
+        SmartDashboard.putData("Subsystems/VisionSubsystem/Vision Pose", field);
         mSwerve = pSwerve;
 
         // Initialize cameras. This means we don't need a million variables for
@@ -115,8 +118,11 @@ public class VisionSubsystem extends SubsystemBase
                 simCameras[i].enableProcessedStream(true);
                 simCameras[i].enableDrawWireframe(true);
             }
-
         }
+
+        statusCheckTimer = new Timer();
+        statusCheckTimer.start();
+        checkCameraStatus();
     }
 
     public void addMeasurementListener(Consumer<EstimatedRobotPose> consumer)
@@ -124,21 +130,49 @@ public class VisionSubsystem extends SubsystemBase
         poseListeners.add(consumer);
     }
 
+    private void checkCameraStatus()
+    {
+        boolean mainBad = false;
+        ArrayList<Integer> badCameras = new ArrayList<>();
+        for (int i = 0; i < cameras.length; i++)
+        {
+            PhotonCamera cam = cameras[i];
+            if (!cam.isConnected())
+            {
+                if (i == 0) mainBad = true;
+                else badCameras.add(i);
+            }
+        }
+
+        mainConnectedPass = !mainBad;
+        if (mainBad)
+        {
+            System.out.println("[VISION] The main camera is not connected! Vision will NOT be active.");
+        }
+
+        if (badCameras.size() > 0)
+        {
+            // Print message for cameras.
+            StringBuilder msg = new StringBuilder("[VISION] The following tertiary cameras are not connected: ");
+            for (int i = 0; i < badCameras.size(); i++)
+            {
+                msg.append('#');
+                msg.append(badCameras.get(i));
+                if (i < badCameras.size() - 1) msg.append(", ");
+            }
+        }
+    }
+
     @Override
     public void periodic()
     {
-        // FIXME: At the moment `bestTarget` is getting cleared too
-        //        many times. SmartDashboard is going crazy. I believe this
-        //        is because the frame rate of the camera is lower than the
-        //        refresh rate of the command scheduler, meaning we're checking
-        //        several times for the same result before the camera can generate
-        //        a new one. I don't like just keeping the last result permanently,
-        //        because that can make the robot think it sees a tag when there
-        //        is not one. We need to somehow differentiate between when
-        //        there isn't an april tag on photonvision and when we're just
-        //        waiting for a new frame.
+        if (statusCheckTimer.hasElapsed(1))
+        {
+            checkCameraStatus();
+            statusCheckTimer.restart();
+        }
 
-        SmartDashboard.putBoolean("Vision Active", isActive());
+        SmartDashboard.putBoolean("Subsystems/VisionSubsystem/Vision Status", isActive());
         if (!isActive()) return; // Disabled.
 
         bestTarget = Optional.empty();
@@ -149,9 +183,6 @@ public class VisionSubsystem extends SubsystemBase
             PhotonCamera camera = cameras[i];
             PhotonPoseEstimator poseEstimator = poseEstimators[i];
 
-            // This includes only NEW results.
-            // TODO: Maybe previous results are better than the crappy ones we
-            //       have now? (Talking on a millisecond-to-millisecond basis)
             List<PhotonPipelineResult> results = camera.getAllUnreadResults();
             Optional<EstimatedRobotPose> newRobotPose = Optional.empty();
             for (PhotonPipelineResult result : results)
@@ -189,25 +220,25 @@ public class VisionSubsystem extends SubsystemBase
             Pose3d curPose = poseApproximation.estimatedPose;
             Pose3d targetPose = tagLayout.getTagPose(target.getFiducialId()).get();
             
-            SmartDashboard.putString("Vision: Distance to April Tag", targetPose.minus(curPose).toString());
+            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Distance to April Tag", targetPose.minus(curPose).toString());
         }
         else
         {
-            SmartDashboard.putString("Vision: Distance to April Tag", "No Tag in View");
+            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Distance to April Tag", "No Tag in View");
         }
 
         if (getPoseInfo()!=null&&getTargetInView().isPresent())
         {
-            SmartDashboard.putString("Pose: ", getPose().toString());
+            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Pose", getPose().toString());
             Pose3d dest = tagLayout.getTagPose(getTargetInView().get().fiducialId).get();
             double destDeg = ((dest.getRotation().toRotation2d().getDegrees())+360)%360;
             double currentDeg = (getPose().getRotation().toRotation2d().getDegrees()+360)%360;
-            SmartDashboard.putNumber("Vision: Rotation to April Tag: ", destDeg);
-            SmartDashboard.putNumber("Vision: Rotation DT: ", currentDeg);
+            SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision Rotation to April Tag", destDeg);
+            SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision Rotation DT", currentDeg);
             if (getTargetInView().isPresent())
             {
-                SmartDashboard.putNumber("Vision: mY: ", getCameraToTarget(getTargetInView().get()).getY());
-                SmartDashboard.putNumber("Vision: difference in Y: ", dest.getY() - getPose().getY());
+                SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision mY", getCameraToTarget(getTargetInView().get()).getY());
+                SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision difference in Y", dest.getY() - getPose().getY());
             }
         }
 
@@ -263,7 +294,7 @@ public class VisionSubsystem extends SubsystemBase
 
     public boolean isActive()
     {
-        return initPass && enabled;
+        return initPass && mainConnectedPass && enabled;
     }
     public void enable()
     {

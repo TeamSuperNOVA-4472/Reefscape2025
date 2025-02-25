@@ -9,7 +9,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.Intake.AlgaeIntakePreset;
-import frc.robot.commands.Intake.IntakeTeleopCommand;
+import frc.robot.commands.Intake.IntakeCoralTeleopCommand;
 import frc.robot.commands.Intake.LoadCoral;
 import frc.robot.commands.Intake.MoveCarriageToPresetCommand;
 import frc.robot.commands.Intake.MoveToLevelCommand;
@@ -119,19 +119,19 @@ public class RobotContainer
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
 
         Trigger level1 = new Trigger(mPartner::getAButton);
-        level1.onTrue(new IntakeTeleopCommand(mCarriageSubsystem, mElevatorSubsystem, IntakePreset.kScoreL1));
+        level1.onTrue(new IntakeCoralTeleopCommand(mCarriageSubsystem, mElevatorSubsystem, mIntakeSubsystem, IntakePreset.kScoreL1));
 
         Trigger level2 = new Trigger(mPartner::getXButton);
-        level2.onTrue(new IntakeTeleopCommand(mCarriageSubsystem, mElevatorSubsystem, IntakePreset.kScoreL2));
+        level2.onTrue(new IntakeCoralTeleopCommand(mCarriageSubsystem, mElevatorSubsystem, mIntakeSubsystem, IntakePreset.kScoreL2));
 
         Trigger level3 = new Trigger(mPartner::getBButton);
-        level3.onTrue(new IntakeTeleopCommand(mCarriageSubsystem, mElevatorSubsystem, IntakePreset.kScoreL3));
+        level3.onTrue(new IntakeCoralTeleopCommand(mCarriageSubsystem, mElevatorSubsystem, mIntakeSubsystem, IntakePreset.kScoreL3));
 
         Trigger level4 = new Trigger(mPartner::getYButton);
-        level4.onTrue(new IntakeTeleopCommand(mCarriageSubsystem, mElevatorSubsystem, IntakePreset.kScoreL4));
+        level4.onTrue(new IntakeCoralTeleopCommand(mCarriageSubsystem, mElevatorSubsystem, mIntakeSubsystem, IntakePreset.kScoreL4));
 
         Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
-        carriage.onTrue(new LoadCoral(mElevatorSubsystem, mCarriageSubsystem));
+        carriage.onTrue(new LoadCoral(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
 
         Trigger scoreTrigger = new Trigger(mPartner::getRightBumperButton);
         scoreTrigger.onTrue(new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem)
