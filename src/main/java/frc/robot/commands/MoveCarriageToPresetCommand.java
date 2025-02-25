@@ -1,5 +1,7 @@
 package frc.robot.commands;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CarriageSubsystem;
 
@@ -10,14 +12,21 @@ public class MoveCarriageToPresetCommand extends Command
 
     private final CarriageSubsystem mCarriageSubsystem;
 
-    private final Double armPreset;
-    private final Double wristPreset;
+    private Double armPreset;
+    private Double wristPreset;
+
+    private final Supplier<Double> armSupply;
+    private final Supplier<Double> wristSupply;
 
     public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, Double armPreset, Double wristPreset)
     {
-        this.armPreset = armPreset;
-        this.wristPreset = wristPreset;
+        this(carriageSubsystem, () -> armPreset, () -> wristPreset);
+    }
 
+    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, Supplier<Double> armPreset, Supplier<Double> wristPreset)
+    {
+        armSupply = armPreset;
+        wristSupply = wristPreset;
         mCarriageSubsystem = carriageSubsystem;
         addRequirements(mCarriageSubsystem);
     }
@@ -25,6 +34,8 @@ public class MoveCarriageToPresetCommand extends Command
     @Override
     public void initialize() 
     {
+        armPreset = armSupply.get();
+        wristPreset = wristSupply.get();
         mCarriageSubsystem.setArmPreset(armPreset);
         mCarriageSubsystem.setWristPreset(wristPreset);
     }

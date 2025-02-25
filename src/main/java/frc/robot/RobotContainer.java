@@ -197,6 +197,6 @@ public class RobotContainer
     // Specify which command will be used as the autonomous command.
     public Command getAutonomousCommand()
     {
-        return autoChooser.getSelected();
+        return new SequentialCommandGroup(new MoveCarriageToPresetCommand(mCarriageSubsystem, 90.0, -90.0), new moveToLevelSafe(mCarriageSubsystem, mElevatorSubsystem, 20.0));
     }
 }
