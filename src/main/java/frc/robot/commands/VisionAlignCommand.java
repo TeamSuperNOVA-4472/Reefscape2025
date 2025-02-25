@@ -22,13 +22,11 @@ import frc.robot.subsystems.VisionSubsystem;
 //        it only pays attention to the best one visible. So, for example,
 //        if there are two tags on the camera, even if the correct one is
 //        visible, it may focus on the other one and "fail to find the tag."
-
-// FIXME: This causes a crash when a tag is not spotted during an autonomous
-//        path. Hopefully our tuning will make this never happen, but it could
-//        be problematic. Somehow, the `cancel()` method isn't doing its job
-//        when used with PathPlanner.
 public class VisionAlignCommand extends SequentialCommandGroup
 {
+    public static final Translation2d kReefLeftOffset = new Translation2d(-0.3, -0.1651);
+    public static final Translation2d kReefRightOffset = new Translation2d(-0.3, 0.1651);
+
     private PhotonTrackedTarget activeTarget, oldTarget;
     private Pose2d drivePerIterOffset;
 
@@ -36,7 +34,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
     private Translation2d offsetFromTarget;
 
     // Represents the camera offset to the robot center. TWEAK
-    private final Translation2d camOffsetToRobotCenter = new Translation2d(0.6, -0.30); // 0.267
+    private final Translation2d camOffsetToRobotCenter = new Translation2d(0.6, -0.30);
 
     // Used for print statements.
     private int translationIter = 0, rotationIter = 0;
