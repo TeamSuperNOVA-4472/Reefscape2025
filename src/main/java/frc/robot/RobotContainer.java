@@ -4,15 +4,22 @@
 
 package frc.robot;
 
-import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.commands.DoTheThingCommand;
-import frc.robot.commands.ElevatorCarriageTeleop;
-import frc.robot.commands.IntakeTeleop;
-import frc.robot.commands.MoveCarriageToPresetCommand;
-import frc.robot.commands.MoveToLevelCommand;
-import frc.robot.commands.SwerveTeleop;
-import frc.robot.commands.VisionAlignCommand;
-import frc.robot.subsystems.LightsSubsystem;
+import java.util.Optional;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.events.EventTrigger;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import static frc.robot.OperatorConfig.weightJoystick;
 import frc.robot.commands.Presets.AlgaeBarge;
 import frc.robot.commands.Presets.AlgaeIntakePreset;
 import frc.robot.commands.Presets.AlgaeL2;
@@ -25,17 +32,18 @@ import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
 import frc.robot.commands.Presets.StowCarriagePositionAlgae;
+import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.VisionAlignCommand;
 import frc.robot.commands.autoCommands.ScoreLevel1;
-import frc.robot.commands.autoCommands.ScoreLevel3;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ClimberTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
-import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import org.photonvision.EstimatedRobotPose;
@@ -59,6 +67,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.OperatorConfig.weightJoystick;
+import frc.robot.subsystems.VisionSubsystem;
 
 import java.util.Optional;
 
@@ -193,6 +202,11 @@ public class RobotContainer
             new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
         );
         algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));
+        Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
+        alignLeft.onTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
+
+        Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
+        alignRight.onTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
 
         Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
         algaeBarge.whileTrue(
@@ -230,7 +244,7 @@ public class RobotContainer
         // TODO: Some of these are temporary things.
         NamedCommands.registerCommand("ScoreLevel1", new ScoreLevel1(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
-        NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
+        NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
