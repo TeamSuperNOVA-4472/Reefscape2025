@@ -24,6 +24,7 @@ import frc.robot.commands.Presets.CoralL3Preset;
 import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
+import frc.robot.commands.Presets.StowCarriagePositionAlgae;
 import frc.robot.commands.autoCommands.ScoreLevel1;
 import frc.robot.commands.autoCommands.ScoreLevel3;
 import frc.robot.commands.tester.CarriageTester;
@@ -130,61 +131,77 @@ public class RobotContainer
             mVisionSubsystem);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
-        Trigger carriage = new Trigger(mPartner::getRightBumperButton);
-        carriage.onTrue(
+        Trigger carriage = new Trigger(() -> (mPartner.getRightBumperButton() && !mIntakeSubsystem.hasCoral()));
+        carriage.whileTrue(
             new ConditionalCommand(
                 new InstantCommand(),
                 new LoadCoral(mElevatorSubsystem, mCarriageSubsystem), 
-                () -> mIntakeSubsystem.hasAlgae()).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeCoral()))
+                () -> (mIntakeSubsystem.hasAlgae() || (mCarriageSubsystem.getArmSetpoint() == CarriageSubsystem.armCoralLoad && mCarriageSubsystem.getWristSetpoint() == CarriageSubsystem.wristCoralLoad))).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeCoral()))
         );
-        carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem)));
+        carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));//.andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
         Trigger scoreTrigger = new Trigger(() -> mPartner.getRightTriggerAxis() > 0);
         scoreTrigger.onTrue(
             new InstantCommand(() -> mIntakeSubsystem.outtakeCoral())
         );
-        scoreTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));
+        scoreTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new InstantCommand(() -> mIntakeSubsystem.setCoral(false))));
 
         Trigger l1Trigger = new Trigger(mPartner::getAButton);
-        l1Trigger.onTrue(
+        l1Trigger.whileTrue(
             new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
+        l1Trigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
 
         Trigger l2Trigger = new Trigger(mPartner::getXButton);
-        l2Trigger.onTrue(
+        l2Trigger.whileTrue(
             new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
+        l2Trigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
         
         Trigger l3Trigger = new Trigger(mPartner::getBButton);
-        l3Trigger.onTrue( 
+        l3Trigger.whileTrue( 
             new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
+        l3Trigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
 
         Trigger l4Trigger = new Trigger(mPartner::getYButton);
-        l4Trigger.onTrue(
+        l4Trigger.whileTrue(
             new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
+        l4Trigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
 
-        Trigger algaeTrigger = new Trigger(mPartner::getLeftBumperButton);
-        algaeTrigger.onTrue(
-            new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)//.andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
+        Trigger algaeTrigger = new Trigger(() -> (mPartner.getLeftBumperButton() && !mIntakeSubsystem.hasAlgae()));
+        algaeTrigger.whileTrue(
+            new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
         );
+        algaeTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
-        Trigger algaeHighTrigger = new Trigger(() -> mPartner.getLeftTriggerAxis() > 0);
-        algaeHighTrigger.onTrue(
-            new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)//.andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
+        Trigger algaeHighTrigger = new Trigger(() -> (mPartner.getLeftTriggerAxis() > 0 && !mIntakeSubsystem.hasAlgae()));
+        algaeHighTrigger.whileTrue(
+            new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
         );
+        algaeHighTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
         Trigger algaeProcessTrigger = new Trigger(() -> mPartner.getPOV() == 180);
-        algaeProcessTrigger.onTrue(
+        algaeProcessTrigger.whileTrue(
             new AlgaeProcessor(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
+        algaeProcessTrigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
 
         Trigger algaeOut = new Trigger(() -> mPartner.getPOV() == 0);
         algaeOut.onTrue(
             new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
         );
         algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));
+
+        Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
+        algaeBarge.whileTrue(
+            new AlgaeBarge(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
+        );
+        algaeBarge.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
+
+        Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton); //TODO: add climb commands.
+        Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));

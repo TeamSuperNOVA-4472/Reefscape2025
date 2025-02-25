@@ -11,8 +11,8 @@ public class StowCarriagePositionAlgae extends SequentialCommandGroup
     public StowCarriagePositionAlgae(CarriageSubsystem pCarriage, ElevatorSubsystem pElevator)
     {
         addCommands(
-            new MoveToLevelCommand(pElevator, ElevatorSubsystem.initialHeight),
-            new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armAlgaeStow, CarriageSubsystem.wristAlgaeStow)
+            new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armAlgaeStow, CarriageSubsystem.wristAlgaeStow),
+            new MoveToLevelCommand(pElevator, ElevatorSubsystem.initialHeight)
         );
     }    
 }

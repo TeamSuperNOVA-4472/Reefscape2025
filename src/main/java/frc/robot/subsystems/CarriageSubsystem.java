@@ -92,13 +92,13 @@ public class CarriageSubsystem extends SubsystemBase
     private static final double maxWristVoltage = 4;
 
     public static final double armAlgaeBarge = 90;
-    public static final double armAlgaeProcessor = 40;
+    public static final double armAlgaeProcessor = 0;
     public static final double armAlgaeL2 = 40;
-    public static final double armAlgaeL3 = 70;
+    public static final double armAlgaeL3 = 40;
     public static final double armAlgaeStow = 60;
 
     public static final double wristAlgaeBarge = -100;
-    public static final double wristAlgaeProcessor = -120;
+    public static final double wristAlgaeProcessor = -90;
     public static final double wristAlgaeL2 = -120;
     public static final double wristAlgaeL3 = -120;
     public static final double wristAlgaeStow = -60;
