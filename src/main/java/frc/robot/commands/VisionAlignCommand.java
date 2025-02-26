@@ -24,8 +24,8 @@ import frc.robot.subsystems.VisionSubsystem;
 //        visible, it may focus on the other one and "fail to find the tag."
 public class VisionAlignCommand extends SequentialCommandGroup
 {
-    public static final Translation2d kReefLeftOffset = new Translation2d(-0.1, -0.1651);
-    public static final Translation2d kReefRightOffset = new Translation2d(-0.1, 0.1651);
+    public static final Translation2d kReefLeftOffset = new Translation2d(0.2, 0.41);
+    public static final Translation2d kReefRightOffset = new Translation2d(0.2, 0.02);
 
     private PhotonTrackedTarget activeTarget, oldTarget;
     private Pose2d drivePerIterOffset;
@@ -34,7 +34,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
     private Translation2d offsetFromTarget;
 
     // Represents the camera offset to the robot center. TWEAK
-    private final Translation2d camOffsetToRobotCenter = new Translation2d(0.6, 0); // -0.30
+    private final Translation2d camOffsetToRobotCenter = new Translation2d(0.6, -0.15);
 
     // Used for print statements.
     private int translationIter = 0, rotationIter = 0;

@@ -200,10 +200,10 @@ public class RobotContainer
         algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
         Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
-        alignLeft.onTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.empty()));
+        alignLeft.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
 
         Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
-        alignRight.onTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.empty()));
+        alignRight.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
 
         Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
         algaeBarge.whileTrue(
