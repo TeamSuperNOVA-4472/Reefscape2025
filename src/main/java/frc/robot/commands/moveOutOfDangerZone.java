@@ -22,14 +22,14 @@ public class moveOutOfDangerZone extends Command
     @Override
     public void initialize()
     {
-        newWristTarget = mCarriageSubsystem.getWristSetpoint();
-        newArmTarget = mCarriageSubsystem.getArmSetpoint();
+        //newWristTarget = mCarriageSubsystem.getWristSetpoint();
+        //newArmTarget = mCarriageSubsystem.getArmSetpoint();
         if (mIntakeSubsystem.hasAlgae())
         {
             newArmTarget = CarriageSubsystem.armAlgaeStow;
             newWristTarget = CarriageSubsystem.wristAlgaeStow;
         } 
-        else if (mCarriageSubsystem.getCarriageTargetX() < -5)
+        else/// if (mCarriageSubsystem.getCarriageTargetX() < -5)
         {
             newWristTarget = CarriageSubsystem.wristPresetMoving;
             newArmTarget = CarriageSubsystem.armPresetMoving;
