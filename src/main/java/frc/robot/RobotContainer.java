@@ -202,6 +202,9 @@ public class RobotContainer
         Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
         alignLeft.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
 
+        Trigger alignMiddle = new Trigger(mDriver::getXButton);
+        alignMiddle.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
+
         Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
         alignRight.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
 

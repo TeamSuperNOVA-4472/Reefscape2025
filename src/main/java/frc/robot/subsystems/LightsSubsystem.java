@@ -198,8 +198,8 @@ public class LightsSubsystem extends SubsystemBase
         return new LEDSlidingPattern()
             .withColor(color)
             .withOnSize(5)
-            .withOffSize(5)
-            .withTick(tick * (up ? 1 : -1));
+            .withOffSize(10)
+            .withTick((tick / 2) * (up ? 1 : -1));
     }
 
     // When the robot is in an unknown state. Should never happen.

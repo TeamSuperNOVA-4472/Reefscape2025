@@ -25,6 +25,7 @@ import frc.robot.subsystems.VisionSubsystem;
 public class VisionAlignCommand extends SequentialCommandGroup
 {
     public static final Translation2d kReefLeftOffset = new Translation2d(0.2, 0.41);
+    public static final Translation2d kReefMiddleOffset = new Translation2d(0.2, 0.215);
     public static final Translation2d kReefRightOffset = new Translation2d(0.2, 0.02);
 
     private PhotonTrackedTarget activeTarget, oldTarget;
