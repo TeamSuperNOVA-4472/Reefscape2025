@@ -32,7 +32,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
     public static final Translation2d kReefRightOffset = new Translation2d(0.2, 0.02);
 
     public static final Translation2d kDeltaForL1 = new Translation2d(0, 0);
-    public static final Translation2d kDeltaForL2 = new Translation2d(0.02, 0);
+    public static final Translation2d kDeltaForL2 = new Translation2d(0, 0);
     public static final Translation2d kDeltaForL3 = new Translation2d(0.07, 0);
     public static final Translation2d kDeltaForL4 = new Translation2d(0, 0);
 
@@ -48,6 +48,9 @@ public class VisionAlignCommand extends SequentialCommandGroup
     // Used for print statements.
     private int translationIter = 0, rotationIter = 0;
 
+    // Prevents hanging. Somewhat janky fix.
+    private boolean ended;
+
     // Extra stuff.
     private Optional<Runnable> runOnComplete;
     //private LightStatusRequest lightRequest;
@@ -60,6 +63,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
     {
         offsetFromTarget = pOffsetFromTarget;
         runOnComplete = pRunOnComplete;
+        ended = false;
         /*lightRequest = new LightStatusRequest(LightState.kOff, 0);
         if (Robot.sIsAutonomous())
         {
@@ -90,31 +94,31 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
             // Rotation step 1
             new InstantCommand(this::alignReset), // This line not technically required, but it serves as a reference.
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignRotation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 1
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Rotation step 2
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignRotation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 2
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 3
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
@@ -168,6 +172,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
             System.out.printf("[ALIGN] Translation step %d has failed!\n", translationIter);
             drivePerIterOffset = Pose2d.kZero;
             cancel();
+            onComplete(true);
             return;
         }
         else
@@ -191,6 +196,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
             System.out.printf("[ALIGN] Rotation step %d has failed!\n", rotationIter);
             drivePerIterOffset = Pose2d.kZero;
             cancel();
+            onComplete(true);
             return;
         }
         else
@@ -211,6 +217,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
     private void onComplete(boolean cancelled)
     {
+        this.ended = true;
         //lightRequest.active = false;
         //lightRequest.priority = -1;
     }
