@@ -35,7 +35,7 @@ public class VisionSubsystem extends SubsystemBase
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("AprilTagCam", new Transform3d(new Translation3d(0.288671, 0.206121, 0.26035 ), new Rotation3d(0, -22.5, 0))) // Can be changed.
+        new CameraInfo("AprilTagCam", new Transform3d(new Translation3d(0.288671, 0.206121, 0.26035 ), new Rotation3d(0, 0, 0))) // Can be changed.
     };
 
     // Cameras go here.
