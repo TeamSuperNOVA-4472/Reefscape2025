@@ -48,9 +48,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
     // Used for print statements.
     private int translationIter = 0, rotationIter = 0;
 
-    // Prevents hanging. Somewhat janky fix.
-    private boolean ended;
-
     // Extra stuff.
     private Optional<Runnable> runOnComplete;
     //private LightStatusRequest lightRequest;
@@ -63,7 +60,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
     {
         offsetFromTarget = pOffsetFromTarget;
         runOnComplete = pRunOnComplete;
-        ended = false;
         /*lightRequest = new LightStatusRequest(LightState.kOff, 0);
         if (Robot.sIsAutonomous())
         {
@@ -94,31 +90,31 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
             // Rotation step 1
             new InstantCommand(this::alignReset), // This line not technically required, but it serves as a reference.
-            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignRotation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 1
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Rotation step 2
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignRotation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 2
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 3
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, ended ? 0.0 : 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
@@ -136,6 +132,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
     public void cancel()
     {
         onComplete(true);
+        super.cancel();
     }
 
     private void alignInitialize()
@@ -217,7 +214,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
     private void onComplete(boolean cancelled)
     {
-        this.ended = true;
         //lightRequest.active = false;
         //lightRequest.priority = -1;
     }
