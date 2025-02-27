@@ -50,7 +50,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
     // Extra stuff.
     private Optional<Runnable> runOnComplete;
-    //private LightStatusRequest lightRequest;
 
     public VisionAlignCommand(
         SwerveSubsystem pSwerve,
@@ -60,21 +59,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
     {
         offsetFromTarget = pOffsetFromTarget;
         runOnComplete = pRunOnComplete;
-        /*lightRequest = new LightStatusRequest(LightState.kOff, 0);
-        if (Robot.sIsAutonomous())
-        {
-            lightRequest.priority = 210;
-            if (pOffsetFromTarget == kReefLeftOffset) lightRequest.state = LightState.kTeleopVisionAlignLeft;
-            else if (pOffsetFromTarget == kReefLeftOffset) lightRequest.state = LightState.kTeleopVisionAlignRight;
-        }
-        else
-        {
-            lightRequest.priority = 110;
-            if (pOffsetFromTarget == kReefLeftOffset) lightRequest.state = LightState.kAutonomousVisionAlignLeft;
-            else if (pOffsetFromTarget == kReefLeftOffset) lightRequest.state = LightState.kAutonomousVisionAlignRight;
-        }
-        lightRequest.active = false;
-        // TODO: Add to lights.*/
 
         // Here's the deal: we're going to run a few commands:
         // - Wait for the vision subsystem to recognize a tag.
@@ -142,7 +126,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
         oldTarget = null;
         translationIter = 0;
         rotationIter = 0;
-        //lightRequest.active = true;
 
         System.out.println("[ALIGN] Vision align to reef begun.");
     }
@@ -214,7 +197,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
     private void onComplete(boolean cancelled)
     {
-        //lightRequest.active = false;
-        //lightRequest.priority = -1;
+        if (cancelled) System.out.println("[ALIGN] Vision alignment has been halted!");
+        else System.out.println("[ALIGN] Vision alignment completed.");
     }
 }
