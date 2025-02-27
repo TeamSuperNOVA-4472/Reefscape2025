@@ -233,10 +233,10 @@ public class RobotContainer
         // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
 
         // TODO: remove tester commands when robot is properly programmed
-        //mElevatorSubsystem.setDefaultCommand(mElevatorTester);
-        //mCarriageSubsystem.setDefaultCommand(mCarriageTester);
-        //mIntakeSubsystem.setDefaultCommand(mIntakeTester);
-        //mClimbSubsystem.setDefaultCommand(mClimberTester);
+        mElevatorSubsystem.setDefaultCommand(mElevatorTester);
+        mCarriageSubsystem.setDefaultCommand(mCarriageTester);
+        mIntakeSubsystem.setDefaultCommand(mIntakeTester);
+        mClimbSubsystem.setDefaultCommand(mClimberTester);
 
 
         // Register named commands.
