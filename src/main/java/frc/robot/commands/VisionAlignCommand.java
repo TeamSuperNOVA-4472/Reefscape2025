@@ -9,6 +9,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Robot;
+import frc.robot.objectmodels.LightState;
+import frc.robot.objectmodels.LightStatusRequest;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -28,6 +31,11 @@ public class VisionAlignCommand extends SequentialCommandGroup
     public static final Translation2d kReefMiddleOffset = new Translation2d(0.2, 0.215);
     public static final Translation2d kReefRightOffset = new Translation2d(0.2, 0.02);
 
+    public static final Translation2d kDeltaForL1 = new Translation2d(0, 0);
+    public static final Translation2d kDeltaForL2 = new Translation2d(0.02, 0);
+    public static final Translation2d kDeltaForL3 = new Translation2d(0.07, 0);
+    public static final Translation2d kDeltaForL4 = new Translation2d(0, 0);
+
     private PhotonTrackedTarget activeTarget, oldTarget;
     private Pose2d drivePerIterOffset;
 
@@ -42,6 +50,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
     // Extra stuff.
     private Optional<Runnable> runOnComplete;
+    private LightStatusRequest lightRequest;
 
     public VisionAlignCommand(
         SwerveSubsystem pSwerve,
@@ -51,6 +60,21 @@ public class VisionAlignCommand extends SequentialCommandGroup
     {
         offsetFromTarget = pOffsetFromTarget;
         runOnComplete = pRunOnComplete;
+        lightRequest = new LightStatusRequest(LightState.kOff, 0);
+        if (Robot.sIsAutonomous())
+        {
+            lightRequest.priority = 210;
+            if (pOffsetFromTarget == kReefLeftOffset) lightRequest.state = LightState.kTeleopVisionAlignLeft;
+            else if (pOffsetFromTarget == kReefLeftOffset) lightRequest.state = LightState.kTeleopVisionAlignRight;
+        }
+        else
+        {
+            lightRequest.priority = 110;
+            if (pOffsetFromTarget == kReefLeftOffset) lightRequest.state = LightState.kAutonomousVisionAlignLeft;
+            else if (pOffsetFromTarget == kReefLeftOffset) lightRequest.state = LightState.kAutonomousVisionAlignRight;
+        }
+        lightRequest.active = false;
+        // TODO: Add to lights.
 
         // Here's the deal: we're going to run a few commands:
         // - Wait for the vision subsystem to recognize a tag.
@@ -94,13 +118,20 @@ public class VisionAlignCommand extends SequentialCommandGroup
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
-            // One more thing. Apply the offset.
+            // One more thing. Apply the offset and end stuff.
             new DriveDistanceAndHeading(pSwerve, () -> new Pose2d(offsetFromTarget, Rotation2d.kZero)),
+            new InstantCommand(() -> onComplete(false)),
 
             // Runnable to invoke on completion of the command.
             // Sophia's code again, just condensed a little.
             new InstantCommand(() -> { if (runOnComplete.isPresent()) runOnComplete.get().run(); })
         );
+    }
+
+    @Override
+    public void cancel()
+    {
+        onComplete(true);
     }
 
     private void alignInitialize()
@@ -109,6 +140,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
         activeTarget = null;
         translationIter = 0;
         rotationIter = 0;
+        lightRequest.active = true;
 
         System.out.println("[ALIGN] Vision align to reef begun.");
     }
@@ -166,5 +198,11 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
             drivePerIterOffset = new Pose2d(Translation2d.kZero, Rotation2d.fromDegrees(deg));
         }
+    }
+
+    private void onComplete(boolean cancelled)
+    {
+        lightRequest.active = false;
+        lightRequest.priority = -1;
     }
 }

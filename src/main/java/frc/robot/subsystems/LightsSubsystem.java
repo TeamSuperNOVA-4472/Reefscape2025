@@ -91,6 +91,24 @@ public class LightsSubsystem extends SubsystemBase
         requests.add(request);
     }
 
+    public void removeRequests(LightStatusRequest... requests)
+    {
+        if (!isActive()) return;
+        for (int i = 0; i < requests.length; i++) removeRequest(requests[i]);
+    }
+    public void removeRequest(LightStatusRequest request)
+    {
+        if (!isActive()) return;
+        for (int i = 0; i < requests.size(); i++)
+        {
+            if (requests.get(i) == request)
+            {
+                requests.remove(i);
+                return;
+            }
+        }
+    }
+
     public boolean isActive()
     {
         return initialized && enabled;
@@ -137,10 +155,16 @@ public class LightsSubsystem extends SubsystemBase
     {
         if (!isActive()) return LightState.kOff;
         LightState result = LightState.kOff;
-        int highest = Integer.MIN_VALUE;
+        int highest = -1;
         for (int i = 0; i < requests.size(); i++)
         {
             LightStatusRequest req = requests.get(i);
+            if (req.priority < 0)
+            {
+                requests.remove(i);
+                i--;
+                continue;
+            }
             if (req.active && req.priority >= highest)
             {
                 result = req.state;

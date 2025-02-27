@@ -32,6 +32,7 @@ import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
 import frc.robot.commands.Presets.StowCarriagePositionAlgae;
+import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.VisionAlignCommand;
 import frc.robot.commands.autoCommands.ScoreLevel1;
@@ -56,6 +57,7 @@ import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -200,20 +202,20 @@ public class RobotContainer
         algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
         Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
-        alignLeft.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
+        alignLeft.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)));
 
         Trigger alignMiddle = new Trigger(mDriver::getXButton);
-        alignMiddle.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
+        alignMiddle.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefMiddleOffset, Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)));
 
         Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
-        alignRight.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
+        alignRight.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)));
 
         Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
         algaeBarge.whileTrue(
             new AlgaeBarge(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
 
-        Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton); //TODO: add climb commands.
+        Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton); // TODO: add climb commands.
         Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
 
         // TODO: remove tester commands when robot is properly programmed
@@ -255,6 +257,23 @@ public class RobotContainer
                 new InstantCommand(() -> System.out.println("The Event has triggered")));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
+    }
+
+    private void applyHeightOffsetWhenVisionAlignFinishes()
+    {
+        // Scuffed as hell. As a completely last step, apply Christian's
+        // offsets for the different levels.
+
+        Translation2d offset;
+        if (mPartner.getYButton()) offset = VisionAlignCommand.kDeltaForL4;
+        else if (mPartner.getBButton()) offset = VisionAlignCommand.kDeltaForL3;
+        else if (mPartner.getXButton()) offset = VisionAlignCommand.kDeltaForL2;
+        else if (mPartner.getAButton()) offset = VisionAlignCommand.kDeltaForL1;
+        else offset = Translation2d.kZero;
+
+        Pose2d pose = new Pose2d(offset, Rotation2d.kZero);
+        DriveDistanceAndHeading moveCmd = new DriveDistanceAndHeading(mSwerveSubsystem, () -> pose);
+        moveCmd.schedule(); // I really hope this works.
     }
 
     // Specify which command will be used as the autonomous command.
