@@ -90,31 +90,31 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
             // Rotation step 1
             new InstantCommand(this::alignReset), // This line not technically required, but it serves as a reference.
-            new WaitForTagCommand(pVision, () -> -1, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignRotation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 1
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, () -> oldTarget.fiducialId, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Rotation step 2
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, () -> -1, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignRotation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 2
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, () -> oldTarget.fiducialId, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
             // Translation step 3
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, () -> oldTarget.fiducialId, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
             new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
 
@@ -138,6 +138,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
     {
         // Initialize.
         activeTarget = null;
+        oldTarget = null;
         translationIter = 0;
         rotationIter = 0;
         //lightRequest.active = true;
@@ -151,6 +152,12 @@ public class VisionAlignCommand extends SequentialCommandGroup
         activeTarget = null;
     }
 
+    private int passDesiredTarget()
+    {
+        if (oldTarget == null) return -1;
+        else return oldTarget.fiducialId;
+    }
+
     private void alignTranslation()
     {
         translationIter++;
@@ -159,6 +166,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
             // We couldn't spot a tag in a reasonable time,
             // quit now and don't move.
             System.out.printf("[ALIGN] Translation step %d has failed!\n", translationIter);
+            drivePerIterOffset = Pose2d.kZero;
             cancel();
             return;
         }
@@ -181,6 +189,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
             // We couldn't spot a tag in a reasonable time,
             // quit now and don't move.
             System.out.printf("[ALIGN] Rotation step %d has failed!\n", rotationIter);
+            drivePerIterOffset = Pose2d.kZero;
             cancel();
             return;
         }

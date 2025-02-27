@@ -70,6 +70,7 @@ public class VisionSubsystem extends SubsystemBase
         // If anything goes wrong during setup, do not let vision run.
         initPass = true;
         poseListeners = new ArrayList<>();
+        bestTarget = Optional.empty();
 
         try
         {
