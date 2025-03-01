@@ -313,6 +313,9 @@ public class RobotContainer
         else if (mPartner.getAButton()) offset = VisionAlignCommand.kDeltaForL1;
         else offset = Translation2d.kZero;
 
+        // FIXME: if ()
+        // If in algae preset, go a little more.
+
         Pose2d pose = new Pose2d(offset, Rotation2d.kZero);
         DriveDistanceAndHeading moveCmd = new DriveDistanceAndHeading(mSwerveSubsystem, () -> pose);
         moveCmd.schedule(); // I really hope this works.

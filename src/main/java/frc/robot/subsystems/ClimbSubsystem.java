@@ -7,9 +7,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.motorcontrol.PWMTalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -37,7 +35,7 @@ public class ClimbSubsystem extends SubsystemBase
 
     private static final double LEFT_CLIMB_OFFSET = -135;
 
-    private static final double RIGHT_CLIMB_OFFSET = -95;
+    private static final double RIGHT_CLIMB_OFFSET = 150;
     private static final double MAX_LEFT_CLIMB = 90;
     private static final double MAX_RIGHT_CLIMB = 190;
     private static final double MIN_LEFT_CLIMB = 0;
@@ -144,7 +142,9 @@ public class ClimbSubsystem extends SubsystemBase
 
     public double getRightClimbAngle()
     {
-        return mRightClimbEncoder.get()*360 + RIGHT_CLIMB_OFFSET;
+        double value = mRightClimbEncoder.get() * 360 + RIGHT_CLIMB_OFFSET;
+        if (value >= 360) value -= 360;
+        return value;
     }
     // Run constantly to ensure that voltage is what it should be
     @Override
@@ -153,7 +153,7 @@ public class ClimbSubsystem extends SubsystemBase
         //mLeftClimbVoltage = mLeftClimbPID.calculate(getLeftClimbAngle(), mLeftTargetAngle);
         //mRightClimbVoltage = mLeftClimbPID.calculate(getRightClimbAngle(), mRightTargetAngle);
         if((getLeftClimbAngle() <  MAX_LEFT_CLIMB && mLeftClimbVoltage > 0) 
-            || (getLeftClimbAngle() > MIN_LEFT_CLIMB && mLeftClimbVoltage < 0)) {
+            || (getLeftClimbAngle() > MIN_LEFT_CLIMB && mLeftClimbVoltage < 0 && getRightClimbAngle() <= getLeftClimbAngle())) {
             mLeftClimbMotor.setVoltage(mLeftClimbVoltage);
         } else {
             mLeftClimbMotor.setVoltage(0.0);

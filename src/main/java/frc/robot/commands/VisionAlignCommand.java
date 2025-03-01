@@ -28,14 +28,16 @@ import frc.robot.subsystems.VisionSubsystem;
 //        visible, it may focus on the other one and "fail to find the tag."
 public class VisionAlignCommand extends SequentialCommandGroup
 {
-    public static final Translation2d kReefLeftOffset = new Translation2d(0.2, 0.41);
+    public static final Translation2d kReefLeftOffset = new Translation2d(0.16, 0.38);
     public static final Translation2d kReefMiddleOffset = new Translation2d(0.2, 0.215);
-    public static final Translation2d kReefRightOffset = new Translation2d(0.2, 0.02);
+    public static final Translation2d kReefRightOffset = new Translation2d(0.22, 0.02);
 
     public static final Translation2d kDeltaForL1 = new Translation2d(0, 0);
     public static final Translation2d kDeltaForL2 = new Translation2d(0, 0);
     public static final Translation2d kDeltaForL3 = new Translation2d(0.07, 0);
     public static final Translation2d kDeltaForL4 = new Translation2d(0, 0);
+
+    public static final Translation2d kDeltaForAlgae = new Translation2d(0.06, 0);
 
     private PhotonTrackedTarget activeTarget, oldTarget;
     private Pose2d drivePerIterOffset;

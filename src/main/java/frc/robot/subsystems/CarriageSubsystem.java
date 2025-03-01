@@ -105,6 +105,9 @@ public class CarriageSubsystem extends SubsystemBase
     public static final double wristAlgaeL3 = -120;
     public static final double wristAlgaeStow = -60;
 
+    public static final double armClimb = 85;
+    public static final double wristClimb = 25;
+
     private TalonFX armMotor;
 
     private TalonFX wristMotor;

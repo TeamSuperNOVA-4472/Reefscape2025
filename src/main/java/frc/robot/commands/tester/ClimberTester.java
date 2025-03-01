@@ -36,8 +36,9 @@ public class ClimberTester extends Command
         } 
         else if(mClimbOut.get())
         {
-            mClimb.setRightClimbVoltage(-3);
-            mClimb.setLeftClimbVoltage(-3);
+            // FIXME: Move all this to ClimbTeleop!!
+            mClimb.setRightClimbVoltage(-4);
+            mClimb.setLeftClimbVoltage(-4);
             mClimb.setGrabberVoltage(0);
 
         } 
