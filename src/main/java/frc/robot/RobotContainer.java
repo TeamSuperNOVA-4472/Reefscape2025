@@ -158,25 +158,25 @@ public class RobotContainer
         l1Trigger.whileTrue(
             new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
-        l1Trigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
+        l1Trigger.onFalse(stowCarriage());
 
         Trigger l2Trigger = new Trigger(mPartner::getXButton);
         l2Trigger.whileTrue(
             new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
-        l2Trigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
+        l2Trigger.onFalse(stowCarriage());
         
         Trigger l3Trigger = new Trigger(mPartner::getBButton);
         l3Trigger.whileTrue( 
             new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
-        l3Trigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
+        l3Trigger.onFalse(stowCarriage());
 
         Trigger l4Trigger = new Trigger(mPartner::getYButton);
         l4Trigger.whileTrue(
             new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
-        l4Trigger.onFalse(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem));
+        l4Trigger.onFalse(stowCarriage());
 
         Trigger algaeTrigger = new Trigger(() -> (mPartner.getLeftBumperButton() && !mIntakeSubsystem.hasAlgae()));
         algaeTrigger.whileTrue(
@@ -257,6 +257,15 @@ public class RobotContainer
                 new InstantCommand(() -> System.out.println("The Event has triggered")));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
+    }
+
+    /** If the algae is detected, call the StowCarriageAlgae command, otherwise do the one for the coral. */
+    private Command stowCarriage()
+    {
+        return new ConditionalCommand(
+            new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem), // If algae is detected.
+            new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem),      // Otherwise
+            () -> mIntakeSubsystem.hasAlgae());
     }
 
     private void applyHeightOffsetWhenVisionAlignFinishes()
