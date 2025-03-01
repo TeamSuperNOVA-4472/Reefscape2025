@@ -45,7 +45,8 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double armMovingAngle = 65;
 
-    public static final double armCoralLoad = 111.348181;
+    public static final double armCoralLoad = 97;
+    public static final double wristCoralLoad = -57.3;
 
     public static final double armAlgaeLoad = 67;
 
@@ -66,8 +67,6 @@ public class CarriageSubsystem extends SubsystemBase
     public static final double wristPresetGroundPickup = 1.0;
 
     public static final double wristMovingAngle = 0;
-
-    public static final double wristCoralLoad = -57.339534;
 
     public static final double wristAlgaeLoad = -90;
 

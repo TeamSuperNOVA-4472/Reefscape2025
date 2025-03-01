@@ -31,7 +31,7 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double initialHeight = 12.875;
     public static final double kPresetAway = initialHeight;
     public static final double kPresetGroundPickup = initialHeight;
-    public static final double kPresetCoralPickup = 17.822144;
+    public static final double kPresetCoralPickup = 19.322144;
     public static final double kPresetL1 = 12.911;
     public static final double kPresetL2 = 21.191;
     public static final double kPresetL3 = 38;
