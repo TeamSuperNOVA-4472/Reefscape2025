@@ -15,6 +15,7 @@ public class AlgaeGround extends SequentialCommandGroup
     {
         addCommands(
             new moveToLevelSafe(pCarriage, pElevator, pIntake, ElevatorSubsystem.kPresetGround),
+            new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armAlgaeGround, CarriageSubsystem.wristAlgaeProcessor),
             new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armAlgaeGround, CarriageSubsystem.wristAlgaeGround)
         );
     }    
