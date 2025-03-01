@@ -46,7 +46,7 @@ public class CarriageSubsystem extends SubsystemBase
     public static final double armMovingAngle = 65;
 
     public static final double armCoralLoad = 95;
-    public static final double wristCoralLoad = -55.3;
+    public static final double wristCoralLoad = -50;
 
     public static final double armAlgaeLoad = 67;
 
