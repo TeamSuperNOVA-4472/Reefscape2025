@@ -16,7 +16,7 @@ public class IntakeSubsystem extends SubsystemBase
 {
 
     public static final int kIntakeMotorId = 1;
-    public static final double kCoralIntakeVoltage = 3;
+    public static final double kCoralIntakeVoltage = 4;
     public static final double kCoralOuttakeVoltage = 4;
     public static final double kAlgaeIntakeVoltage = 6;
     public static final double kAlgaeDefaultVoltage = 1;

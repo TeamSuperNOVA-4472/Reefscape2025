@@ -280,6 +280,7 @@ public class RobotContainer
 
         // Register named commands.
         // TODO: Some of these are temporary things.
+        NamedCommands.registerCommand("SetCarriageToScore", new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ScoreLevel1", new ScoreLevel1(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));

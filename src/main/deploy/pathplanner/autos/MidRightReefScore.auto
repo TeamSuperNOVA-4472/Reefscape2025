@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "SetCarriageToScore"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "MidtoRightReef"
