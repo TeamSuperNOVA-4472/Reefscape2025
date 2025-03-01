@@ -108,6 +108,8 @@ public class RobotContainer
     private final IntakeTester mIntakeTester;
     private final ClimberTester mClimberTester;
 
+    // TODO: In the future I think more triggers should be brought out here.
+    private final Trigger algaeTrigger, algaeHighTrigger;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -183,19 +185,21 @@ public class RobotContainer
         algaeTrigger.whileTrue(
             new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
         );
-        algaeTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
-
+        algaeTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
+        this.algaeTrigger = algaeTrigger;
+        
         Trigger algaeHighTrigger = new Trigger(() -> (mPartner.getLeftTriggerAxis() > 0 && !mIntakeSubsystem.hasAlgae()));
         algaeHighTrigger.whileTrue(
             new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
         );
-        algaeHighTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
+        algaeHighTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
+        this.algaeHighTrigger = algaeHighTrigger;
 
         Trigger algaeGroundTrigger = new Trigger(() -> mPartner.getPOV() == 90);
         algaeGroundTrigger.whileTrue(
             new AlgaeGround(mCarriageSubsystem, mElevatorSubsystem, mIntakeSubsystem).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
         );
-        algaeGroundTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
+        algaeGroundTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
 
         Trigger algaeProcessTrigger = new Trigger(() -> mPartner.getPOV() == 180);
         algaeProcessTrigger.whileTrue(
@@ -206,7 +210,7 @@ public class RobotContainer
         algaeOut.onTrue(
             new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
         );
-        algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
+        algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
 
         Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
         alignLeft.whileTrue(
@@ -313,8 +317,9 @@ public class RobotContainer
         else if (mPartner.getAButton()) offset = VisionAlignCommand.kDeltaForL1;
         else offset = Translation2d.kZero;
 
-        // FIXME: if ()
-        // If in algae preset, go a little more.
+        // If in algae preset, go a little more towards the reef.
+        if (algaeTrigger.getAsBoolean() || algaeHighTrigger.getAsBoolean())
+            offset = offset.plus(VisionAlignCommand.kDeltaForAlgae);
 
         Pose2d pose = new Pose2d(offset, Rotation2d.kZero);
         DriveDistanceAndHeading moveCmd = new DriveDistanceAndHeading(mSwerveSubsystem, () -> pose);
