@@ -7,6 +7,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Robot;
@@ -110,6 +111,8 @@ public class VisionAlignCommand extends SequentialCommandGroup
             // Sophia's code again, just condensed a little.
             new InstantCommand(() -> { if (runOnComplete.isPresent()) runOnComplete.get().run(); })
         );
+
+        SmartDashboard.putBoolean("Commands/VisionAlignCommand/Ready", false);
     }
 
     @Override
@@ -126,6 +129,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
         oldTarget = null;
         translationIter = 0;
         rotationIter = 0;
+        SmartDashboard.putBoolean("Commands/VisionAlignCommand/Ready", false);
 
         System.out.println("[ALIGN] Vision align to reef begun.");
     }
@@ -152,7 +156,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
             System.out.printf("[ALIGN] Translation step %d has failed!\n", translationIter);
             drivePerIterOffset = Pose2d.kZero;
             cancel();
-            onComplete(true);
             return;
         }
         else
@@ -176,7 +179,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
             System.out.printf("[ALIGN] Rotation step %d has failed!\n", rotationIter);
             drivePerIterOffset = Pose2d.kZero;
             cancel();
-            onComplete(true);
             return;
         }
         else
@@ -199,5 +201,6 @@ public class VisionAlignCommand extends SequentialCommandGroup
     {
         if (cancelled) System.out.println("[ALIGN] Vision alignment has been halted!");
         else System.out.println("[ALIGN] Vision alignment completed.");
+        SmartDashboard.putBoolean("Commands/VisionAlignCommand/Ready", !cancelled);
     }
 }

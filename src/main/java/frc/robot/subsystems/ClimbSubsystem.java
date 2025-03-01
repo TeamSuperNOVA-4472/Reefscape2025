@@ -57,6 +57,8 @@ public class ClimbSubsystem extends SubsystemBase
     private double mRightClimbVoltage = 0;
     private double mGrabberVoltage = 0;
 
+    private boolean mClosing; // Don't have time for a better implementation.
+
     private double mLeftTargetAngle = LEFT_CLIMB_OUT_ANGLE;
     private double mRightTargetAngle = RIGHT_CLIMB_OUT_ANGLE;
     // Constructor
@@ -71,6 +73,8 @@ public class ClimbSubsystem extends SubsystemBase
 
         mLeftClimbPID = new PIDController(LEFT_CLIMB_P, LEFT_CLIMB_I, LEFT_CLIMB_D);
         mRightClimbPID = new PIDController(RIGHT_CLIMB_P, RIGHT_CLIMB_I, RIGHT_CLIMB_D);
+
+        mClosing = false;
     }
 
     public void setGrabberVoltage(double pNewVoltage)
@@ -118,12 +122,19 @@ public class ClimbSubsystem extends SubsystemBase
     {
         mLeftTargetAngle = LEFT_CLIMB_OUT_ANGLE;
         mRightTargetAngle = RIGHT_CLIMB_OUT_ANGLE;
+        mClosing = false;
     }
 
     public void closeClimber()
     {
         mLeftTargetAngle = LEFT_CLIMB_IN_ANGLE;
         mRightTargetAngle = RIGHT_CLIMB_IN_ANGLE;
+        mClosing = true;
+    }
+
+    public boolean isClosingOrClosed()
+    {
+        return mClosing;
     }
 
     public double getLeftClimbAngle()

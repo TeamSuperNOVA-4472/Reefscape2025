@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.OperatorConfig.weightJoystick;
 import frc.robot.commands.Presets.AlgaeBarge;
+import frc.robot.commands.Presets.AlgaeGroundPickup;
 import frc.robot.commands.Presets.AlgaeIntakePreset;
 import frc.robot.commands.Presets.AlgaeL2;
 import frc.robot.commands.Presets.AlgaeL3;
@@ -202,17 +203,43 @@ public class RobotContainer
         algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
         Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
-        alignLeft.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)));
+        alignLeft.whileTrue(
+            new VisionAlignCommand(
+                mSwerveSubsystem,
+                mVisionSubsystem,
+                VisionAlignCommand.kReefLeftOffset,
+                Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
+            )
+        );
 
         Trigger alignMiddle = new Trigger(mDriver::getXButton);
-        alignMiddle.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefMiddleOffset, Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)));
+        alignMiddle.whileTrue(
+            new VisionAlignCommand(
+                mSwerveSubsystem,
+                mVisionSubsystem,
+                VisionAlignCommand.kReefMiddleOffset,
+                Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
+            )
+        );
 
         Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
-        alignRight.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)));
+        alignRight.whileTrue(
+            new VisionAlignCommand(
+                mSwerveSubsystem,
+                mVisionSubsystem,
+                VisionAlignCommand.kReefRightOffset,
+                Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
+            )
+        );
 
         Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
         algaeBarge.whileTrue(
             new AlgaeBarge(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
+        );
+
+        Trigger algaeGroundPickup = new Trigger(() -> mPartner.getPOV() == 90);
+        algaeGroundPickup.whileTrue(
+            new AlgaeGroundPickup(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
 
         Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton); // TODO: add climb commands.
@@ -224,7 +251,12 @@ public class RobotContainer
         mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
         mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
         // Configure subsystems
-        mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+        // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
+        // This is the fastest fix I could make.
+        mSwerveSubsystem.setDefaultCommand(new ConditionalCommand(
+            new InstantCommand(), // If the climb is closing, don't do anything.
+            mSwerveTeleop,        // Otherwise normal.
+            () -> mClimbSubsystem.isClosingOrClosed()));
         /*mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
             mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
