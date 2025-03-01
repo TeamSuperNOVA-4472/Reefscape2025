@@ -286,8 +286,6 @@ public class RobotContainer
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
-        autoChooser.addOption("Just Vision Test", new PathPlannerAuto("Just Vision Test"));
-        autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto"));
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(

@@ -142,8 +142,9 @@ public class ClimbSubsystem extends SubsystemBase
 
     public double getRightClimbAngle()
     {
+        
         double value = mRightClimbEncoder.get() * 360 + RIGHT_CLIMB_OFFSET;
-        if (value >= 360) value -= 360;
+        if (value >= 350) value -= 360;
         return value;
     }
     // Run constantly to ensure that voltage is what it should be
