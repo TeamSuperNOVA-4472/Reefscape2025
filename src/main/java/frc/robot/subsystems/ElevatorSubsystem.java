@@ -39,6 +39,7 @@ public class ElevatorSubsystem extends SubsystemBase
 
     public static final double kPresetBarge = 65;
     public static final double kPresetProcessor = initialHeight;
+    public static final double kPresetGround = 40;
     public static final double kPresetAlgaeL2 = 24;
     public static final double kPresetAlgaeL3 = 43.344;
 

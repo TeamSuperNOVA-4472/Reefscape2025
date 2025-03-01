@@ -93,12 +93,14 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double armAlgaeBarge = 90;
     public static final double armAlgaeProcessor = 20;
+    public static final double armAlgaeGround = -30;
     public static final double armAlgaeL2 = 40;
     public static final double armAlgaeL3 = 40;
     public static final double armAlgaeStow = 60;
 
     public static final double wristAlgaeBarge = -100;
     public static final double wristAlgaeProcessor = -110;
+    public static final double wristAlgaeGround = -110;
     public static final double wristAlgaeL2 = -120;
     public static final double wristAlgaeL3 = -120;
     public static final double wristAlgaeStow = -60;

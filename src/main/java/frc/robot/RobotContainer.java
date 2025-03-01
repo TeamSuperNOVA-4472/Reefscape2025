@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.OperatorConfig.weightJoystick;
 import frc.robot.commands.Presets.AlgaeBarge;
+import frc.robot.commands.Presets.AlgaeGround;
 import frc.robot.commands.Presets.AlgaeIntakePreset;
 import frc.robot.commands.Presets.AlgaeL2;
 import frc.robot.commands.Presets.AlgaeL3;
@@ -189,6 +190,12 @@ public class RobotContainer
             new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
         );
         algaeHighTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
+
+        Trigger algaeGroundTrigger = new Trigger(() -> mPartner.getPOV() == 90);
+        algaeGroundTrigger.whileTrue(
+            new AlgaeGround(mCarriageSubsystem, mElevatorSubsystem, mIntakeSubsystem).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
+        );
+        algaeGroundTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
         Trigger algaeProcessTrigger = new Trigger(() -> mPartner.getPOV() == 180);
         algaeProcessTrigger.whileTrue(
