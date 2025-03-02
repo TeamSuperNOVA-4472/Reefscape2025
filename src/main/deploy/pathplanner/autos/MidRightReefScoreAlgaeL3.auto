@@ -7,18 +7,6 @@
         {
           "type": "named",
           "data": {
-            "name": "StowCarriage"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "MidtoRightReef"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "MoveAlgaeL2"
           }
         },
@@ -37,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Away reef"
+            "pathName": "Back Away"
           }
         },
         {
@@ -73,7 +61,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Away reef"
+            "pathName": "Back Away"
           }
         }
       ]
