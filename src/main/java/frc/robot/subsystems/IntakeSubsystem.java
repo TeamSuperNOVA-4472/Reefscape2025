@@ -18,6 +18,7 @@ public class IntakeSubsystem extends SubsystemBase
     public static final int kIntakeMotorId = 1;
     public static final double kCoralIntakeVoltage = 4;
     public static final double kCoralOuttakeVoltage = 8;
+    public static final double kCoralDefaultVoltage = 1;
     public static final double kAlgaeIntakeVoltage = 6;
     public static final double kAlgaeDefaultVoltage = 1;
     public static final double kAlgaeCurrentThreshold = 2;
@@ -101,7 +102,7 @@ public class IntakeSubsystem extends SubsystemBase
 
     public void stop()
     {
-        mCoralIntake.stopMotor();
+        mCoralIntake.setVoltage(-kCoralDefaultVoltage);
         mAlgaeIntake.setVoltage(kAlgaeDefaultVoltage);
         algaeTargetVoltage = kAlgaeDefaultVoltage;
         mIsIntaking = false;
