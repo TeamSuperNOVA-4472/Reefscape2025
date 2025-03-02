@@ -19,7 +19,13 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreLevel1"
+            "name": "ReefVisionAlignRight"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreLevel2"
           }
         },
         {

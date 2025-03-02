@@ -26,6 +26,7 @@ import frc.robot.commands.Presets.AlgaeIntakePreset;
 import frc.robot.commands.Presets.AlgaeL2;
 import frc.robot.commands.Presets.AlgaeL3;
 import frc.robot.commands.Presets.AlgaeProcessor;
+import frc.robot.commands.Presets.ArmBackPreset;
 import frc.robot.commands.Presets.CoralL1Preset;
 import frc.robot.commands.Presets.CoralL2Preset;
 import frc.robot.commands.Presets.CoralL3Preset;
@@ -37,6 +38,8 @@ import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.VisionAlignCommand;
 import frc.robot.commands.autoCommands.ScoreLevel1;
+import frc.robot.commands.autoCommands.ScoreLevel2;
+import frc.robot.commands.autoCommands.ScoreLevel3;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ClimberTester;
 import frc.robot.commands.tester.ElevatorTester;
@@ -67,6 +70,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.OperatorConfig.weightJoystick;
@@ -247,7 +251,8 @@ public class RobotContainer
             new AlgaeBarge(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem)
         );
 
-        Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton); // TODO: add climb commands.
+        Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton);
+        climbTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new ArmBackPreset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem), () -> mCarriageSubsystem.getArmSetpoint() == 95.0));
         Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
 
         // TODO: remove tester commands when robot is properly programmed
@@ -282,6 +287,7 @@ public class RobotContainer
         // TODO: Some of these are temporary things.
         NamedCommands.registerCommand("SetCarriageToScore", new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ScoreLevel1", new ScoreLevel1(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("ScoreLevel2", new ScoreLevel2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
 

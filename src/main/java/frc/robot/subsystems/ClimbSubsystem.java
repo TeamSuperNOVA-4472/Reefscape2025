@@ -38,8 +38,8 @@ public class ClimbSubsystem extends SubsystemBase
     private static final double RIGHT_CLIMB_OFFSET = 150;
     private static final double MAX_LEFT_CLIMB = 90;
     private static final double MAX_RIGHT_CLIMB = 190;
-    private static final double MIN_LEFT_CLIMB = 0;
-    private static final double MIN_RIGHT_CLIMB = 0;
+    private static final double MIN_LEFT_CLIMB = -10;
+    private static final double MIN_RIGHT_CLIMB = -17;
     
     private final TalonFX mLeftClimbMotor;
     private final TalonFX mRightClimbMotor;
@@ -142,9 +142,9 @@ public class ClimbSubsystem extends SubsystemBase
 
     public double getRightClimbAngle()
     {
-        
+
         double value = mRightClimbEncoder.get() * 360 + RIGHT_CLIMB_OFFSET;
-        if (value >= 350) value -= 360;
+        if (value >= 250) value -= 360;
         return value;
     }
     // Run constantly to ensure that voltage is what it should be
@@ -153,7 +153,7 @@ public class ClimbSubsystem extends SubsystemBase
     {
         //mLeftClimbVoltage = mLeftClimbPID.calculate(getLeftClimbAngle(), mLeftTargetAngle);
         //mRightClimbVoltage = mLeftClimbPID.calculate(getRightClimbAngle(), mRightTargetAngle);
-        if((getLeftClimbAngle() <  MAX_LEFT_CLIMB && mLeftClimbVoltage > 0) 
+        if((getLeftClimbAngle() < MAX_LEFT_CLIMB && mLeftClimbVoltage > 0) 
             || (getLeftClimbAngle() > MIN_LEFT_CLIMB && mLeftClimbVoltage < 0 && getRightClimbAngle() <= getLeftClimbAngle())) {
             mLeftClimbMotor.setVoltage(mLeftClimbVoltage);
         } else {
