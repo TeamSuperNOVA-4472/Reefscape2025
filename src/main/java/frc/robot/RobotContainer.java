@@ -284,12 +284,14 @@ public class RobotContainer
 
 
         // Register named commands.
-        // TODO: Some of these are temporary things.
         NamedCommands.registerCommand("SetCarriageToScore", new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ScoreLevel1", new ScoreLevel1(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ScoreLevel2", new ScoreLevel2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
+        NamedCommands.registerCommand("ReefVisionAlignMiddle", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
+        NamedCommands.registerCommand("AlgaeL2", new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("AlgaeL3", new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();

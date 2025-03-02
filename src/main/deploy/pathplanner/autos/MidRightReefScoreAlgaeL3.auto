@@ -19,19 +19,37 @@
         {
           "type": "named",
           "data": {
+            "name": "ReefVisionAlignMiddle"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlgaeL2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Away reef"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "ReefVisionAlignRight"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ScoreLevel2"
+            "name": "ScoreLevel3"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 3.0
           }
         },
         {
