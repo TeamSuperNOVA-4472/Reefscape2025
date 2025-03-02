@@ -7,7 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SetCarriageToScore"
+            "name": "StowCarriage"
           }
         },
         {
@@ -19,13 +19,19 @@
         {
           "type": "named",
           "data": {
-            "name": "ReefVisionAlignMiddle"
+            "name": "MoveAlgaeL2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "AlgaeL2"
+            "name": "IntakeAlgae"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReefVisionAlignMiddle"
           }
         },
         {
@@ -37,19 +43,31 @@
         {
           "type": "named",
           "data": {
+            "name": "ScoreLevel3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "ReefVisionAlignRight"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ScoreLevel3"
+            "name": "IntakeCoral"
           }
         },
         {
           "type": "wait",
           "data": {
             "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
           }
         },
         {

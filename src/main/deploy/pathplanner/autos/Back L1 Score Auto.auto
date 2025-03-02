@@ -7,7 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SetCarriageToScore"
+            "name": "MoveLevel1"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreLevel1"
+            "name": "OuttakeCoral"
           }
         }
       ]

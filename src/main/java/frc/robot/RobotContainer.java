@@ -37,9 +37,6 @@ import frc.robot.commands.Presets.StowCarriagePositionAlgae;
 import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.VisionAlignCommand;
-import frc.robot.commands.autoCommands.ScoreLevel1;
-import frc.robot.commands.autoCommands.ScoreLevel2;
-import frc.robot.commands.autoCommands.ScoreLevel3;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ClimberTester;
 import frc.robot.commands.tester.ElevatorTester;
@@ -284,14 +281,21 @@ public class RobotContainer
 
 
         // Register named commands.
-        NamedCommands.registerCommand("SetCarriageToScore", new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
-        NamedCommands.registerCommand("ScoreLevel1", new ScoreLevel1(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
-        NamedCommands.registerCommand("ScoreLevel2", new ScoreLevel2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("StowCarriage", stowCarriage());
+        NamedCommands.registerCommand("MoveCoralL1", new CoralL1Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("MoveCoralL2", new CoralL2Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("MoveCoralL3", new CoralL3Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("MoveCoralL4", new CoralL4Preset(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefLeftOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignMiddle", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, VisionAlignCommand.kReefRightOffset, Optional.empty()));
-        NamedCommands.registerCommand("AlgaeL2", new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
-        NamedCommands.registerCommand("AlgaeL3", new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("MoveAlgaeL2", new AlgaeL2(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("MoveAlgaeL3", new AlgaeL3(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem));
+        NamedCommands.registerCommand("IntakeCoral", new InstantCommand(() -> mIntakeSubsystem.intakeCoral()));
+        NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
+        NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
+        NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stop()));
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
