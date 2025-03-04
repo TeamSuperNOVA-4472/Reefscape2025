@@ -35,7 +35,7 @@ public class VisionSubsystem extends SubsystemBase
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.206375, -0.19685, 0.2032 ), new Rotation3d(0, -22.5, 0))) // Can be changed.
+        new CameraInfo("AprilTagCam", new Transform3d(new Translation3d(0.288671, 0.206121, 0.26035 ), new Rotation3d(0, 0, 0))) // Can be changed.
     };
 
     // Cameras go here.
@@ -70,11 +70,12 @@ public class VisionSubsystem extends SubsystemBase
         // If anything goes wrong during setup, do not let vision run.
         initPass = true;
         poseListeners = new ArrayList<>();
+        bestTarget = Optional.empty();
 
         try
         {
             // There's a file created by wpilib that has the layout for the new game.
-            String layoutPath = AprilTagFields.k2025Reefscape.m_resourceFile;
+            String layoutPath = AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile;
             System.out.println("[VISION] April Tag Layout Path: " + layoutPath);
             tagLayout = AprilTagFieldLayout.loadFromResource(layoutPath);
         }

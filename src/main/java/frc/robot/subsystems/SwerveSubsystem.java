@@ -29,7 +29,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
-    public static final double kMaxSpeedMS = 0.5; // I'm not trustworthy. = 4.5;
+    public static final double kMaxSpeedMS = 4.5; // I'm not trustworthy. = 4.5;
     public static final double kMetersPerInch = Units.inchesToMeters(1);
     public static final double kSwerveLocYInches = 7.5;
     public static final double kSwerveLocXInches = 7;

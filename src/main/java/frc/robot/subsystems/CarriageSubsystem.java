@@ -2,19 +2,14 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -50,7 +45,8 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double armMovingAngle = 65;
 
-    public static final double armCoralLoad = 111.348181;
+    public static final double armCoralLoad = 95;
+    public static final double wristCoralLoad = -50;
 
     public static final double armAlgaeLoad = 67;
 
@@ -72,8 +68,6 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double wristMovingAngle = 0;
 
-    public static final double wristCoralLoad = -57.339534;
-
     public static final double wristAlgaeLoad = -90;
 
     public static final double wristPresetL1 = -71;
@@ -82,7 +76,11 @@ public class CarriageSubsystem extends SubsystemBase
 
     public static final double wristPresetL3 = -71;
 
-    public static final double wristPresetL4 = -96;
+    public static final double wristPresetL4 = -102;
+
+    public static final double wristPresetMoving = 0;
+
+    public static final double armPresetMoving = 60;
 
     private static final double armKG = 0.44;
 
@@ -93,16 +91,21 @@ public class CarriageSubsystem extends SubsystemBase
     private static final double maxWristVoltage = 4;
 
     public static final double armAlgaeBarge = 90;
-    public static final double armAlgaeProcessor = 40;
+    public static final double armAlgaeProcessor = 20;
+    public static final double armAlgaeGround = -45;
     public static final double armAlgaeL2 = 40;
-    public static final double armAlgaeL3 = 70;
+    public static final double armAlgaeL3 = 40;
     public static final double armAlgaeStow = 60;
 
     public static final double wristAlgaeBarge = -100;
-    public static final double wristAlgaeProcessor = -120;
+    public static final double wristAlgaeProcessor = -110;
+    public static final double wristAlgaeGround = -90;
     public static final double wristAlgaeL2 = -120;
     public static final double wristAlgaeL3 = -120;
     public static final double wristAlgaeStow = -60;
+
+    public static final double armClimb = 85;
+    public static final double wristClimb = 25;
 
     private TalonFX armMotor;
 
@@ -146,10 +149,10 @@ public class CarriageSubsystem extends SubsystemBase
         wristMotor.getConfigurator().refresh(wristConfig);
         wristMotor.getConfigurator().refresh(wristCurrentConfig);
         wristMotor.getConfigurator().refresh(wristMotorConfig);
-        wristCurrentConfig.SupplyCurrentLimit = 20;
+        wristCurrentConfig.SupplyCurrentLimit = 25;
         wristCurrentConfig.SupplyCurrentLimitEnable = true;
         wristCurrentConfig.StatorCurrentLimitEnable = true;
-        wristCurrentConfig.StatorCurrentLimit = 20;
+        wristCurrentConfig.StatorCurrentLimit = 25;
         wristMotorConfig.NeutralMode = NeutralModeValue.Brake;
         wristConfig.withCurrentLimits(wristCurrentConfig);
         wristConfig.withMotorOutput(wristMotorConfig);
@@ -232,11 +235,11 @@ public class CarriageSubsystem extends SubsystemBase
 
     public double getArmSetpoint() 
     {
-        return elbowPreset.orElse(0.0); //TODO: Fix or remove.
+        return elbowPreset.orElse(0.0);
     }
     public double getWristSetpoint() 
     {
-        return wristPreset.orElse(0.0); //TODO: Fix or remove.
+        return wristPreset.orElse(0.0);
     }
 
     public double getArmAngle(){
@@ -261,6 +264,26 @@ public class CarriageSubsystem extends SubsystemBase
 
     public void resetArmPID(){
         armPID.reset(getArmAngle());
+    }
+
+    public double getCarriageX()
+    {
+        double armX = 13 * Math.cos(Math.toRadians(getArmAngle()));
+        double wristX = -10 * Math.cos(Math.toRadians(getAbsoluteWristAngle())) + -6 * Math.sin(Math.toRadians(getAbsoluteWristAngle()));
+        return armX + wristX;
+    }
+
+    public double getCarriageTargetX()
+    {
+        if (elbowPreset.isEmpty() || wristPreset.isEmpty())
+        {
+            return -100;
+        }
+        
+        double armX = 13 * Math.cos(Math.toRadians(getArmSetpoint()));
+        double wristX = -10 * Math.cos(Math.toRadians(getWristSetpoint() + getArmSetpoint())) + -6 * Math.sin(Math.toRadians(getWristSetpoint() + getArmSetpoint()));
+        SmartDashboard.putNumber("GetTargetX Value", armX + wristX);
+        return armX + wristX;
     }
 
     @Override

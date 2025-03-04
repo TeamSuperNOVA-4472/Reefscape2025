@@ -13,31 +13,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MidtoRightReef"
+            "pathName": "Back Score"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "OuttakeCoral"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Away reef"
           }
         }
       ]

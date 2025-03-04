@@ -7,9 +7,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.motorcontrol.PWMTalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -22,8 +20,8 @@ public class ClimbSubsystem extends SubsystemBase
     private static final int LEFT_MOTOR = 12;
     private static final int RIGHT_MOTOR = 13;
     private static final int GRABBER_MOTOR = 35;
-    private static final int LEFT_ENCODER = 2; //either 0, 1, 2, or 3 for both encoders
-    private static final int RIGHT_ENCODER = 3;
+    private static final int LEFT_ENCODER = 3; //either 0, 1, 2, or 3 for both encoders
+    private static final int RIGHT_ENCODER = 2;
     private static final double RIGHT_CLIMB_OUT_ANGLE = 0;
     private static final double LEFT_CLIMB_OUT_ANGLE = 0;
     private static final double RIGHT_CLIMB_IN_ANGLE = 0;
@@ -34,6 +32,14 @@ public class ClimbSubsystem extends SubsystemBase
     private static final int RIGHT_CLIMB_P = 0;
     private static final int RIGHT_CLIMB_I = 0;
     private static final int RIGHT_CLIMB_D = 0;
+
+    private static final double LEFT_CLIMB_OFFSET = -135;
+
+    private static final double RIGHT_CLIMB_OFFSET = 150;
+    private static final double MAX_LEFT_CLIMB = 90;
+    private static final double MAX_RIGHT_CLIMB = 190;
+    private static final double MIN_LEFT_CLIMB = -10;
+    private static final double MIN_RIGHT_CLIMB = -17;
     
     private final TalonFX mLeftClimbMotor;
     private final TalonFX mRightClimbMotor;
@@ -49,6 +55,8 @@ public class ClimbSubsystem extends SubsystemBase
     private double mRightClimbVoltage = 0;
     private double mGrabberVoltage = 0;
 
+    private boolean mClosing; // Don't have time for a better implementation.
+
     private double mLeftTargetAngle = LEFT_CLIMB_OUT_ANGLE;
     private double mRightTargetAngle = RIGHT_CLIMB_OUT_ANGLE;
     // Constructor
@@ -63,6 +71,8 @@ public class ClimbSubsystem extends SubsystemBase
 
         mLeftClimbPID = new PIDController(LEFT_CLIMB_P, LEFT_CLIMB_I, LEFT_CLIMB_D);
         mRightClimbPID = new PIDController(RIGHT_CLIMB_P, RIGHT_CLIMB_I, RIGHT_CLIMB_D);
+
+        mClosing = false;
     }
 
     public void setGrabberVoltage(double pNewVoltage)
@@ -110,22 +120,32 @@ public class ClimbSubsystem extends SubsystemBase
     {
         mLeftTargetAngle = LEFT_CLIMB_OUT_ANGLE;
         mRightTargetAngle = RIGHT_CLIMB_OUT_ANGLE;
+        mClosing = false;
     }
 
     public void closeClimber()
     {
         mLeftTargetAngle = LEFT_CLIMB_IN_ANGLE;
         mRightTargetAngle = RIGHT_CLIMB_IN_ANGLE;
+        mClosing = true;
+    }
+
+    public boolean isClosingOrClosed()
+    {
+        return mClosing;
     }
 
     public double getLeftClimbAngle()
     {
-        return mLeftClimbEncoder.get();
+        return mLeftClimbEncoder.get()*360 + LEFT_CLIMB_OFFSET;
     }
 
     public double getRightClimbAngle()
     {
-        return mRightClimbEncoder.get();
+
+        double value = mRightClimbEncoder.get() * 360 + RIGHT_CLIMB_OFFSET;
+        if (value >= 250) value -= 360;
+        return value;
     }
     // Run constantly to ensure that voltage is what it should be
     @Override
@@ -133,13 +153,26 @@ public class ClimbSubsystem extends SubsystemBase
     {
         //mLeftClimbVoltage = mLeftClimbPID.calculate(getLeftClimbAngle(), mLeftTargetAngle);
         //mRightClimbVoltage = mLeftClimbPID.calculate(getRightClimbAngle(), mRightTargetAngle);
+        if((getLeftClimbAngle() < MAX_LEFT_CLIMB && mLeftClimbVoltage > 0) 
+            || (getLeftClimbAngle() > MIN_LEFT_CLIMB && mLeftClimbVoltage < 0 && getRightClimbAngle() <= getLeftClimbAngle())) {
+            mLeftClimbMotor.setVoltage(mLeftClimbVoltage);
+        } else {
+            mLeftClimbMotor.setVoltage(0.0);
+        }
 
-        mLeftClimbMotor.setVoltage(mLeftClimbVoltage);
-        mRightClimbMotor.setVoltage(mRightClimbVoltage);
+        if((getRightClimbAngle() <  MAX_RIGHT_CLIMB && mRightClimbVoltage > 0) 
+            || (getRightClimbAngle() > MIN_RIGHT_CLIMB && mRightClimbVoltage < 0)) {
+            mRightClimbMotor.setVoltage(mRightClimbVoltage);
+        } else {
+            mRightClimbMotor.setVoltage(0.0);
+        }
         
         SmartDashboard.putNumber("Left Climb Voltage", mLeftClimbVoltage);
         SmartDashboard.putNumber("Right Climb Voltage", mRightClimbVoltage);
         SmartDashboard.putNumber("Grabber Voltage", mGrabberVoltage);
+        SmartDashboard.putNumber("Left Climb angle", getLeftClimbAngle());
+        SmartDashboard.putNumber("Right Climb angle", getRightClimbAngle());
+
         
     }
 }

@@ -54,9 +54,9 @@ public class DriveDistanceAndHeading extends Command {
         mOffset = pOffset;
         mGyroController.enableContinuousInput(0, 360);
         // TODO: Maybe the tolerances should be variables?
-        mXController.setTolerance(0.05);
-        mYController.setTolerance(0.01);
-        mGyroController.setTolerance(1);
+        mXController.setTolerance(0.07);
+        mYController.setTolerance(0.02);
+        mGyroController.setTolerance(2);
         addRequirements(mSwerveSubsystem);
     }
 

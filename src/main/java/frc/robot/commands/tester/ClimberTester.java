@@ -30,26 +30,24 @@ public class ClimberTester extends Command
     {
         if(mClimbIn.get())
         {
-            mClimb.setGrabberVoltage(-4);
+            mClimb.setLeftClimbVoltage(1);
+            mClimb.setRightClimbVoltage(1);
+            mClimb.setGrabberVoltage(1);
         } 
         else if(mClimbOut.get())
         {
-            mClimb.setGrabberVoltage(4);
+            // FIXME: Move all this to ClimbTeleop!!
+            mClimb.setRightClimbVoltage(-4);
+            mClimb.setLeftClimbVoltage(-4);
+            mClimb.setGrabberVoltage(0);
+
         } 
         else
         {
             mClimb.setGrabberVoltage(0);
+            mClimb.setRightClimbVoltage(0);
+            mClimb.setLeftClimbVoltage(0);
         }
 
-        if(mArmsIn.get() > 0.5)
-        {
-            mClimb.setLeftClimbVoltage(1);
-            mClimb.setRightClimbVoltage(1);
-        } 
-        else
-        {
-            mClimb.setLeftClimbVoltage(0);
-            mClimb.setRightClimbVoltage(0);
-        } 
     }
 }

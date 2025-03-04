@@ -32,7 +32,7 @@ public class IntakeTester extends Command {
 
     @Override
     public void execute() {
-        if (DriverStation.isTeleop()) 
+        /*if (DriverStation.isTeleop()) 
         {       
             if(mAlgaeIntake.get()) {
                 mIntakeSubsystem.intakeAlgae();
@@ -48,6 +48,6 @@ public class IntakeTester extends Command {
             } else {
                 mIntakeSubsystem.stop();
             }
-        }
+        }*/
     }
 }

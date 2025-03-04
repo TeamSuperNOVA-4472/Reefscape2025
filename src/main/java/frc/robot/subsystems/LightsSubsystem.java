@@ -62,8 +62,9 @@ public class LightsSubsystem extends SubsystemBase
             return;
         }
 
-        lightLeft = lightData.createView(0, 24);
-        lightRight = lightData.createView(25, 49);
+        // original, [0, 24] - [25, 49]
+        lightLeft = lightData.createView(4, 20);
+        lightRight = lightData.createView(29, 45);
 
         requests = new ArrayList<>();
         requests.add(new LightStatusRequest(LightState.kOff, 0));
@@ -88,6 +89,24 @@ public class LightsSubsystem extends SubsystemBase
             }
         }
         requests.add(request);
+    }
+
+    public void removeRequests(LightStatusRequest... requests)
+    {
+        if (!isActive()) return;
+        for (int i = 0; i < requests.length; i++) removeRequest(requests[i]);
+    }
+    public void removeRequest(LightStatusRequest request)
+    {
+        if (!isActive()) return;
+        for (int i = 0; i < requests.size(); i++)
+        {
+            if (requests.get(i) == request)
+            {
+                requests.remove(i);
+                return;
+            }
+        }
     }
 
     public boolean isActive()
@@ -136,10 +155,16 @@ public class LightsSubsystem extends SubsystemBase
     {
         if (!isActive()) return LightState.kOff;
         LightState result = LightState.kOff;
-        int highest = Integer.MIN_VALUE;
+        int highest = -1;
         for (int i = 0; i < requests.size(); i++)
         {
             LightStatusRequest req = requests.get(i);
+            if (req.priority < 0)
+            {
+                requests.remove(i);
+                i--;
+                continue;
+            }
             if (req.active && req.priority >= highest)
             {
                 result = req.state;
@@ -197,8 +222,8 @@ public class LightsSubsystem extends SubsystemBase
         return new LEDSlidingPattern()
             .withColor(color)
             .withOnSize(5)
-            .withOffSize(5)
-            .withTick(tick / 3 * (up ? 1 : -1));
+            .withOffSize(10)
+            .withTick((tick / 2) * (up ? 1 : -1));
     }
 
     // When the robot is in an unknown state. Should never happen.

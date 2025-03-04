@@ -7,25 +7,49 @@
         {
           "type": "named",
           "data": {
-            "name": "MoveLevel1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "MidtoRightReef"
+            "name": "MoveAlgaeL2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "OuttakeCoral"
+            "name": "IntakeAlgae"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReefVisionAlignMiddle"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Back Away"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreLevel3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ReefVisionAlignRight"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeCoral"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 3.0
           }
         },
         {
@@ -37,7 +61,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Away reef"
+            "pathName": "Back Away"
           }
         }
       ]

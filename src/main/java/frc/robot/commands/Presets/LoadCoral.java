@@ -14,7 +14,6 @@ public class LoadCoral extends SequentialCommandGroup
         addCommands(
             new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armMovingAngle, CarriageSubsystem.wristMovingAngle),
             new MoveToLevelCommand(pElevator, ElevatorSubsystem.initialHeight),
-            new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armMovingAngle, CarriageSubsystem.wristCoralLoad),
             new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armCoralLoad, CarriageSubsystem.wristCoralLoad),
             new MoveToLevelCommand(pElevator, ElevatorSubsystem.kPresetCoralPickup),
             new InstantCommand(() -> pCarriage.setAlgaeMode(false))

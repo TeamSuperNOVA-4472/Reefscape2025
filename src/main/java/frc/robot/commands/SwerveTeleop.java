@@ -35,11 +35,7 @@ public class SwerveTeleop extends Command
     private final Supplier<Double> mSideInput;
     private final Supplier<Double> mTurnInput;
     private final Supplier<Boolean> mResetHeadingInput;
-    private final Supplier<Boolean> mLeftButton;
-    private final Supplier<Boolean> mRightButton;
     private final SwerveSubsystem mSwerveSubsystem;
-    private final VisionSubsystem mVisionSubsystem;
-    private final Trigger mVisionAlignTrigger;
 
     private final PIDController mGyroController = new PIDController(0.05, 0, 0.0005);
     private double mTargetHeading;
@@ -53,21 +49,13 @@ public class SwerveTeleop extends Command
             Supplier<Double> pSideInput,
             Supplier<Double> pTurnInput,
             Supplier<Boolean> pResetHeadingInput,
-            Supplier<Boolean> pLeftButton,
-            Supplier<Boolean> pRightButton,
-            SwerveSubsystem pSwerveSubsystem,
-            VisionSubsystem pVisionSubsystem)
+            SwerveSubsystem pSwerveSubsystem)
     {
         mFwdInput = pFwdInput;
         mSideInput = pSideInput;
         mTurnInput = pTurnInput;
         mResetHeadingInput = pResetHeadingInput;
-        mLeftButton = pLeftButton;
-        mRightButton = pRightButton;
         mSwerveSubsystem = pSwerveSubsystem;
-        mVisionSubsystem = pVisionSubsystem;
-        mVisionAlignTrigger = new Trigger(pLeftButton::get);
-        mVisionAlignTrigger.whileTrue(new VisionAlignCommand(mSwerveSubsystem, mVisionSubsystem, Translation2d.kZero, Optional.empty()));
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 

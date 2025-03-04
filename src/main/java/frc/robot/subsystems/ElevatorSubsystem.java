@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration; 
@@ -11,7 +9,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -34,16 +31,17 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double initialHeight = 12.875;
     public static final double kPresetAway = initialHeight;
     public static final double kPresetGroundPickup = initialHeight;
-    public static final double kPresetCoralPickup = 17.822144;
+    public static final double kPresetCoralPickup = 19.522144;
     public static final double kPresetL1 = 12.911;
-    public static final double kPresetL2 = 21.191;
-    public static final double kPresetL3 = 36.844;
-    public static final double kPresetL4 = 65;
+    public static final double kPresetL2 = 21.691;
+    public static final double kPresetL3 = 38.5;
+    public static final double kPresetL4 = 65.5;
 
     public static final double kPresetBarge = 65;
     public static final double kPresetProcessor = initialHeight;
-    public static final double kPresetAlgaeL2 = 24;
-    public static final double kPresetAlgaeL3 = 30.344;
+    public static final double kPresetGround = 25;
+    public static final double kPresetAlgaeL2 = 25;
+    public static final double kPresetAlgaeL3 = 43.344;
 
     public static final double kElevatorP = 0.9;
     public static final double kElevatorI = 0;
