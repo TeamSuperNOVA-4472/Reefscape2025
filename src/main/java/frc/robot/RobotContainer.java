@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.OperatorConfig.weightJoystick;
 import frc.robot.commands.Presets.AlgaeBarge;
 import frc.robot.commands.Presets.AlgaeGround;
-import frc.robot.commands.Presets.AlgaeIntakePreset;
 import frc.robot.commands.Presets.AlgaeL2;
 import frc.robot.commands.Presets.AlgaeL3;
 import frc.robot.commands.Presets.AlgaeProcessor;
@@ -33,7 +32,6 @@ import frc.robot.commands.Presets.CoralL3Preset;
 import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
-import frc.robot.commands.Presets.StowCarriagePositionAlgae;
 import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.VisionAlignCommand;
@@ -41,6 +39,7 @@ import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ClimberTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -144,11 +143,19 @@ public class RobotContainer
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         Trigger carriage = new Trigger(() -> (mPartner.getRightBumperButton() && !mIntakeSubsystem.hasCoral()));
-        carriage.whileTrue(
+        carriage.whileTrue( // FIXME: This is a MONSTROUS trigger. PLEASE make this its own command file.
             new ConditionalCommand(
                 new InstantCommand(),
-                new LoadCoral(mElevatorSubsystem, mCarriageSubsystem), 
-                () -> (mIntakeSubsystem.hasAlgae() || (mCarriageSubsystem.getArmSetpoint() == CarriageSubsystem.armCoralLoad && mCarriageSubsystem.getWristSetpoint() == CarriageSubsystem.wristCoralLoad))).andThen(new InstantCommand(() -> mIntakeSubsystem.intakeCoral()))
+                new LoadCoral(mElevatorSubsystem, mCarriageSubsystem, mIntakeSubsystem), 
+                () -> 
+                    mIntakeSubsystem.hasAlgae() ||
+                    (mCarriageSubsystem.getActivePreset().isPresent() &&
+                     mCarriageSubsystem.getActivePreset().get().equals(CarriagePreset.kCoralLoad)))
+            .andThen(
+                new InstantCommand(
+                    () -> mIntakeSubsystem.intakeCoral()
+                )
+            )
         );
         carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));//.andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
@@ -310,10 +317,10 @@ public class RobotContainer
     /** If the algae is detected, call the StowCarriageAlgae command, otherwise do the one for the coral. */
     private Command stowCarriage()
     {
-        return new ConditionalCommand(
-            new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem), // If algae is detected.
-            new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem),      // Otherwise
-            () -> mIntakeSubsystem.hasAlgae());
+        // Kyle here. I've tweaked the StowCarriagePosition command to do what this method used to do.
+        // It's still cleaner than having a million copies of this one line around, but it won't be needed
+        // when the command rewrite is done.
+        return new StowCarriagePosition(mCarriageSubsystem, mElevatorSubsystem, mIntakeSubsystem);
     }
 
     private void applyHeightOffsetWhenVisionAlignFinishes()

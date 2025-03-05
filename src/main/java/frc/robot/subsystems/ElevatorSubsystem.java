@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.objectmodels.LightState;
 import frc.robot.objectmodels.LightStatusRequest;
 
@@ -26,22 +27,8 @@ public class ElevatorSubsystem extends SubsystemBase
 
     public static final int kBottomSwitchChannel = 0;
     public static final int kTopSwitchChannel = 1;
-
     
     public static final double initialHeight = 12.875;
-    public static final double kPresetAway = initialHeight;
-    public static final double kPresetGroundPickup = initialHeight;
-    public static final double kPresetCoralPickup = 19.522144;
-    public static final double kPresetL1 = 12.911;
-    public static final double kPresetL2 = 21.691;
-    public static final double kPresetL3 = 38.5;
-    public static final double kPresetL4 = 65.5;
-
-    public static final double kPresetBarge = 65;
-    public static final double kPresetProcessor = initialHeight;
-    public static final double kPresetGround = 25;
-    public static final double kPresetAlgaeL2 = 25;
-    public static final double kPresetAlgaeL3 = 43.344;
 
     public static final double kElevatorP = 0.9;
     public static final double kElevatorI = 0;
@@ -53,12 +40,11 @@ public class ElevatorSubsystem extends SubsystemBase
     private final TalonFX mElevatorLeft;
     //private final TalonFX mElevatorRight;
 
-    private Optional<Double> activePreset = Optional.empty();
+    private Optional<CarriagePreset> activePreset = Optional.empty();
 
     private ProfiledPIDController elevatorPID;
     private boolean isMovingUp = false;
     private boolean isMovingDown = false;
-
 
     private DigitalInput bottomSwitch;
     private DigitalInput topSwitch;
@@ -87,7 +73,7 @@ public class ElevatorSubsystem extends SubsystemBase
         lights = new LightStatusRequest(LightState.kOff, -1);
         lightController.addRequest(lights);
         elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
-        activePreset = Optional.of(initialHeight);
+        activePreset = Optional.of(CarriagePreset.kStowCoral);
     }
 
     public void stop()
@@ -143,25 +129,31 @@ public class ElevatorSubsystem extends SubsystemBase
         return isMovingUp || isMovingDown;
     }
 
-    public void setPreset(Double preset)
+    public void setPreset(CarriagePreset preset)
     {
         activePreset = Optional.of(preset);
     }
 
-    public void resetEncoder(){
+    public void resetEncoder()
+    {
         mElevatorLeft.setPosition(0);
         elevatorPID.reset(initialHeight);
     }
 
-    public double getElevatorHeight(){
-        return mElevatorLeft.getPosition().getValueAsDouble()*rotationsToInches + initialHeight;
+    public double getElevatorHeight()
+    {
+        return mElevatorLeft.getPosition().getValueAsDouble() * rotationsToInches + initialHeight;
     }
 
-    public double getElevatorPreset(){
-        return activePreset.orElse(0.0);
+    public double getElevatorPreset()
+    {
+        // If a preset is set, that's its "setpoint."
+        if (activePreset.isPresent()) return activePreset.get().kElevatorPreset;
+        else return 0.0;
     }
 
-    public void resetElevatorPID(){
+    public void resetElevatorPID()
+    {
         elevatorPID.reset(this.getElevatorHeight());
     }
 
@@ -176,8 +168,8 @@ public class ElevatorSubsystem extends SubsystemBase
 
         if (activePreset.isEmpty()) return; // No preset.
 
-        double currentPosition = this.getElevatorHeight();
-        double newSpeed = elevatorPID.calculate(currentPosition, activePreset.get());
+        double currentPosition = getElevatorHeight();
+        double newSpeed = elevatorPID.calculate(currentPosition, activePreset.get().kElevatorPreset);
         this.setVoltage(newSpeed);
 
         SmartDashboard.putNumber("Elevator Speed", newSpeed);

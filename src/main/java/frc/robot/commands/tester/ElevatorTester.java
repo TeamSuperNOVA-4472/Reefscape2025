@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class ElevatorTester extends Command {
@@ -14,7 +15,7 @@ public class ElevatorTester extends Command {
         mElevatorSpeed = pElevatorSpeed;
         addRequirements(mElevator);
         mElevator.resetEncoder();
-        mElevator.setPreset(ElevatorSubsystem.initialHeight);
+        mElevator.setPreset(CarriagePreset.kStowCoral);
     }
 
     @Override
