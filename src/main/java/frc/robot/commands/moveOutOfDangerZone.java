@@ -1,9 +1,14 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
+/**
+ * Moves the carriage to a stow position where the elevator can move freely.
+ * Supports algae, it will choose a different preset if algae is detected.
+ */
 public class moveOutOfDangerZone extends Command
 {
     IntakeSubsystem mIntakeSubsystem;
@@ -22,20 +27,9 @@ public class moveOutOfDangerZone extends Command
     @Override
     public void initialize()
     {
-        //newWristTarget = mCarriageSubsystem.getWristSetpoint();
-        //newArmTarget = mCarriageSubsystem.getArmSetpoint();
-        if (mIntakeSubsystem.hasAlgae())
-        {
-            newArmTarget = CarriageSubsystem.armAlgaeStow;
-            newWristTarget = CarriageSubsystem.wristAlgaeStow;
-        } 
-        else/// if (mCarriageSubsystem.getCarriageTargetX() < -5)
-        {
-            newWristTarget = CarriageSubsystem.wristPresetMoving;
-            newArmTarget = CarriageSubsystem.armPresetMoving;
-        }
-        mCarriageSubsystem.setArmPreset(newArmTarget);
-        mCarriageSubsystem.setWristPreset(newWristTarget);
+        // If the intake has an algae, we need to go to a different spot to be "safe."
+        if (mIntakeSubsystem.hasAlgae()) mCarriageSubsystem.setPreset(CarriagePreset.kStowAlgae);
+        else mCarriageSubsystem.setPreset(CarriagePreset.kStowCoral);
     }
 
     @Override

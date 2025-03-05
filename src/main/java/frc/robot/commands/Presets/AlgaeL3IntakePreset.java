@@ -2,18 +2,19 @@ package frc.robot.commands.Presets;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.commands.MoveCarriageToPresetCommand;
-import frc.robot.commands.MoveToLevelCommand;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class AlgaeIntakePreset extends SequentialCommandGroup
+/**
+ * Moves the robot to The L3 Algae position and begin intaking.
+ */
+public class AlgaeL3IntakePreset extends SequentialCommandGroup
 {
-    public AlgaeIntakePreset(CarriageSubsystem pCarriage, ElevatorSubsystem pElevator, IntakeSubsystem pIntake)
+    public AlgaeL3IntakePreset(CarriageSubsystem pCarriage, ElevatorSubsystem pElevator, IntakeSubsystem pIntake)
     {
         addCommands(
-            new AlgaeL2(pElevator, pCarriage, pIntake),
+            new AlgaeL3(pElevator, pCarriage, pIntake),
             new InstantCommand(
                 () -> pCarriage.setAlgaeMode(true)
             )

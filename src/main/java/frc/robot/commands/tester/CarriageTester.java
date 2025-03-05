@@ -3,6 +3,7 @@ package frc.robot.commands.tester;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.CarriageSubsystem;
 
 public class CarriageTester extends Command 
@@ -18,8 +19,7 @@ public class CarriageTester extends Command
         mCarriageSubsystem = pCarriageSubsystem;
         addRequirements(mCarriageSubsystem);
 
-        mCarriageSubsystem.setArmPreset(CarriageSubsystem.armMovingAngle);
-        mCarriageSubsystem.setWristPreset(CarriageSubsystem.wristMovingAngle);
+        mCarriageSubsystem.setPreset(CarriagePreset.kStowCoral);
     }
     
     @Override

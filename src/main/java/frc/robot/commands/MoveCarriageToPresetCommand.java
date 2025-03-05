@@ -3,8 +3,13 @@ package frc.robot.commands;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.CarriageSubsystem;
 
+/**
+ * Moves the carriage to a specified preset. The elevator is unmoved.
+ * If you wish to move the elevator, invoke the `moveToLevelSafe` command before this one.
+ */
 public class MoveCarriageToPresetCommand extends Command
 {
     public static final double kArmTolerence = 5.0;
@@ -12,21 +17,16 @@ public class MoveCarriageToPresetCommand extends Command
 
     private final CarriageSubsystem mCarriageSubsystem;
 
-    private Double armPreset;
-    private Double wristPreset;
+    private final Supplier<CarriagePreset> presetSupplier;
 
-    private final Supplier<Double> armSupply;
-    private final Supplier<Double> wristSupply;
-
-    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, Double armPreset, Double wristPreset)
+    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, CarriagePreset preset)
     {
-        this(carriageSubsystem, () -> armPreset, () -> wristPreset);
+        this(carriageSubsystem, () -> preset);
     }
 
-    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, Supplier<Double> armPreset, Supplier<Double> wristPreset)
+    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, Supplier<CarriagePreset> preset)
     {
-        armSupply = armPreset;
-        wristSupply = wristPreset;
+        presetSupplier = preset;
         mCarriageSubsystem = carriageSubsystem;
         addRequirements(mCarriageSubsystem);
     }
@@ -34,10 +34,8 @@ public class MoveCarriageToPresetCommand extends Command
     @Override
     public void initialize() 
     {
-        armPreset = armSupply.get();
-        wristPreset = wristSupply.get();
-        mCarriageSubsystem.setArmPreset(armPreset);
-        mCarriageSubsystem.setWristPreset(wristPreset);
+        // Why do we need this as a supplier?
+        mCarriageSubsystem.setPreset(presetSupplier.get());
     }
 
     @Override
