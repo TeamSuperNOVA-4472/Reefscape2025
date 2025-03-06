@@ -43,11 +43,18 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -58,6 +65,11 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import static frc.robot.OperatorConfig.weightJoystick;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
@@ -121,14 +133,14 @@ public class RobotContainer
             weightJoystick(mDriver::getLeftY, true),
             weightJoystick(mDriver::getLeftX, true),
             weightJoystick(mDriver::getRightX, true),
-            mDriver::getAButton,
-            mDriver::getXButton,
-            mDriver::getBButton,
+            mPartner::getAButton,
+            mPartner::getXButton,
+            mPartner::getBButton,
             mSwerveSubsystem,
             mVisionSubsystem);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
-        Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
+        /*Trigger carriage = new Trigger(mPartner::getLeftBumperButton);
         carriage.onTrue(new ConditionalCommand(new InstantCommand(), new LoadCoral(mElevatorSubsystem, mCarriageSubsystem), () -> mIntakeSubsystem.hasAlgae())
         );
 
@@ -154,7 +166,46 @@ public class RobotContainer
 
         Trigger algaeTrigger = new Trigger(() -> mPartner.getLeftTriggerAxis() > 0);
         algaeTrigger.onTrue(new AlgaeIntakePreset(mCarriageSubsystem, mElevatorSubsystem)
-        );
+        );*/
+
+        Trigger visionTrigger = new Trigger(mDriver::getXButton);
+        visionTrigger.onTrue(new InstantCommand(() -> {
+            ArrayList<Pose2d> poses = new ArrayList<Pose2d>();
+
+            for (int i = 0; i < 6; i++)
+            {
+                Pose2d visionPose = mVisionSubsystem.getTagLayout().getTagPose(i+6).get().toPose2d();
+                Pose2d fixedPose = visionPose.plus(new Transform2d(1, 0, Rotation2d.fromDegrees(0)));
+                SmartDashboard.putString("visionPose: ", fixedPose.toString());
+                poses.add(fixedPose);
+        
+            }
+
+            Pose2d currPose = mSwerveSubsystem.getPose();
+
+            Translation2d aprilTagPose = mVisionSubsystem.getTagLayout().getTagPose(7).get().getTranslation().toTranslation2d();  
+            
+            Pose2d startingPose = new Pose2d(currPose.getTranslation(), new Rotation2d());
+            Pose2d endingPose = new Pose2d(aprilTagPose, new Rotation2d());
+            ArrayList<Pose2d> pathList = getMinPath(poses, endingPose.transformBy(new Transform2d(1, 0, Rotation2d.fromDegrees(0))));
+            pathList.add(0, startingPose);
+            List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(pathList.toArray(new Pose2d[0]));
+
+            PathPlannerPath path = new PathPlannerPath(
+                waypoints,
+                new PathConstraints(4.0, 4.0, Units.degreesToRadians(360), Units.degreesToRadians(540)),
+                null,
+                new GoalEndState(0, currPose.getRotation())
+            );
+
+            path.preventFlipping = true;
+
+            AutoBuilder.followPath(path).schedule();
+
+            SmartDashboard.putString("Minimum Path", getMinPath(poses, endingPose).toString());
+           
+        }));
+
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
@@ -192,6 +243,30 @@ public class RobotContainer
                 new InstantCommand(() -> System.out.println("The Event has triggered")));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
+    }
+
+    private ArrayList<Pose2d> getMinPath(ArrayList<Pose2d> poses, Pose2d target)
+    {
+        
+        ArrayList<Pose2d> path = new ArrayList<Pose2d>();
+        ArrayList<Pose2d> altPath = new ArrayList<Pose2d>();
+        for (Pose2d pose : poses) {altPath.add(pose);}
+
+        int minIndex = poses.indexOf(mSwerveSubsystem.getPose().nearest(poses));
+
+        for (int i = minIndex; i < minIndex+6; i++)
+        {
+            Pose2d curPose = poses.get(i%6);
+            path.add(curPose);
+            if (curPose.equals(target))
+            {
+                break;
+            }
+            altPath.remove(curPose);
+        }
+        Collections.reverse(altPath);
+        SmartDashboard.putString("Path: ", path.toString());
+        return altPath.size() < path.size() ? altPath : path;
     }
 
     // Specify which command will be used as the autonomous command.

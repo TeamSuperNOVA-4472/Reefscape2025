@@ -74,7 +74,7 @@ public class VisionSubsystem extends SubsystemBase
         try
         {
             // There's a file created by wpilib that has the layout for the new game.
-            String layoutPath = AprilTagFields.k2025Reefscape.m_resourceFile;
+            String layoutPath = AprilTagFields.k2025ReefscapeAndyMark.m_resourceFile;
             System.out.println("[VISION] April Tag Layout Path: " + layoutPath);
             tagLayout = AprilTagFieldLayout.loadFromResource(layoutPath);
         }
@@ -120,9 +120,9 @@ public class VisionSubsystem extends SubsystemBase
             }
         }
 
-        statusCheckTimer = new Timer();
-        statusCheckTimer.start();
-        checkCameraStatus();
+        //statusCheckTimer = new Timer();
+        //statusCheckTimer.start();
+        //checkCameraStatus();
     }
 
     public void addMeasurementListener(Consumer<EstimatedRobotPose> consumer)
@@ -166,11 +166,11 @@ public class VisionSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
-        if (statusCheckTimer.hasElapsed(1))
+        /*if (statusCheckTimer.hasElapsed(1))
         {
             checkCameraStatus();
             statusCheckTimer.restart();
-        }
+        }*/
 
         SmartDashboard.putBoolean("Subsystems/VisionSubsystem/Vision Status", isActive());
         if (!isActive()) return; // Disabled.
