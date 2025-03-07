@@ -45,13 +45,14 @@ public class AlignToReef extends SequentialCommandGroup {
         ArrayList<Pose2d> poses = new ArrayList<Pose2d>();
 
         Pose2d currPose = mSwerveSubsystem.getPose();
-        Pose2d aprilTagPose = mVisionSubsystem.getTagLayout().getTagPose(10).get().toPose2d().transformBy(new Transform2d(2, 0, Rotation2d.k180deg));
+        Pose2d aprilTagPose = mVisionSubsystem.getTagLayout().getTagPose(mTargetId).get().toPose2d().transformBy(new Transform2d(2, 0, Rotation2d.k180deg));
 
+        // TODO: Make this work for blue alliances as well 
         for (int i = 0; i < 6; i++)
         {
             Pose2d visionPose = mVisionSubsystem.getTagLayout().getTagPose(i+6).get().toPose2d();
             Pose2d fixedPose = visionPose.plus(new Transform2d(2, 0, Rotation2d.k180deg));
-            SmartDashboard.putString("visionPose: ", fixedPose.toString());
+
             poses.add(fixedPose);
     
         }

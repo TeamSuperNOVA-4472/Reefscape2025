@@ -108,6 +108,7 @@ public class RobotContainer
     private final IntakeTester mIntakeTester;
     private final ClimberTester mClimberTester;
 
+    private boolean isFirst;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -127,6 +128,8 @@ public class RobotContainer
         mClimbSubsystem = new ClimbSubsystem();
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
         mIntakeSubsystem = new IntakeSubsystem();
+
+        isFirst = true;
 
         // Initialize commands.
         // TODO: Should weighting go here? Or in the command?
@@ -176,7 +179,7 @@ public class RobotContainer
             new AlignToReef(
                 mSwerveSubsystem, 
                 mVisionSubsystem,
-                10), 
+                8), 
             Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
@@ -188,11 +191,21 @@ public class RobotContainer
         mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
         // Configure subsystems
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
-        /*mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
+        mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
-            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
-                                                  newVisionPose.timestampSeconds);
-        });*/ // FIXME: This causes weird things.
+            Pose2d vision = newVisionPose.estimatedPose.toPose2d();
+            Pose2d current = mSwerveSubsystem.getPose();
+
+            if ( Math.abs( vision.getX() - current.getX() ) <= 1 
+                && Math.abs( vision.getY() - current.getY() ) <= 1
+                && !isFirst
+            )
+            {
+                Pose2d measurement = new Pose2d(vision.getTranslation(), current.getRotation());
+                mSwerveSubsystem.addVisionMeasurement(measurement, newVisionPose.timestampSeconds);
+                isFirst = false;
+            }
+        }); // FIXME: This causes weird things.
 
         // mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
         // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
