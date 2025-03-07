@@ -31,11 +31,12 @@ import frc.robot.objectmodels.CameraInfo;
 
 public class VisionSubsystem extends SubsystemBase
 {
+    // TODO: CHANGE BACK TO OG
     // The first camera in this array is considered the "main camera."
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0.206375, -0.19685, 0.2032 ), new Rotation3d(0, -22.5, 0))) // Can be changed.
+        new CameraInfo("Arducam_OV9281_USB_Camera", new Transform3d(new Translation3d(0, 0, 0 ), new Rotation3d(0, 0, 0))) // Can be changed.
     };
 
     // Cameras go here.
@@ -294,6 +295,10 @@ public class VisionSubsystem extends SubsystemBase
 
     public boolean isActive()
     {
+        if (RobotBase.isSimulation())
+        {
+            return initPass && enabled;
+        }
         return initPass && mainConnectedPass && enabled;
     }
     public void enable()

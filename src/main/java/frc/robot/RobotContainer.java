@@ -172,37 +172,35 @@ public class RobotContainer
         visionTrigger.onTrue(new InstantCommand(() -> {
             ArrayList<Pose2d> poses = new ArrayList<Pose2d>();
 
+            Pose2d currPose = mSwerveSubsystem.getPose();
+            Pose2d aprilTagPose = mVisionSubsystem.getTagLayout().getTagPose(10).get().toPose2d().transformBy(new Transform2d(2, 0, Rotation2d.k180deg));
+
             for (int i = 0; i < 6; i++)
             {
                 Pose2d visionPose = mVisionSubsystem.getTagLayout().getTagPose(i+6).get().toPose2d();
-                Pose2d fixedPose = visionPose.plus(new Transform2d(1, 0, Rotation2d.fromDegrees(0)));
+                Pose2d fixedPose = visionPose.plus(new Transform2d(2, 0, Rotation2d.k180deg));
                 SmartDashboard.putString("visionPose: ", fixedPose.toString());
                 poses.add(fixedPose);
         
             }
-
-            Pose2d currPose = mSwerveSubsystem.getPose();
-
-            Translation2d aprilTagPose = mVisionSubsystem.getTagLayout().getTagPose(7).get().getTranslation().toTranslation2d();  
             
-            Pose2d startingPose = new Pose2d(currPose.getTranslation(), new Rotation2d());
-            Pose2d endingPose = new Pose2d(aprilTagPose, new Rotation2d());
-            ArrayList<Pose2d> pathList = getMinPath(poses, endingPose.transformBy(new Transform2d(1, 0, Rotation2d.fromDegrees(0))));
+            Pose2d startingPose = currPose;
+            Pose2d endingPose = aprilTagPose;
+            ArrayList<Pose2d> pathList = getMinPath(poses, aprilTagPose);
             pathList.add(0, startingPose);
+            pathList.add(endingPose.transformBy(new Transform2d(1, 0, new Rotation2d())));
             List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(pathList.toArray(new Pose2d[0]));
 
             PathPlannerPath path = new PathPlannerPath(
                 waypoints,
-                new PathConstraints(4.0, 4.0, Units.degreesToRadians(360), Units.degreesToRadians(540)),
+                new PathConstraints(4.5, 4.5, Units.degreesToRadians(360), Units.degreesToRadians(540)),
                 null,
-                new GoalEndState(0, currPose.getRotation())
+                new GoalEndState(0, new Rotation2d())
             );
 
             path.preventFlipping = true;
 
             AutoBuilder.followPath(path).schedule();
-
-            SmartDashboard.putString("Minimum Path", getMinPath(poses, endingPose).toString());
            
         }));
 
@@ -250,19 +248,19 @@ public class RobotContainer
         
         ArrayList<Pose2d> path = new ArrayList<Pose2d>();
         ArrayList<Pose2d> altPath = new ArrayList<Pose2d>();
-        for (Pose2d pose : poses) {altPath.add(pose);}
+        for (Pose2d pose : poses) {altPath.add( new Pose2d(pose.getTranslation(), pose.getRotation().rotateBy(Rotation2d.kCCW_90deg)));}
 
         int minIndex = poses.indexOf(mSwerveSubsystem.getPose().nearest(poses));
 
         for (int i = minIndex; i < minIndex+6; i++)
         {
             Pose2d curPose = poses.get(i%6);
-            path.add(curPose);
+            altPath.remove(new Pose2d(curPose.getTranslation(), curPose.getRotation().rotateBy(Rotation2d.kCCW_90deg)));
             if (curPose.equals(target))
             {
                 break;
             }
-            altPath.remove(curPose);
+            path.add(new Pose2d(curPose.getTranslation(), curPose.getRotation().rotateBy(Rotation2d.kCW_90deg)));
         }
         Collections.reverse(altPath);
         SmartDashboard.putString("Path: ", path.toString());
