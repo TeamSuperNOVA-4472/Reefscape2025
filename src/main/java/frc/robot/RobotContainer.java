@@ -245,26 +245,31 @@ public class RobotContainer
 
     private ArrayList<Pose2d> getMinPath(ArrayList<Pose2d> poses, Pose2d target)
     {
+        ArrayList<Pose2d> reversePoses = new ArrayList<Pose2d>();
+        reversePoses.addAll(poses);
+        Collections.reverse(reversePoses);
         
         ArrayList<Pose2d> path = new ArrayList<Pose2d>();
         ArrayList<Pose2d> altPath = new ArrayList<Pose2d>();
-        for (Pose2d pose : poses) {altPath.add( new Pose2d(pose.getTranslation(), pose.getRotation().rotateBy(Rotation2d.kCCW_90deg)));}
 
-        int minIndex = poses.indexOf(mSwerveSubsystem.getPose().nearest(poses));
+        Pose2d nearestPose = mSwerveSubsystem.getPose().nearest(poses);
 
-        for (int i = minIndex; i < minIndex+6; i++)
+        int fwdIndex = poses.indexOf(nearestPose);
+        int revIndex = reversePoses.indexOf(nearestPose);
+
+        for (int i = 0; i < 3; i++)
         {
-            Pose2d curPose = poses.get(i%6);
-            altPath.remove(new Pose2d(curPose.getTranslation(), curPose.getRotation().rotateBy(Rotation2d.kCCW_90deg)));
-            if (curPose.equals(target))
-            {
-                break;
-            }
-            path.add(new Pose2d(curPose.getTranslation(), curPose.getRotation().rotateBy(Rotation2d.kCW_90deg)));
+            Pose2d curFwdPose = poses.get( (fwdIndex + i) % 6);
+            Pose2d curRevPose = reversePoses.get( (revIndex + i) % 6);
+
+            if (curFwdPose.equals(target)) { return path; }
+            if (curRevPose.equals(target)) { return altPath; }
+            
+            path.add(new Pose2d(curFwdPose.getTranslation(), curFwdPose.getRotation().rotateBy(Rotation2d.kCW_90deg)));
+            altPath.add(new Pose2d(curRevPose.getTranslation(), curRevPose.getRotation().rotateBy(Rotation2d.kCCW_90deg)));
         }
-        Collections.reverse(altPath);
-        SmartDashboard.putString("Path: ", path.toString());
-        return altPath.size() < path.size() ? altPath : path;
+        
+        return path;
     }
 
     // Specify which command will be used as the autonomous command.
