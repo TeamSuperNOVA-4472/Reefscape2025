@@ -24,6 +24,7 @@ import frc.robot.commands.Presets.CoralL3Preset;
 import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
+import frc.robot.commands.Vision.AlignToReef;
 import frc.robot.commands.autoCommands.ScoreLevel1;
 import frc.robot.commands.autoCommands.ScoreLevel3;
 import frc.robot.commands.tester.CarriageTester;
@@ -60,6 +61,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -70,6 +72,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
@@ -169,41 +172,13 @@ public class RobotContainer
         );*/
 
         Trigger visionTrigger = new Trigger(mDriver::getXButton);
-        visionTrigger.onTrue(new InstantCommand(() -> {
-            ArrayList<Pose2d> poses = new ArrayList<Pose2d>();
-
-            Pose2d currPose = mSwerveSubsystem.getPose();
-            Pose2d aprilTagPose = mVisionSubsystem.getTagLayout().getTagPose(10).get().toPose2d().transformBy(new Transform2d(2, 0, Rotation2d.k180deg));
-
-            for (int i = 0; i < 6; i++)
-            {
-                Pose2d visionPose = mVisionSubsystem.getTagLayout().getTagPose(i+6).get().toPose2d();
-                Pose2d fixedPose = visionPose.plus(new Transform2d(2, 0, Rotation2d.k180deg));
-                SmartDashboard.putString("visionPose: ", fixedPose.toString());
-                poses.add(fixedPose);
-        
-            }
-            
-            Pose2d startingPose = currPose;
-            Pose2d endingPose = aprilTagPose;
-            ArrayList<Pose2d> pathList = getMinPath(poses, aprilTagPose);
-            pathList.add(0, startingPose);
-            pathList.add(endingPose.transformBy(new Transform2d(1, 0, new Rotation2d())));
-            List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(pathList.toArray(new Pose2d[0]));
-
-            PathPlannerPath path = new PathPlannerPath(
-                waypoints,
-                new PathConstraints(4.5, 4.5, Units.degreesToRadians(360), Units.degreesToRadians(540)),
-                null,
-                new GoalEndState(0, new Rotation2d())
-            );
-
-            path.preventFlipping = true;
-
-            AutoBuilder.followPath(path).schedule();
-           
-        }));
-
+        visionTrigger.whileTrue(new DeferredCommand(() -> 
+            new AlignToReef(
+                mSwerveSubsystem, 
+                mVisionSubsystem,
+                10), 
+            Set.of(mSwerveSubsystem, mVisionSubsystem))
+        );
 
         // TODO: remove tester commands when robot is properly programmed
         mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
@@ -241,35 +216,6 @@ public class RobotContainer
                 new InstantCommand(() -> System.out.println("The Event has triggered")));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
-    }
-
-    private ArrayList<Pose2d> getMinPath(ArrayList<Pose2d> poses, Pose2d target)
-    {
-        ArrayList<Pose2d> reversePoses = new ArrayList<Pose2d>();
-        reversePoses.addAll(poses);
-        Collections.reverse(reversePoses);
-        
-        ArrayList<Pose2d> path = new ArrayList<Pose2d>();
-        ArrayList<Pose2d> altPath = new ArrayList<Pose2d>();
-
-        Pose2d nearestPose = mSwerveSubsystem.getPose().nearest(poses);
-
-        int fwdIndex = poses.indexOf(nearestPose);
-        int revIndex = reversePoses.indexOf(nearestPose);
-
-        for (int i = 0; i < 3; i++)
-        {
-            Pose2d curFwdPose = poses.get( (fwdIndex + i) % 6);
-            Pose2d curRevPose = reversePoses.get( (revIndex + i) % 6);
-
-            if (curFwdPose.equals(target)) { return path; }
-            if (curRevPose.equals(target)) { return altPath; }
-            
-            path.add(new Pose2d(curFwdPose.getTranslation(), curFwdPose.getRotation().rotateBy(Rotation2d.kCW_90deg)));
-            altPath.add(new Pose2d(curRevPose.getTranslation(), curRevPose.getRotation().rotateBy(Rotation2d.kCCW_90deg)));
-        }
-        
-        return path;
     }
 
     // Specify which command will be used as the autonomous command.

@@ -25,17 +25,23 @@ public class AlignToReef extends SequentialCommandGroup {
     // Define member variables.
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
+    private final int mTargetId;
 
-    public AlignToReef(SwerveSubsystem pSwerveSubsystem, VisionSubsystem pVisionSubsystem)
+    public AlignToReef(
+        SwerveSubsystem pSwerveSubsystem, 
+        VisionSubsystem pVisionSubsystem, 
+        int pTargetId)
     {
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
+        mTargetId = pTargetId;
 
-        super.addCommands(setUpWayPoints());
+        super.addCommands(pathFindToPlace());
     }
 
-    private Command setUpWayPoints()
+    private Command pathFindToPlace()
     {
+        // Create a list of poses
         ArrayList<Pose2d> poses = new ArrayList<Pose2d>();
 
         Pose2d currPose = mSwerveSubsystem.getPose();
