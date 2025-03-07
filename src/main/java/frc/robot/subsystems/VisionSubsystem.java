@@ -167,11 +167,11 @@ public class VisionSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
-        /*if (statusCheckTimer.hasElapsed(1))
+        if (statusCheckTimer.hasElapsed(1))
         {
             checkCameraStatus();
             statusCheckTimer.restart();
-        }*/
+        }
 
         SmartDashboard.putBoolean("Subsystems/VisionSubsystem/Vision Status", isActive());
         if (!isActive()) return; // Disabled.
