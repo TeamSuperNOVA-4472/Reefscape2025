@@ -31,6 +31,12 @@ import frc.robot.objectmodels.CameraInfo;
 
 public class VisionSubsystem extends SubsystemBase
 {
+    private static VisionSubsystem kInstance;
+    public static VisionSubsystem instance()
+    {
+        return kInstance;
+    }
+
     // The first camera in this array is considered the "main camera."
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =

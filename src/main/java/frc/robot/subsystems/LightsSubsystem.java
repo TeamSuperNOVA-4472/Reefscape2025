@@ -22,6 +22,12 @@ import frc.robot.objectmodels.lightpatterns.RandomLEDPattern;
 // Ask me any questions you've got about this, I'd be happy to answer them!
 public class LightsSubsystem extends SubsystemBase
 {
+    private static LightsSubsystem kInstance;
+    public static LightsSubsystem instance()
+    {
+        return kInstance;
+    }
+
     public static final int kLightChannel = 7;
     public static final int kLightCount = 50;
 

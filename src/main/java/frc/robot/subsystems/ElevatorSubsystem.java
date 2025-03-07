@@ -22,6 +22,12 @@ import frc.robot.objectmodels.LightStatusRequest;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
+    private static ElevatorSubsystem kInstance;
+    public static ElevatorSubsystem instance()
+    {
+        return kInstance;
+    }
+
     public static final int kLeftElevatorMotorID = 0;
     public static final int kRightElevatorMotorID = 1;
 
@@ -53,6 +59,8 @@ public class ElevatorSubsystem extends SubsystemBase
 
     public ElevatorSubsystem(LightsSubsystem lightController)
     {
+        kInstance = this;
+
         //motorConfigRight = new MotorOutputConfigs();
         mElevatorLeft = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
         TalonFXConfiguration leftConfig = new TalonFXConfiguration();
