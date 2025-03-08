@@ -25,6 +25,8 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -101,8 +103,14 @@ public class RobotContainer
             new AlignToReef(
                 mSwerveSubsystem, 
                 mVisionSubsystem,
-                AlignToReef.EndTarget.NEAR_RIGHT), 
+                AlignToReef.EndTarget.FAR_RIGHT), 
             Set.of(mSwerveSubsystem, mVisionSubsystem))
+        );
+
+        Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
+        driveTrigger.whileTrue(new DeferredCommand(() ->
+            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d())),
+            Set.of(mSwerveSubsystem))
         );
 
         // Configure other things.

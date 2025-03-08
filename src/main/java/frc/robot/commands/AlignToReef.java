@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.ctre.phoenix.CANifier.PinValues;
 import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -41,7 +43,7 @@ public class AlignToReef extends SequentialCommandGroup {
     private final EndTarget mEndTarget;
 
     private final Transform2d wayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
-    private final Transform2d endingPointTranform = new Transform2d(1.25, 0, new Rotation2d());
+    private final Transform2d endingPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
 
     public AlignToReef(
         SwerveSubsystem pSwerveSubsystem, 
@@ -52,7 +54,10 @@ public class AlignToReef extends SequentialCommandGroup {
         mVisionSubsystem = pVisionSubsystem;
         mEndTarget = pEndTarget;
 
-        super.addCommands(pathFindToPlace(endingPointTranform));
+        super.addCommands(
+            pathFindToPlace(), 
+            new CloseUpOnReef(mSwerveSubsystem, findTargetPose(mEndTarget).transformBy(new Transform2d(0.65, -0.5, new Rotation2d())))
+            );
     }
 
     private ArrayList<Pose2d> createPoses()
@@ -117,10 +122,10 @@ public class AlignToReef extends SequentialCommandGroup {
                 break;
         }
 
-        return mVisionSubsystem.getTagLayout().getTagPose(targetId).get().toPose2d().transformBy(wayPointTransform);
+        return mVisionSubsystem.getTagLayout().getTagPose(targetId).get().toPose2d();
     }
 
-    private Command pathFindToPlace(Transform2d endingTransform)
+    private Command pathFindToPlace()
     {
         // Create a list of poses
         ArrayList<Pose2d> poses = createPoses();
@@ -128,18 +133,20 @@ public class AlignToReef extends SequentialCommandGroup {
         Pose2d currPose = mSwerveSubsystem.getPose();
         Pose2d endingPose = findTargetPose(mEndTarget);
         
-        ArrayList<Pose2d> pathList = getMinPath(poses, endingPose);
+        ArrayList<Pose2d> pathList = getMinPath(poses, endingPose.plus(wayPointTransform));
+
+        endingPose = endingPose.plus(endingPointTransform);
 
         pathList.add(0, currPose);
-        pathList.add(endingPose.transformBy(endingTransform));
+        pathList.add(endingPose);
 
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(pathList.toArray(new Pose2d[0]));
 
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
-            new PathConstraints(1.25, 1.25, Units.degreesToRadians(360), Units.degreesToRadians(540)),
+            new PathConstraints(2, 2, Units.degreesToRadians(360), Units.degreesToRadians(540)),
             null,
-            new GoalEndState(0, endingPose.getRotation())
+            new GoalEndState(2, endingPose.getRotation())
         );
 
         path.preventFlipping = true;
@@ -179,6 +186,6 @@ public class AlignToReef extends SequentialCommandGroup {
     private boolean isBlueAlliance()
     {
         // Returns true if the robot is connected to the FMS and on the blue alliance
-        return DriverStation.getAlliance().get().equals(Alliance.Blue) ? true : false;
+        return DriverStation.getAlliance().get().equals(Alliance.Blue);
     }
 }
