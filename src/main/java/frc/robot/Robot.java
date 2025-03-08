@@ -116,6 +116,8 @@ public class Robot extends TimedRobot
         teleopLights.active = true;
         autonLights.active = false;
         disabledLights.state = LightState.kDisabledError;
+
+        mRobotContainer.resetHeadingToAlliance();
     }
 
     // Run continuously when the robot is in teleop mode.
