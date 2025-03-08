@@ -5,6 +5,24 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "StartVisionTest"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "VisionAlign"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "VisionTestToSource"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "VisionAlign"
@@ -13,7 +31,7 @@
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }

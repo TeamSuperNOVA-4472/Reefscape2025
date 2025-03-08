@@ -125,7 +125,12 @@ public class RobotContainer
         NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
         NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
         NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
-        NamedCommands.registerCommand("VisionAlign", new AlignToReef(mSwerveSubsystem, mVisionSubsystem, AlignToReef.EndTarget.FAR_RIGHT));
+        NamedCommands.registerCommand("VisionAlign", new DeferredCommand(() -> 
+        new AlignToReef(
+            mSwerveSubsystem, 
+            mVisionSubsystem,
+            AlignToReef.EndTarget.FAR_RIGHT), 
+            Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(
