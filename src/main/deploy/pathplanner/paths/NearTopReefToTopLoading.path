@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.282319078947368,
-        "y": 6.016694078947369
+        "x": 3.6901490066225167,
+        "y": 5.33253311258278
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.46934818853641,
-        "y": 5.925749143835617
+        "x": 2.4625206953642382,
+        "y": 6.204221854304634
       },
       "isLocked": false,
-      "linkedName": "Testing Auto Waypoint"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.437714041095891,
-        "y": 5.865646404109588
+        "x": 1.3147971854304634,
+        "y": 6.930629139072847
       },
       "prevControl": {
-        "x": 6.791609589041097,
-        "y": 5.805543664383561
+        "x": 2.2228062913907283,
+        "y": 6.204221854304636
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 131.18592516570968
   },
   "reversed": false,
-  "folder": "Old Autos (may need them later)",
+  "folder": "Loading Station paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 2.683775159468908
+    "rotation": -61.87626461671116
   },
   "useDefaultConstraints": true
 }

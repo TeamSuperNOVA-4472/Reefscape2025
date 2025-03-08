@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MidtoRightReef"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "ScoreLevel4Right"
+            "pathName": "TDriveToTopFar-Right"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Old Autos",
+  "folder": "Sebastians New Autos",
   "choreoAuto": false
 }

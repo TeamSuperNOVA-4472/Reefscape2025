@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MidtoRightReef"
+            "pathName": "VisionTestPath"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ScoreLevel4Right"
+            "name": "VisionAlign"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Old Autos",
+  "folder": "Sebastians New Autos",
   "choreoAuto": false
 }

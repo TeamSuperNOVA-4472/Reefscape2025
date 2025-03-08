@@ -3,10 +3,17 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "New Folder",
-    "r"
+    "BottomPaths",
+    "MidPaths",
+    "Loading Station paths",
+    "Old Autos (may need them later)",
+    "Sebastians New Paths (unsorted stuff, hopefully nothing in here)",
+    "TopPaths"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "Old Autos",
+    "Sebastians New Autos"
+  ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,
