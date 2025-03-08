@@ -131,6 +131,8 @@ public class RobotContainer
         autoChooser.addOption("ReefScoreBottomRight", new PathPlannerAuto("ReefScoreBottomRight"));
 
         autoChooser.addOption("VisionTest", new PathPlannerAuto("VisionTest"));
+        autoChooser.addOption("Tag Check", new PathPlannerAuto("Tag Check"));
+
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
