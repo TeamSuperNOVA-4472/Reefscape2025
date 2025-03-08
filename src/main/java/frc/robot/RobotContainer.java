@@ -37,6 +37,7 @@ import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AlignToReef;
+import frc.robot.commands.CloseUpOnReef;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.VisionAlignCommand;
@@ -50,6 +51,7 @@ import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.commands.AlignToReef.EndTarget;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -293,7 +295,7 @@ public class RobotContainer
             new AlignToReef(
                 mSwerveSubsystem, 
                 mVisionSubsystem,
-                8), 
+                AlignToReef.EndTarget.NEAR_RIGHT), 
             Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
