@@ -117,6 +117,7 @@ public class RobotContainer
         NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
         NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
         NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
+        NamedCommands.registerCommand("VisionAlign", new AlignToReef(mSwerveSubsystem, mVisionSubsystem, AlignToReef.EndTarget.FAR_RIGHT));
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(
@@ -128,6 +129,8 @@ public class RobotContainer
         autoChooser.addOption("RightReefScoreToAlgae", new PathPlannerAuto("RightReefScoreToAlgae"));
         autoChooser.addOption("AmbitiousTopLeftScore", new PathPlannerAuto("AmbitiousTopLeftScore"));
         autoChooser.addOption("ReefScoreBottomRight", new PathPlannerAuto("ReefScoreBottomRight"));
+
+        autoChooser.addOption("VisionTest", new PathPlannerAuto("VisionTest"));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
     }
