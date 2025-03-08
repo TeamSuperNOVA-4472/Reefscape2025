@@ -41,7 +41,7 @@ public class AlignToReef extends SequentialCommandGroup {
     private final EndTarget mEndTarget;
 
     private final Transform2d wayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
-    private final Transform2d endingPointTransform = new Transform2d(0.75, 0, Rotation2d.k180deg);
+    private final Transform2d endingPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
 
     public AlignToReef(
         SwerveSubsystem pSwerveSubsystem, 
@@ -54,7 +54,7 @@ public class AlignToReef extends SequentialCommandGroup {
 
         super.addCommands(
             pathFindToPlace(), 
-            new CloseUpOnReef(mSwerveSubsystem, new Transform2d(0, -0.1, new Rotation2d()))
+            new CloseUpOnReef(mSwerveSubsystem, findTargetPose(mEndTarget).transformBy(new Transform2d(0.65, -0.5, new Rotation2d())))
             );
     }
 
@@ -142,9 +142,9 @@ public class AlignToReef extends SequentialCommandGroup {
 
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
-            new PathConstraints(1.25, 1.25, Units.degreesToRadians(360), Units.degreesToRadians(540)),
+            new PathConstraints(2, 2, Units.degreesToRadians(360), Units.degreesToRadians(540)),
             null,
-            new GoalEndState(0, endingPose.getRotation())
+            new GoalEndState(2, endingPose.getRotation())
         );
 
         path.preventFlipping = true;
@@ -184,6 +184,6 @@ public class AlignToReef extends SequentialCommandGroup {
     private boolean isBlueAlliance()
     {
         // Returns true if the robot is connected to the FMS and on the blue alliance
-        return DriverStation.getAlliance().get().equals(Alliance.Blue) ? true : false;
+        return DriverStation.getAlliance().get().equals(Alliance.Blue);
     }
 }
