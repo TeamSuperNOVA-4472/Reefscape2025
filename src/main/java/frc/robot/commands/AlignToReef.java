@@ -41,7 +41,7 @@ public class AlignToReef extends SequentialCommandGroup {
     private final EndTarget mEndTarget;
 
     private final Transform2d wayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
-    private final Transform2d endingPointTranform = new Transform2d(1.25, 0, new Rotation2d());
+    private final Transform2d endingPointTransform = new Transform2d(0.75, 0, Rotation2d.k180deg);
 
     public AlignToReef(
         SwerveSubsystem pSwerveSubsystem, 
@@ -52,7 +52,10 @@ public class AlignToReef extends SequentialCommandGroup {
         mVisionSubsystem = pVisionSubsystem;
         mEndTarget = pEndTarget;
 
-        super.addCommands(pathFindToPlace(endingPointTranform));
+        super.addCommands(
+            pathFindToPlace(), 
+            new CloseUpOnReef(mSwerveSubsystem, new Transform2d(0, -0.1, new Rotation2d()))
+            );
     }
 
     private ArrayList<Pose2d> createPoses()
@@ -117,10 +120,10 @@ public class AlignToReef extends SequentialCommandGroup {
                 break;
         }
 
-        return mVisionSubsystem.getTagLayout().getTagPose(targetId).get().toPose2d().transformBy(wayPointTransform);
+        return mVisionSubsystem.getTagLayout().getTagPose(targetId).get().toPose2d();
     }
 
-    private Command pathFindToPlace(Transform2d endingTransform)
+    private Command pathFindToPlace()
     {
         // Create a list of poses
         ArrayList<Pose2d> poses = createPoses();
@@ -128,10 +131,12 @@ public class AlignToReef extends SequentialCommandGroup {
         Pose2d currPose = mSwerveSubsystem.getPose();
         Pose2d endingPose = findTargetPose(mEndTarget);
         
-        ArrayList<Pose2d> pathList = getMinPath(poses, endingPose);
+        ArrayList<Pose2d> pathList = getMinPath(poses, endingPose.plus(wayPointTransform));
+
+        endingPose = endingPose.plus(endingPointTransform);
 
         pathList.add(0, currPose);
-        pathList.add(endingPose.transformBy(endingTransform));
+        pathList.add(endingPose);
 
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(pathList.toArray(new Pose2d[0]));
 
