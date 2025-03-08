@@ -29,11 +29,11 @@ public class CloseUpOnReef extends Command {
 
         mDestination = pDestination;
 
-        mXPID = new PIDController(5, 0, 0.05);
-        mYPID = new PIDController(5, 0, 0.05);
+        mXPID = new PIDController(2.5, 0, 3);
+        mYPID = new PIDController(2.5, 0, 3);
 
-        mXPID.setTolerance(0.05);
-        mYPID.setTolerance(0.05);
+        mXPID.setTolerance(0.02);
+        mYPID.setTolerance(0.02);
 
         addRequirements(mSwerveSubsystem);
     }

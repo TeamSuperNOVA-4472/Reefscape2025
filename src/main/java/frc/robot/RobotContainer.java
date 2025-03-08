@@ -318,7 +318,7 @@ public class RobotContainer
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stop()));
         Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
         driveTrigger.whileTrue(new DeferredCommand(() ->
-            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d())),
+            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(0, -0.2, new Rotation2d())),
             Set.of(mSwerveSubsystem))
         );
 
