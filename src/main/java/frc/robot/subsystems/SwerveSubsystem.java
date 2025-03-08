@@ -120,6 +120,8 @@ public class SwerveSubsystem extends SubsystemBase
     /** Creates a new ExampleSubsystem. */
     public SwerveSubsystem()
     {
+        kInstance = this;
+
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false);

@@ -13,9 +13,9 @@ public class ClimbTeleop extends Command
     Supplier<Boolean> mGrabOnCageButton;
     Supplier<Boolean> mClimbUpButton;
 
-    public ClimbTeleop(ClimbSubsystem pClimbSubsystem, Supplier<Boolean> pGrabOnCageButton, Supplier<Boolean> pClimbUpButton)
+    public ClimbTeleop(Supplier<Boolean> pGrabOnCageButton, Supplier<Boolean> pClimbUpButton)
     {
-        mClimbSubsystem = pClimbSubsystem;
+        mClimbSubsystem = ClimbSubsystem.instance();
         mClimbUpButton = pClimbUpButton;
         mGrabOnCageButton = pGrabOnCageButton;
     }    

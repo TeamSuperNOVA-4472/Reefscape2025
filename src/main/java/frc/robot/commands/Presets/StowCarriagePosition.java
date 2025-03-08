@@ -15,17 +15,18 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class StowCarriagePosition extends SequentialCommandGroup 
 {
-    public StowCarriagePosition(CarriageSubsystem pCarriage, ElevatorSubsystem pElevator, IntakeSubsystem pIntake)
+    public StowCarriagePosition()
     {
+        IntakeSubsystem intake = IntakeSubsystem.instance();
         CarriagePreset stowPreset;
-        if (pIntake.hasAlgae()) stowPreset = CarriagePreset.kStowAlgae;
+        if (intake.hasAlgae()) stowPreset = CarriagePreset.kStowAlgae;
         else stowPreset = CarriagePreset.kStowCoral;
 
         addCommands(
-            new moveToLevelSafe(pCarriage, pElevator, pIntake, stowPreset),
-            new MoveCarriageToPresetCommand(pCarriage, stowPreset),
+            new moveToLevelSafe(stowPreset),
+            new MoveCarriageToPresetCommand(stowPreset),
             new InstantCommand(
-                () -> pCarriage.setAlgaeMode(pIntake.hasAlgae())
+                () -> CarriageSubsystem.instance().setAlgaeMode(intake.hasAlgae())
             )
         );
     }    

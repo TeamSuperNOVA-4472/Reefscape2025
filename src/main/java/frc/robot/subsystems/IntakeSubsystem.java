@@ -38,6 +38,8 @@ public class IntakeSubsystem extends SubsystemBase
 
     public IntakeSubsystem()
     {
+        kInstance = this;
+
         mCoralIntake = new TalonFX(23, "CANivore");
         mAlgaeIntake = new TalonFX(24, "CANivore");
         

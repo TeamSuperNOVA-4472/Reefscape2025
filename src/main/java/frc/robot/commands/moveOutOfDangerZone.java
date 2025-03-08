@@ -17,11 +17,11 @@ public class moveOutOfDangerZone extends Command
     double newWristTarget;
     double newArmTarget;
 
-    public moveOutOfDangerZone(CarriageSubsystem pCarriageSubsystem, IntakeSubsystem pIntakeSubsystem)
+    public moveOutOfDangerZone()
     {
-        mCarriageSubsystem = pCarriageSubsystem;
-        mIntakeSubsystem = pIntakeSubsystem;
-        addRequirements(mCarriageSubsystem);
+        mCarriageSubsystem = CarriageSubsystem.instance();
+        mIntakeSubsystem = IntakeSubsystem.instance();
+        addRequirements(mCarriageSubsystem, mIntakeSubsystem);
     }
 
     @Override

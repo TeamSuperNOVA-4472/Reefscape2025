@@ -57,7 +57,7 @@ public class ElevatorSubsystem extends SubsystemBase
 
     private LightStatusRequest lights;
 
-    public ElevatorSubsystem(LightsSubsystem lightController)
+    public ElevatorSubsystem()
     {
         kInstance = this;
 
@@ -79,7 +79,7 @@ public class ElevatorSubsystem extends SubsystemBase
         leftConfig.withMotorOutput(leftMotorConfig);
         mElevatorLeft.getConfigurator().apply(leftConfig);
         lights = new LightStatusRequest(LightState.kOff, -1);
-        lightController.addRequest(lights);
+        LightsSubsystem.instance().addRequest(lights);
         elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
         activePreset = Optional.of(CarriagePreset.kStowCoral);
     }

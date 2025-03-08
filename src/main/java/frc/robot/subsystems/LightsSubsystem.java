@@ -52,6 +52,8 @@ public class LightsSubsystem extends SubsystemBase
 
     public LightsSubsystem()
     {
+        kInstance = this;
+
         lightData = new AddressableLEDBuffer(kLightCount);
         try
         {
