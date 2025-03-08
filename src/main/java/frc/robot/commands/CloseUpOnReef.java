@@ -23,14 +23,14 @@ public class CloseUpOnReef extends Command {
 
     private final Pose2d mDestination;
     
-    public CloseUpOnReef(SwerveSubsystem pSwerveSubsystem, Transform2d pTransform)
+    public CloseUpOnReef(SwerveSubsystem pSwerveSubsystem, Pose2d pDestination)
     {
         mSwerveSubsystem = pSwerveSubsystem;
 
-        mDestination = mSwerveSubsystem.getPose().transformBy(pTransform);
+        mDestination = pDestination;
 
-        mXPID = new PIDController(1, 0, 10);
-        mYPID = new PIDController(1, 0, 10);
+        mXPID = new PIDController(5, 0, 0.05);
+        mYPID = new PIDController(5, 0, 0.05);
 
         mXPID.setTolerance(0.05);
         mYPID.setTolerance(0.05);
