@@ -75,6 +75,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+  
+    m_robotContainer.resetHeadingToAlliance();
   }
 
   /** This function is called periodically during operator control. */

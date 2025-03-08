@@ -8,11 +8,12 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.SwerveTeleop;
-import frc.robot.subsystems.CameraSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 import java.util.List;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -48,7 +49,7 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem mSwerveSubsystem = new SwerveSubsystem();
-  private final CameraSubsystem mCameraSubsystem = new CameraSubsystem();
+  private final VisionSubsystem mVisionSubsystem = new VisionSubsystem(mSwerveSubsystem);
 
   private final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
   private final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
@@ -69,6 +70,14 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+    mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
+      // Update the swerve's odometry with the new vision estimate.
+      /*Pose2d vision = newVisionPose.estimatedPose.toPose2d();
+      Pose2d current = mSwerveSubsystem.getPose();
+
+      Pose2d measurement = new Pose2d(vision.getTranslation(), current.getRotation());*/
+      mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(), newVisionPose.timestampSeconds);
+  });
     NamedCommands.registerCommand("DoTheThingCommand", new DoTheThingCommand());
     new EventTrigger("TheEvent").onTrue(
       new InstantCommand(() -> System.out.println("The Event has triggered")));
@@ -90,33 +99,7 @@ public class RobotContainer {
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
     Trigger xTrigger = new Trigger(mDriver::getXButton);
-    xTrigger.whileTrue(
-      new SequentialCommandGroup(
-        new DriveDistanceAndHeading(
-          mSwerveSubsystem,
-          () -> {
-            Pose2d cameraOffsetPose = mCameraSubsystem
-              .calculateOffsetFromDest(
-                new Pose2d(
-                  1.0,
-                  0,
-                  Rotation2d.fromDegrees(180)));
-            return new Pose2d(0, 0, cameraOffsetPose.getRotation());
-          }),
-        new DriveDistanceAndHeading(
-          mSwerveSubsystem,
-          () -> {
-            Pose2d cameraOffsetPose = mCameraSubsystem
-              .calculateOffsetFromDest(
-                new Pose2d(
-                  1.0,
-                  0,
-                  Rotation2d.fromDegrees(180)));
-            return new Pose2d(cameraOffsetPose.getX(), cameraOffsetPose.getY(), Rotation2d.kZero);
-          })     
-      )
 
-    );
   }
 
 
@@ -131,5 +114,12 @@ public class RobotContainer {
     return new DriveDistanceAndHeading(
       mSwerveSubsystem,
       () -> new Pose2d(.5, .5, Rotation2d.fromDegrees(90)));
+  }
+
+  /**
+   * Used to establish field oriented control to the correct alliance side
+   */
+  public void resetHeadingToAlliance() {
+    mSwerveTeleop.resetHeadingToAlliance();
   }
 }

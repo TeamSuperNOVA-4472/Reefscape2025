@@ -6,10 +6,14 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.SwerveSubsystem;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import static frc.robot.Constants.SwerveConstants.*;
 
@@ -23,7 +27,8 @@ public class SwerveTeleop extends Command {
   private final SwerveSubsystem mSwerveSubsystem;
 
   private final PIDController mGyroController = new PIDController(0.05, 0, 0.0005);
-  private double mTargetHeading;
+  private double mChassisHeadingDegrees;
+  private double mFieldHeadingDegrees;
 
   /**
    * Creates a new ExampleCommand.
@@ -42,7 +47,8 @@ public class SwerveTeleop extends Command {
     mResetHeadingInput = pResetHeadingInput;
     mSwerveSubsystem = pSwerveSubsystem;
   
-    mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
+    mChassisHeadingDegrees = mSwerveSubsystem.getHeadingDegrees();
+    mFieldHeadingDegrees = 0;
   
     mGyroController.enableContinuousInput(0, 360);
 
@@ -60,20 +66,47 @@ public class SwerveTeleop extends Command {
 
 
     if(updatedTurnSpeedRadS == 0.0 && (updatedFwdSpeedMS != 0 || updatedSideSpeedMS != 0)) {
-      updatedTurnSpeedRadS = mGyroController.calculate(mSwerveSubsystem.getHeadingDegrees(), mTargetHeading);
+      updatedTurnSpeedRadS = mGyroController.calculate(mSwerveSubsystem.getGyroDegrees(), mChassisHeadingDegrees);
     } else {
-      mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
+      mChassisHeadingDegrees = mSwerveSubsystem.getGyroDegrees();
     }
 
     ChassisSpeeds updatedSpeeds = new ChassisSpeeds(
       updatedFwdSpeedMS,
       updatedSideSpeedMS, 
       updatedTurnSpeedRadS);
-    mSwerveSubsystem.driveFieldOriented(updatedSpeeds);
+    mSwerveSubsystem.driveFieldOriented(updatedSpeeds, mFieldHeadingDegrees);
 
     if(mResetHeadingInput.get()) {
-      mSwerveSubsystem.resetHeading();
+      resetFieldHeading();
     }
+    SmartDashboard.putNumber("Field Heading", mFieldHeadingDegrees);
+    SmartDashboard.putNumber("Chassis Heading", mChassisHeadingDegrees);
+    SmartDashboard.putNumber("Odometry Heading", mSwerveSubsystem.getHeadingDegrees());
+  }
+
+  private void resetFieldHeading() {
+    mFieldHeadingDegrees = mSwerveSubsystem.getGyroDegrees();
+    mChassisHeadingDegrees = mSwerveSubsystem.getGyroDegrees();
+  }
+
+  public void resetHeadingToAlliance() {
+    Optional<Alliance> alliance = DriverStation.getAlliance();
+    if(alliance.isEmpty()) {
+      return;
+    }
+
+
+    double targetOdomFieldHeading = 0;
+    if(alliance.get() == Alliance.Red) {
+      targetOdomFieldHeading = 180;
+    }
+    mFieldHeadingDegrees =
+      mSwerveSubsystem.getGyroDegrees()
+        - mSwerveSubsystem.getHeadingDegrees()
+        + targetOdomFieldHeading;
+
+    mChassisHeadingDegrees = mSwerveSubsystem.getGyroDegrees();
   }
 
 }
