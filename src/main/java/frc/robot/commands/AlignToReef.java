@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.ctre.phoenix.CANifier.PinValues;
 import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -54,8 +56,11 @@ public class AlignToReef extends SequentialCommandGroup {
 
         super.addCommands(
             pathFindToPlace(), 
-            new CloseUpOnReef(mSwerveSubsystem, new Transform2d(0, -0.1, new Rotation2d()))
-            );
+            new DeferredCommand(() ->
+                new CloseUpOnReef(mSwerveSubsystem, new Transform2d(0, 0.2, new Rotation2d())),
+                Set.of(mSwerveSubsystem)
+            )
+        );
     }
 
     private ArrayList<Pose2d> createPoses()

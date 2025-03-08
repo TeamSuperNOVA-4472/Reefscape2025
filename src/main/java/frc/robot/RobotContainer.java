@@ -109,7 +109,7 @@ public class RobotContainer
 
         Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
         driveTrigger.whileTrue(new DeferredCommand(() ->
-            new CloseUpOnReef(mSwerveSubsystem, new Transform2d(0, -0.1, new Rotation2d())),
+            new CloseUpOnReef(mSwerveSubsystem, new Transform2d(0, -0.2, new Rotation2d())),
             Set.of(mSwerveSubsystem))
         );
 
