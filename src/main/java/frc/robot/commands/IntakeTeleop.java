@@ -12,11 +12,11 @@ public class IntakeTeleop extends Command
     private final IntakeSubsystem mIntakeSubsystem;
     Supplier<Boolean> mIntakeButton;
     Supplier<Boolean> mOuttakeButton;
-    public IntakeTeleop(IntakeSubsystem pIntakeSubsystem, Supplier<Boolean> pIntakeButton, Supplier<Boolean> pOuttakeButton)
+    public IntakeTeleop(Supplier<Boolean> pIntakeButton, Supplier<Boolean> pOuttakeButton)
     {
         mIntakeButton = pIntakeButton;
         mOuttakeButton = pOuttakeButton;
-        mIntakeSubsystem = pIntakeSubsystem;
+        mIntakeSubsystem = IntakeSubsystem.instance();
         addRequirements(mIntakeSubsystem);
     }
 

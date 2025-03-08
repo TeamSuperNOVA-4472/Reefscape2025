@@ -48,20 +48,19 @@ public class SwerveTeleop extends Command
     public SwerveTeleop(Supplier<Double> pFwdInput,
             Supplier<Double> pSideInput,
             Supplier<Double> pTurnInput,
-            Supplier<Boolean> pResetHeadingInput,
-            SwerveSubsystem pSwerveSubsystem)
+            Supplier<Boolean> pResetHeadingInput)
     {
         mFwdInput = pFwdInput;
         mSideInput = pSideInput;
         mTurnInput = pTurnInput;
         mResetHeadingInput = pResetHeadingInput;
-        mSwerveSubsystem = pSwerveSubsystem;
+        mSwerveSubsystem = SwerveSubsystem.instance();
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 
         mGyroController.enableContinuousInput(0, 360);
 
-        addRequirements(pSwerveSubsystem);
+        addRequirements(mSwerveSubsystem);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

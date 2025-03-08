@@ -14,6 +14,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase 
 {
+    private static IntakeSubsystem kInstance;
+    public static IntakeSubsystem instance()
+    {
+        return kInstance;
+    }
 
     public static final int kIntakeMotorId = 1;
     public static final double kCoralIntakeVoltage = 4;
@@ -33,6 +38,8 @@ public class IntakeSubsystem extends SubsystemBase
 
     public IntakeSubsystem()
     {
+        kInstance = this;
+
         mCoralIntake = new TalonFX(23, "CANivore");
         mAlgaeIntake = new TalonFX(24, "CANivore");
         
