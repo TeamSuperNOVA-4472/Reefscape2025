@@ -79,14 +79,14 @@ public class SwerveTeleop extends Command
         double updatedSideSpeedMS = mSideInput.get() * kMaxSpeedMS;
         double updatedTurnSpeedRadS = mTurnInput.get() * kMetersPerSecondToRadiansPerSecond * kMaxSpeedMS;
 
-        if (updatedTurnSpeedRadS == 0.0 && (updatedFwdSpeedMS != 0 || updatedSideSpeedMS != 0))
+        /*if (updatedTurnSpeedRadS == 0.0 && (updatedFwdSpeedMS != 0 || updatedSideSpeedMS != 0))
         {
             updatedTurnSpeedRadS = mGyroController.calculate(mSwerveSubsystem.getHeadingDegrees(), mTargetHeading);
         }
         else
         {
             mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
-        }
+        }*/
 
         ChassisSpeeds updatedSpeeds = new ChassisSpeeds(
                 updatedFwdSpeedMS,
@@ -98,6 +98,9 @@ public class SwerveTeleop extends Command
         {
             mSwerveSubsystem.resetHeading();
         }
+
+        SmartDashboard.putString("Swerve pose: ", mSwerveSubsystem.getPose().toString());
+        SmartDashboard.putNumber("Swerve rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
 
     }
 }
