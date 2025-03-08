@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.121633502410815,
-        "y": 3.981415562913906
+        "x": 7.118791390728477,
+        "y": 4.003207781456953
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.465765479674799,
-        "y": 3.971428829435185
+        "x": 6.406912251655629,
+        "y": 3.995943708609271
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.94492910867855,
-        "y": 3.981415562913906
+        "x": 5.943842356166344,
+        "y": 4.1459143661121125
       },
       "prevControl": {
-        "x": 6.531303906583824,
-        "y": 3.9769403254245628
+        "x": 6.539496329676277,
+        "y": 4.131386220416749
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ReefMidLink"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 178.72696997994336
   },
   "reversed": false,
-  "folder": "Old Autos (may need them later)",
+  "folder": "MidPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -179.45588580855699
+    "rotation": -179.68519119261092
   },
   "useDefaultConstraints": true
 }
