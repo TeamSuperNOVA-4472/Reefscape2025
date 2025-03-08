@@ -189,6 +189,6 @@ public class AlignToReef extends SequentialCommandGroup {
     private boolean isBlueAlliance()
     {
         // Returns true if the robot is connected to the FMS and on the blue alliance
-        return DriverStation.getAlliance().get().equals(Alliance.Blue);
+        return DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get().equals(Alliance.Blue);
     }
 }
