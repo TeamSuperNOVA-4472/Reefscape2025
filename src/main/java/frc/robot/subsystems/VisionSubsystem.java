@@ -33,6 +33,7 @@ public class VisionSubsystem extends SubsystemBase
 {
     public static final VisionSubsystem kInstance = new VisionSubsystem();
 
+    // TODO: CHANGE BACK TO OG
     // The first camera in this array is considered the "main camera."
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
@@ -232,7 +233,6 @@ public class VisionSubsystem extends SubsystemBase
 
         if (getPoseInfo()!=null&&getTargetInView().isPresent())
         {
-            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Pose", getPose().toString());
             Pose3d dest = tagLayout.getTagPose(getTargetInView().get().fiducialId).get();
             double destDeg = ((dest.getRotation().toRotation2d().getDegrees())+360)%360;
             double currentDeg = (getPose().getRotation().toRotation2d().getDegrees()+360)%360;
@@ -243,6 +243,11 @@ public class VisionSubsystem extends SubsystemBase
                 SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision mY", getCameraToTarget(getTargetInView().get()).getY());
                 SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision difference in Y", dest.getY() - getPose().getY());
             }
+        }
+
+        if (getPoseInfo()!=null)
+        {
+            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Pose String: ", getPose().toString());
         }
 
         if (RobotBase.isSimulation())
@@ -297,6 +302,10 @@ public class VisionSubsystem extends SubsystemBase
 
     public boolean isActive()
     {
+        if (RobotBase.isSimulation())
+        {
+            return initPass && enabled;
+        }
         return initPass && mainConnectedPass && enabled;
     }
     public void enable()
