@@ -3,7 +3,6 @@ package frc.robot.commands.tester;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.objectmodels.IntakePresets;
 import frc.robot.subsystems.CarriageSubsystem;
 
 public class CarriageTester extends Command 
@@ -18,20 +17,23 @@ public class CarriageTester extends Command
         mWristVoltage = pWristVoltage;
         mCarriageSubsystem = pCarriageSubsystem;
         addRequirements(mCarriageSubsystem);
+
+        mCarriageSubsystem.setArmPreset(CarriageSubsystem.armMovingAngle);
+        mCarriageSubsystem.setWristPreset(CarriageSubsystem.wristMovingAngle);
     }
     
     @Override
     public void initialize() {
         //mCarriageSubsystem.stop();
-        mCarriageSubsystem.setActivePreset(IntakePresets.kAway);
         mCarriageSubsystem.resetWristPID();
+        mCarriageSubsystem.resetArmPID();
     }
 
     @Override
     public void execute()
     {
-        //mCarriageSubsystem.setArmVoltage(mElbowVoltage.get()*6);
-        //mCarriageSubsystem.setWristVoltage(mWristVoltage.get()*6);
+        //mCarriageSubsystem.setManualArmVoltage(mElbowVoltage.get()*6);
+        //mCarriageSubsystem.setManualWristVoltage(mWristVoltage.get()*6);
 
     }
 }

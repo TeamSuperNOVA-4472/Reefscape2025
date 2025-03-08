@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "MoveLevel1"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "MidtoRightReef"
@@ -13,7 +19,25 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreLevel4Right"
+            "name": "OuttakeCoral"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Away reef"
           }
         }
       ]
