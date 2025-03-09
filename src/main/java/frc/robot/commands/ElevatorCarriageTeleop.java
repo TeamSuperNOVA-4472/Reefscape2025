@@ -7,12 +7,24 @@ import frc.robot.subsystems.ElevatorCarriageSubsystem;
 public class ElevatorCarriageTeleop extends Command 
 {
     private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
+
     private final XboxController mController;
-    public ElevatorCarriageTeleop(ElevatorCarriageSubsystem pElevatorCarriageSubsystem, XboxController pController)
+
+    public ElevatorCarriageTeleop(XboxController pController)
     {
-        mElevatorCarriageSubsystem = pElevatorCarriageSubsystem;
+        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.instance();
+
         mController = pController;
-        addRequirements(pElevatorCarriageSubsystem);
+
+        addRequirements(mElevatorCarriageSubsystem);
+
+        mElevatorCarriageSubsystem.resetEncoder();
+    }
+
+    @Override
+    public void initialize()
+    {
+        mElevatorCarriageSubsystem.stop();
     }
 
     @Override
@@ -42,5 +54,11 @@ public class ElevatorCarriageTeleop extends Command
         {
             //do ground pickup command
         }*/
+        mElevatorCarriageSubsystem.setElevatorVoltage(-mController.getLeftY() * 6);
+
+        mElevatorCarriageSubsystem.setArmVoltage(-mController.getRightY() * 12);
+
+        mElevatorCarriageSubsystem.setWristVoltage(mController.getRightX() * 2);
+    
     }
 }

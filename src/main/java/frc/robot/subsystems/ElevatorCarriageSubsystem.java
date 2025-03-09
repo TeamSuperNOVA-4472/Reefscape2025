@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.objectmodels.LightState;
@@ -23,15 +24,20 @@ import frc.robot.objectmodels.LightStatusRequest;
 // ALL MAIN VARIABLES
 public class ElevatorCarriageSubsystem extends SubsystemBase
 {
+    private static ElevatorCarriageSubsystem kInstance = new ElevatorCarriageSubsystem();
+
+    public static ElevatorCarriageSubsystem instance()
+    {
+        return kInstance;
+    }
+
     public static final int kLeftElevatorMotorID = 0;
 
     public static final int kRightElevatorMotorID = 1;
 
-    public static final int kArmMotorId = 22;
+    public static final int kArmMotorId = 20;
 
-    public static final int kWristMotorId = 20;
-
-    private final DutyCycleEncoder mElevatorEncoder;
+    public static final int kWristMotorId = 22;
 
     private final DutyCycleEncoder mWristEncoder;
 
@@ -42,6 +48,12 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     private DigitalInput topSwitch;
 
     private LightStatusRequest lights;
+
+    private static final double armOffset = 210;
+
+    private static final double wristOffset = 130;
+
+    private static final double angleOverflowMin = 200;
 
     public static final double initialHeight = 12.875;
 
@@ -69,7 +81,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
 
     private static final double kWristKG = 0.3;
 
-    private static final double rotationsToInches = 0.45;
+    private static final double rotationsToInches = 0.45*1.935;
 
     private final TalonFX mLeftElevatorMotor;
 
@@ -88,47 +100,83 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     private Optional<CarriagePreset> carriagePreset = Optional.empty();
 
     // MAIN CONSTUCTOR
-    public ElevatorCarriageSubsystem()
+    private ElevatorCarriageSubsystem()
     {
-        mLeftElevatorMotor = new TalonFX(kLeftElevatorMotorID, "CANivore");
+        mLeftElevatorMotor = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
 
-        mRightElevatorMotor = new TalonFX(kRightElevatorMotorID, "CANivore");
+        TalonFXConfiguration leftConfig = new TalonFXConfiguration();
+
+        CurrentLimitsConfigs leftCurrentConfig = new CurrentLimitsConfigs();
+
+        MotorOutputConfigs leftMotorConfig = new MotorOutputConfigs();
+
+        mLeftElevatorMotor.getConfigurator().refresh(leftConfig);
+
+        mLeftElevatorMotor.getConfigurator().refresh(leftCurrentConfig);
+
+        mLeftElevatorMotor.getConfigurator().refresh(leftMotorConfig);
+
+        leftCurrentConfig.SupplyCurrentLimit = 30;
+
+        leftCurrentConfig.SupplyCurrentLimitEnable = true;
+
+        leftCurrentConfig.StatorCurrentLimitEnable = true;
+
+        leftCurrentConfig.StatorCurrentLimit = 30;
+
+        leftMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
+
+        leftMotorConfig.NeutralMode = NeutralModeValue.Brake;
+
+        leftConfig.withCurrentLimits(leftCurrentConfig);
+
+        leftConfig.withMotorOutput(leftMotorConfig);
+
+        lights = new LightStatusRequest(LightState.kOff, -1);
+
+        LightsSubsystem.instance().addRequest(lights);
+
+        mLeftElevatorMotor.getConfigurator().apply(leftConfig);
+
+        mRightElevatorMotor = new TalonFX(kRightElevatorMotorID, "rio");
+
+        TalonFXConfiguration rightConfig = new TalonFXConfiguration();
+
+        CurrentLimitsConfigs rightCurrentConfig = new CurrentLimitsConfigs();
+
+        MotorOutputConfigs rightMotorConfig = new MotorOutputConfigs();
+
+        mRightElevatorMotor.getConfigurator().refresh(rightConfig);
+
+        mRightElevatorMotor.getConfigurator().refresh(rightCurrentConfig);
+
+        mRightElevatorMotor.getConfigurator().refresh(rightMotorConfig);
+
+        mRightElevatorMotor.getConfigurator().apply(rightConfig);
+
+        rightCurrentConfig.SupplyCurrentLimit = 30;
+
+        rightCurrentConfig.SupplyCurrentLimitEnable = true;
+
+        rightCurrentConfig.StatorCurrentLimitEnable = true;
+
+        rightCurrentConfig.StatorCurrentLimit = 30;
+
+        rightMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
+
+        rightMotorConfig.NeutralMode = NeutralModeValue.Brake;
+
+        rightConfig.withCurrentLimits(rightCurrentConfig);
+
+        rightConfig.withMotorOutput(rightMotorConfig);
 
         mArmMotor = new TalonFX(kArmMotorId, "CANivore");
 
         mWristMotor = new TalonFX(kWristMotorId, "CANivore");
 
-        TalonFXConfiguration elevatorConfig = new TalonFXConfiguration();
+        mArmEncoder = new DutyCycleEncoder(0);
 
-        CurrentLimitsConfigs elevatorCurrentConfig = new CurrentLimitsConfigs();
-
-        MotorOutputConfigs elevatorMotorConfig = new MotorOutputConfigs();
-
-        mLeftElevatorMotor.getConfigurator().refresh(elevatorConfig);
-
-        mRightElevatorMotor.getConfigurator().refresh(elevatorConfig);
-
-        elevatorCurrentConfig.SupplyCurrentLimit = 30;
-
-        elevatorCurrentConfig.SupplyCurrentLimitEnable = true;
-
-        elevatorMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
-
-        elevatorMotorConfig.NeutralMode = NeutralModeValue.Brake;
-
-        elevatorConfig.withCurrentLimits(elevatorCurrentConfig);
-
-        elevatorConfig.withMotorOutput(elevatorMotorConfig);
-
-        mLeftElevatorMotor.getConfigurator().apply(elevatorConfig);
-
-        mRightElevatorMotor.getConfigurator().apply(elevatorConfig);
-
-        mElevatorEncoder = new DutyCycleEncoder(0);
-
-        mArmEncoder = new DutyCycleEncoder(1);
-
-        mWristEncoder = new DutyCycleEncoder(2);
+        mWristEncoder = new DutyCycleEncoder(1);
 
         elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
 
@@ -151,6 +199,15 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
         mWristMotor.stopMotor();
     }
 
+    public void resetEncoder()
+    {
+        mLeftElevatorMotor.setPosition(0);
+
+        mRightElevatorMotor.setPosition(0);
+
+        elevatorPID.reset(initialHeight);
+    }
+
     // SET ELEVATOR VOLTAGE METHOD
     public void setElevatorVoltage(double voltage)
     {
@@ -160,10 +217,13 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     }
 
     // SET CARRIAGE VOLTAGE METHOD
-    public void setCarriageVoltage(double voltage)
+    public void setArmVoltage(double voltage)
     {
         mArmMotor.setVoltage(voltage);
+    }
 
+    public void setWristVoltage(double voltage)
+    {
         mWristMotor.setVoltage(voltage);
     }
 
@@ -173,10 +233,15 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
         carriagePreset = Optional.of(preset);
     }
 
+    public Optional<CarriagePreset> getActivePreset()
+    {
+        return carriagePreset;
+    }
+
     // GET ELEVATOR POSITION METHOD
     public double getElevatorPosition()
     {
-        return mElevatorEncoder.get() * 360;
+        return mLeftElevatorMotor.getPosition().getValueAsDouble() * rotationsToInches + initialHeight;
     }
 
     // GET CARRIAGE X POSITION METHOD
@@ -211,7 +276,20 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     // GETS ARM ANGLE METHOD
     public double getArmAngle() 
     {
-        return mArmEncoder.get() * 360;
+        double armAngle = mArmEncoder.get() * 360;
+
+        return armAngle - armOffset;
+    }
+
+    public double getWristAngle()
+    {
+        double wristAngle = mWristEncoder.get() * 360;
+        
+        // Compensate for values above our expected range.
+        // If the true angle is above our range, subtract a full rotation.
+        if (wristAngle > angleOverflowMin) wristAngle -= 360;
+
+        return wristAngle - wristOffset;
     }
 
     // GETS WRIST ANGLE METHOD
@@ -274,11 +352,31 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
         return (curHeight - tarHeight) <= needed;
     }
 
+    public double getArmSetpoint()
+    {
+        // If a preset is set, that's its "setpoint."
+        if (carriagePreset.isPresent()) return carriagePreset.get().kArmPreset;
+
+        else return 0.0;
+    }
+
+    public double getWristSetpoint() 
+    {
+        // If a preset is set, that's its "setpoint."
+        if (carriagePreset.isPresent()) return carriagePreset.get().kWristPreset;
+
+        else return 0.0;
+    }
+
     // MAIN PERIODIC METHOD
     @Override
     public void periodic()
     {
         SmartDashboard.putNumber("Elevator Position", getElevatorPosition());
+
+        SmartDashboard.putNumber("Arm Position", getArmAngle());
+
+        SmartDashboard.putNumber("Wrist Position", getWristAngle());
 
         if (carriagePreset.isPresent())
         {

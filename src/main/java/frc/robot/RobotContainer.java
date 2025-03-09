@@ -33,6 +33,7 @@ import frc.robot.commands.Presets.CoralL4Preset;
 import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
 import frc.robot.commands.DriveDistanceAndHeading;
+import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.VisionAlignCommand;
 import frc.robot.commands.tester.CarriageTester;
@@ -42,6 +43,7 @@ import frc.robot.commands.tester.IntakeTester;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
@@ -86,12 +88,12 @@ public class RobotContainer
     // Subsystems go here:
     public LightsSubsystem mLightsSubsystem;
     private VisionSubsystem mVisionSubsystem;
-    private final CarriageSubsystem mCarriageSubsystem;
-    //private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
-    private final ElevatorSubsystem mElevatorSubsystem;
+    //private final CarriageSubsystem mCarriageSubsystem;
+    private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
+    //private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakeSubsystem mIntakeSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
-    private final ClimbSubsystem mClimbSubsystem;
+    // private final ClimbSubsystem mClimbSubsystem;
 
     // Controllers go here:
     private final XboxController mDriver;
@@ -99,14 +101,13 @@ public class RobotContainer
     
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
+    private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     //private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     //private final IntakeTeleop mIntakeTeleop;
 
     // TODO: Remove tester commands when robot is properly programmed
-    private final ElevatorTester mElevatorTester;
-    private final CarriageTester mCarriageTester;
     private final IntakeTester mIntakeTester;
-    private final ClimberTester mClimberTester;
+    // private final ClimberTester mClimberTester;
 
     // TODO: In the future I think more triggers should be brought out here.
     private final Trigger algaeTrigger, algaeHighTrigger;
@@ -122,12 +123,12 @@ public class RobotContainer
 
         // Initialize subsystems.
         mLightsSubsystem = new LightsSubsystem();
-        mSwerveSubsystem = new SwerveSubsystem();
+        mSwerveSubsystem = SwerveSubsystem.instance();
         mVisionSubsystem = new VisionSubsystem();
-        mCarriageSubsystem = new CarriageSubsystem();
-        mElevatorSubsystem = new ElevatorSubsystem();
-        mClimbSubsystem = new ClimbSubsystem();
-        //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
+        //mCarriageSubsystem = new CarriageSubsystem();
+        //mElevatorSubsystem = new ElevatorSubsystem();
+        // mClimbSubsystem = new ClimbSubsystem();
+        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.instance();
         mIntakeSubsystem = new IntakeSubsystem();
 
         // Initialize commands.
@@ -139,23 +140,25 @@ public class RobotContainer
             weightJoystick(mDriver::getLeftX, true),
             weightJoystick(mDriver::getRightX, true),
             mDriver::getAButton);
+
+        mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mPartner);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         Trigger carriage = new Trigger(() -> (mPartner.getRightBumperButton() && !mIntakeSubsystem.hasCoral()));
-        carriage.whileTrue( // FIXME: This is a MONSTROUS trigger. PLEASE make this its own command file.
-            new ConditionalCommand(
-                new InstantCommand(),
-                new LoadCoral(), 
-                () -> 
-                    mIntakeSubsystem.hasAlgae() ||
-                    (mCarriageSubsystem.getActivePreset().isPresent() &&
-                     mCarriageSubsystem.getActivePreset().get().equals(CarriagePreset.kCoralLoad)))
-            .andThen(
-                new InstantCommand(
-                    () -> mIntakeSubsystem.intakeCoral()
-                )
-            )
-        );
+        // carriage.whileTrue( // FIXME: This is a MONSTROUS trigger. PLEASE make this its own command file.
+        //     new ConditionalCommand(
+        //         new InstantCommand(),
+        //         new LoadCoral(), 
+        //         () -> 
+        //             mIntakeSubsystem.hasAlgae() ||
+        //             (mCarriageSubsystem.getActivePreset().isPresent() &&
+        //              mCarriageSubsystem.getActivePreset().get().equals(CarriagePreset.kCoralLoad)))
+        //     .andThen(
+        //         new InstantCommand(
+        //             () -> mIntakeSubsystem.intakeCoral()
+        //         )
+        //     )
+        // );
         carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));//.andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
         Trigger scoreTrigger = new Trigger(() -> mPartner.getRightTriggerAxis() > 0);
@@ -165,9 +168,9 @@ public class RobotContainer
         scoreTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new InstantCommand(() -> mIntakeSubsystem.setCoral(false))));
 
         Trigger l1Trigger = new Trigger(mPartner::getAButton);
-        l1Trigger.whileTrue(
-            new CoralL1Preset()
-        );
+        // l1Trigger.whileTrue(
+         //   new CoralL1Preset()
+        // );
         l1Trigger.onFalse(stowCarriage());
 
         Trigger l2Trigger = new Trigger(mPartner::getXButton);
@@ -249,21 +252,18 @@ public class RobotContainer
         );
 
         Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton);
-        climbTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new ArmBackPreset(), () -> mCarriageSubsystem.getArmSetpoint() == 95.0));
+        //climbTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new ArmBackPreset(), () -> mCarriageSubsystem.getArmSetpoint() == 95.0));
         Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
 
         // TODO: remove tester commands when robot is properly programmed
-        mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
-        mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
+        //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
+        //mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
         mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
-        mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
+        // mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
         // Configure subsystems
         // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
         // This is the fastest fix I could make.
-        mSwerveSubsystem.setDefaultCommand(new ConditionalCommand(
-            new InstantCommand(), // If the climb is closing, don't do anything.
-            mSwerveTeleop,        // Otherwise normal.
-            () -> mClimbSubsystem.isClosingOrClosed()));
+        mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
         /*mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
             mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
@@ -274,10 +274,11 @@ public class RobotContainer
         // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
 
         // TODO: remove tester commands when robot is properly programmed
-        mElevatorSubsystem.setDefaultCommand(mElevatorTester);
-        mCarriageSubsystem.setDefaultCommand(mCarriageTester);
+        //mElevatorSubsystem.setDefaultCommand(mElevatorTester);
+        //mCarriageSubsystem.setDefaultCommand(mCarriageTester);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
-        mClimbSubsystem.setDefaultCommand(mClimberTester);
+        mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        // mClimbSubsystem.setDefaultCommand(mClimberTester);
 
 
         // Register named commands.

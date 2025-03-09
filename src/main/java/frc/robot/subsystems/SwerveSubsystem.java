@@ -29,7 +29,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
-    private static SwerveSubsystem kInstance;
+    private static SwerveSubsystem kInstance = new SwerveSubsystem();
     public static SwerveSubsystem instance()
     {
         return kInstance;
@@ -118,9 +118,8 @@ public class SwerveSubsystem extends SubsystemBase
     }
 
     /** Creates a new ExampleSubsystem. */
-    public SwerveSubsystem()
+    private SwerveSubsystem()
     {
-        kInstance = this;
 
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
