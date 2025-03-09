@@ -1,6 +1,7 @@
-package frc.robot.commands;
+package frc.robot.commands.Vision;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -16,21 +17,32 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class CloseUpOnReef extends Command {
+    public static enum Direction {
+        LEFT,
+        RIGHT,
+        MIDDLE
+    };
+
     private final SwerveSubsystem mSwerveSubsystem;
 
     private final PIDController mXPID;
     private final PIDController mYPID;
 
     private final Pose2d mDestination;
+    private final Supplier<Direction> mDirection;
+
+    private Pose2d mFixedDestination;
     
-    public CloseUpOnReef(SwerveSubsystem pSwerveSubsystem, Pose2d pDestination)
+    public CloseUpOnReef(SwerveSubsystem pSwerveSubsystem, Pose2d pDestination, Supplier<Direction> pDirection)
     {
         mSwerveSubsystem = pSwerveSubsystem;
+        mDirection = pDirection;
 
         mDestination = pDestination;
+        mFixedDestination = mDestination.transformBy(getTransform(mDirection.get()));
 
-        mXPID = new PIDController(5, 0, 0.05);
-        mYPID = new PIDController(5, 0, 0.05);
+        mXPID = new PIDController(5, 0, 0.2);
+        mYPID = new PIDController(5, 0, 0.2);
 
         mXPID.setTolerance(0.02);
         mYPID.setTolerance(0.02);
@@ -43,15 +55,29 @@ public class CloseUpOnReef extends Command {
         Pose2d curPose = mSwerveSubsystem.getPose();
 
         ChassisSpeeds speed = new ChassisSpeeds(
-            -mXPID.calculate(curPose.getX(), mDestination.getX()),
-            -mYPID.calculate(curPose.getY(), mDestination.getY()),
+            -mXPID.calculate(curPose.getX(), mFixedDestination.getX()),
+            -mYPID.calculate(curPose.getY(), mFixedDestination.getY()),
             0
             // add rotation
         );
         SmartDashboard.putNumber("Error X: ", mXPID.getPositionError());
         SmartDashboard.putNumber("Error Y: ", mYPID.getPositionError());
         
+        mFixedDestination = mDestination.transformBy(getTransform(mDirection.get()));
         mSwerveSubsystem.driveFieldOriented(speed);
+    }
+
+    private Transform2d getTransform(Direction endDirection)
+    {
+        switch (endDirection)
+        {
+            case LEFT:
+                return new Transform2d(0.65, -0.5, new Rotation2d());
+            case RIGHT:
+                return new Transform2d(0.65, 0.5, new Rotation2d());
+            default:
+                return new Transform2d(0.65, 0, new Rotation2d());
+        }
     }
 
     @Override

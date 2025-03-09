@@ -6,11 +6,11 @@ package frc.robot;
 
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AlignToReef;
-import frc.robot.commands.CloseUpOnReef;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
-import frc.robot.commands.AlignToReef.EndTarget;
+import frc.robot.commands.Vision.AlignToReef;
+import frc.robot.commands.Vision.CloseUpOnReef;
+import frc.robot.commands.Vision.AlignToReef.EndTarget;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -103,15 +103,16 @@ public class RobotContainer
             new AlignToReef(
                 mSwerveSubsystem, 
                 mVisionSubsystem,
-                AlignToReef.EndTarget.FAR_RIGHT), 
+                AlignToReef.EndTarget.NEAR_RIGHT,
+                () -> CloseUpOnReef.Direction.LEFT),
             Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
         Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
         driveTrigger.whileTrue(new DeferredCommand(() ->
-            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d())),
+            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d()), () -> CloseUpOnReef.Direction.LEFT),
             Set.of(mSwerveSubsystem))
-        );
+        ); //FIXME delete because kyle is an opp :(
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
