@@ -36,8 +36,6 @@ import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AlignToReef;
-import frc.robot.commands.CloseUpOnReef;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.VisionAlignCommand;
@@ -51,7 +49,9 @@ import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.commands.AlignToReef.EndTarget;
+import frc.robot.commands.Vision.AlignToReef;
+import frc.robot.commands.Vision.CloseUpOnReef;
+import frc.robot.commands.Vision.AlignToReef.EndTarget;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -296,7 +296,8 @@ public class RobotContainer
             new AlignToReef(
                 mSwerveSubsystem, 
                 mVisionSubsystem,
-                AlignToReef.EndTarget.FAR_RIGHT), 
+                AlignToReef.EndTarget.NEAR_RIGHT,
+                () -> CloseUpOnReef.Direction.LEFT),
             Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
@@ -318,9 +319,9 @@ public class RobotContainer
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stop()));
         Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
         driveTrigger.whileTrue(new DeferredCommand(() ->
-            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(0, -0.2, new Rotation2d())),
+            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d()), () -> CloseUpOnReef.Direction.LEFT),
             Set.of(mSwerveSubsystem))
-        );
+        ); //FIXME delete because kyle is an opp :(
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();

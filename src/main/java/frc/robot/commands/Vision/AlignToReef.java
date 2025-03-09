@@ -1,10 +1,11 @@
-package frc.robot.commands;
+package frc.robot.commands.Vision;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix.CANifier.PinValues;
 import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.Vision.CloseUpOnReef.Direction;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -41,6 +43,7 @@ public class AlignToReef extends SequentialCommandGroup {
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
     private final EndTarget mEndTarget;
+    private final Supplier<CloseUpOnReef.Direction> mStickTarget;
 
     private final Transform2d wayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
     private final Transform2d endingPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
@@ -48,19 +51,18 @@ public class AlignToReef extends SequentialCommandGroup {
     public AlignToReef(
         SwerveSubsystem pSwerveSubsystem, 
         VisionSubsystem pVisionSubsystem, 
-        EndTarget pEndTarget)
+        EndTarget pEndTarget,
+        Supplier<CloseUpOnReef.Direction> pStickTarget)
     {
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
         mEndTarget = pEndTarget;
+        mStickTarget = pStickTarget;
 
         super.addCommands(
-            pathFindToPlace(), 
-            new DeferredCommand(() ->
-                new CloseUpOnReef(mSwerveSubsystem, new Pose2d(0, 0.2, new Rotation2d())),
-                Set.of(mSwerveSubsystem)
-            )
-        );
+            pathFindToPlace()
+            //new CloseUpOnReef(mSwerveSubsystem, findTargetPose(mEndTarget), pStickTarget)
+            );
     }
 
     private ArrayList<Pose2d> createPoses()
