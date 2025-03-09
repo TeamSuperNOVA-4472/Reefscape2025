@@ -45,7 +45,7 @@
     "rotation": -128.65980825409014
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Vision Test Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 116.56505117707795
