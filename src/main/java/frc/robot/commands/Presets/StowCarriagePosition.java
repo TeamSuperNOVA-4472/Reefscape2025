@@ -3,19 +3,29 @@ package frc.robot.commands.Presets;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.commands.MoveCarriageToPresetCommand;
-import frc.robot.commands.MoveToLevelCommand;
+import frc.robot.commands.moveToLevelSafe;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.CarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
+/**
+ * Puts the carriage in its "default" position, and puts the elevator on the ground.
+ * If the algae is detected, it will go to a different position to accomodate.
+ */
 public class StowCarriagePosition extends SequentialCommandGroup 
 {
-    public StowCarriagePosition(CarriageSubsystem pCarriage, ElevatorSubsystem pElevator)
+    public StowCarriagePosition(CarriageSubsystem pCarriage, ElevatorSubsystem pElevator, IntakeSubsystem pIntake)
     {
+        CarriagePreset stowPreset;
+        if (pIntake.hasAlgae()) stowPreset = CarriagePreset.kStowAlgae;
+        else stowPreset = CarriagePreset.kStowCoral;
+
         addCommands(
-            new MoveToLevelCommand(pElevator, ElevatorSubsystem.initialHeight),
-            new MoveCarriageToPresetCommand(pCarriage, CarriageSubsystem.armMovingAngle, CarriageSubsystem.wristMovingAngle),
+            new moveToLevelSafe(pCarriage, pElevator, pIntake, stowPreset),
+            new MoveCarriageToPresetCommand(pCarriage, stowPreset),
             new InstantCommand(
-                () -> pCarriage.setAlgaeMode(true)
+                () -> pCarriage.setAlgaeMode(pIntake.hasAlgae())
             )
         );
     }    
