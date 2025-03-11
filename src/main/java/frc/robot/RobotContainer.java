@@ -104,15 +104,16 @@ public class RobotContainer
                 mSwerveSubsystem, 
                 mVisionSubsystem,
                 AlignToReef.EndTarget.NEAR_RIGHT,
-                () -> CloseUpOnReef.Direction.LEFT),
+                mDriver::getLeftBumperButton,
+                mDriver::getRightBumperButton),
             Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
-        Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
+        /*Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
         driveTrigger.whileTrue(new DeferredCommand(() ->
             new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d()), () -> CloseUpOnReef.Direction.LEFT),
             Set.of(mSwerveSubsystem))
-        ); //FIXME delete because kyle is an opp :(
+        ); //FIXME delete because kyle is an opp :( */
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();

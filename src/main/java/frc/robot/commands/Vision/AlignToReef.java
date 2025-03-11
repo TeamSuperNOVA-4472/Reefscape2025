@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix.CANifier.PinValues;
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveModule.ClosedLoopOutputType;
 import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
@@ -43,10 +44,11 @@ public class AlignToReef extends SequentialCommandGroup {
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
     private final EndTarget mEndTarget;
+
     private final Supplier<CloseUpOnReef.Direction> mStickTarget;
 
-    private final Transform2d wayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
-    private final Transform2d endingPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
+    private final Transform2d kwayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
+    private final Transform2d kendingPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg);
 
     public AlignToReef(
         SwerveSubsystem pSwerveSubsystem, 
@@ -60,8 +62,27 @@ public class AlignToReef extends SequentialCommandGroup {
         mStickTarget = pStickTarget;
 
         super.addCommands(
-            pathFindToPlace()
-            //new CloseUpOnReef(mSwerveSubsystem, findTargetPose(mEndTarget), pStickTarget)
+            pathFindToPlace(),
+            new CloseUpOnReef(mSwerveSubsystem, findTargetPose(mEndTarget), pStickTarget)
+            );
+    }
+
+    public AlignToReef(
+        SwerveSubsystem pSwerveSubsystem, 
+        VisionSubsystem pVisionSubsystem, 
+        EndTarget pEndTarget,
+        Supplier<Boolean> pLeftButton,
+        Supplier<Boolean> pRightButton)
+    {
+        mSwerveSubsystem = pSwerveSubsystem;
+        mVisionSubsystem = pVisionSubsystem;
+        mEndTarget = pEndTarget;
+        
+        mStickTarget = () -> getOffset(pLeftButton, pRightButton);
+
+        super.addCommands(
+            pathFindToPlace(),
+            new CloseUpOnReef(mSwerveSubsystem, findTargetPose(mEndTarget), mStickTarget)
             );
     }
 
@@ -73,12 +94,28 @@ public class AlignToReef extends SequentialCommandGroup {
         for (int i = 0; i < 6; i++)
         {
             Pose2d visionPose = mVisionSubsystem.getTagLayout().getTagPose(i+index).get().toPose2d();
-            Pose2d fixedPose = visionPose.plus(wayPointTransform);
+            Pose2d fixedPose = visionPose.plus(kwayPointTransform);
 
             poses.add(fixedPose);
         }
 
         return poses;
+    }
+
+    private CloseUpOnReef.Direction getOffset(Supplier<Boolean> leftButton, Supplier<Boolean> rightButton)
+    {
+        if (leftButton.get())
+        {
+            return CloseUpOnReef.Direction.LEFT;
+        }
+        else if (rightButton.get())
+        {
+            return CloseUpOnReef.Direction.RIGHT;
+        }
+        else
+        {
+            return CloseUpOnReef.Direction.MIDDLE;
+        }
     }
 
     private Pose2d findTargetPose(EndTarget target)
@@ -138,9 +175,9 @@ public class AlignToReef extends SequentialCommandGroup {
         Pose2d currPose = mSwerveSubsystem.getPose();
         Pose2d endingPose = findTargetPose(mEndTarget);
         
-        ArrayList<Pose2d> pathList = getMinPath(poses, endingPose.plus(wayPointTransform));
+        ArrayList<Pose2d> pathList = getMinPath(poses, endingPose.plus(kwayPointTransform));
 
-        endingPose = endingPose.plus(endingPointTransform);
+        endingPose = endingPose.plus(kendingPointTransform);
 
         pathList.add(0, currPose);
         pathList.add(endingPose);
