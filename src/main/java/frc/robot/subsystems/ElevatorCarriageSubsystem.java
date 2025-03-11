@@ -55,9 +55,9 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
 
     private static final double angleOverflowMin = 200;
 
-    public static final double initialHeight = 12.875;
+    public static final double initialHeight = 9.0;
 
-    private static final double kElevatorP = 0.9;
+    private static final double kElevatorP = 0.25;
 
     private static final double kElevatorI = 0.0;
 
@@ -81,7 +81,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
 
     private static final double kWristKG = 0.3;
 
-    private static final double rotationsToInches = 0.45*1.935;
+    private static final double rotationsToInches = 0.45*1.935*1.07;
 
     private final TalonFX mLeftElevatorMotor;
 
@@ -105,83 +105,79 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
         mLeftElevatorMotor = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
 
         TalonFXConfiguration leftConfig = new TalonFXConfiguration();
-
         CurrentLimitsConfigs leftCurrentConfig = new CurrentLimitsConfigs();
-
         MotorOutputConfigs leftMotorConfig = new MotorOutputConfigs();
-
         mLeftElevatorMotor.getConfigurator().refresh(leftConfig);
-
         mLeftElevatorMotor.getConfigurator().refresh(leftCurrentConfig);
-
         mLeftElevatorMotor.getConfigurator().refresh(leftMotorConfig);
-
         leftCurrentConfig.SupplyCurrentLimit = 30;
-
         leftCurrentConfig.SupplyCurrentLimitEnable = true;
-
         leftCurrentConfig.StatorCurrentLimitEnable = true;
-
         leftCurrentConfig.StatorCurrentLimit = 30;
-
         leftMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
-
         leftMotorConfig.NeutralMode = NeutralModeValue.Brake;
-
         leftConfig.withCurrentLimits(leftCurrentConfig);
-
         leftConfig.withMotorOutput(leftMotorConfig);
-
-        lights = new LightStatusRequest(LightState.kOff, -1);
-
-        LightsSubsystem.instance().addRequest(lights);
-
         mLeftElevatorMotor.getConfigurator().apply(leftConfig);
 
-        mRightElevatorMotor = new TalonFX(kRightElevatorMotorID, "rio");
-
+        mRightElevatorMotor = new TalonFX(kRightElevatorMotorID, Constants.kRioBusName);
         TalonFXConfiguration rightConfig = new TalonFXConfiguration();
-
         CurrentLimitsConfigs rightCurrentConfig = new CurrentLimitsConfigs();
-
         MotorOutputConfigs rightMotorConfig = new MotorOutputConfigs();
-
         mRightElevatorMotor.getConfigurator().refresh(rightConfig);
-
         mRightElevatorMotor.getConfigurator().refresh(rightCurrentConfig);
-
         mRightElevatorMotor.getConfigurator().refresh(rightMotorConfig);
-
+        rightCurrentConfig.SupplyCurrentLimit = 30;
+        rightCurrentConfig.SupplyCurrentLimitEnable = true;
+        rightCurrentConfig.StatorCurrentLimitEnable = true;
+        rightCurrentConfig.StatorCurrentLimit = 30;
+        rightMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
+        rightMotorConfig.NeutralMode = NeutralModeValue.Brake;
+        rightConfig.withCurrentLimits(rightCurrentConfig);
+        rightConfig.withMotorOutput(rightMotorConfig);
         mRightElevatorMotor.getConfigurator().apply(rightConfig);
 
-        rightCurrentConfig.SupplyCurrentLimit = 30;
+        lights = new LightStatusRequest(LightState.kOff, -1);
+        LightsSubsystem.instance().addRequest(lights);
 
-        rightCurrentConfig.SupplyCurrentLimitEnable = true;
 
-        rightCurrentConfig.StatorCurrentLimitEnable = true;
+        mArmMotor = new TalonFX(kArmMotorId, Constants.kCanivoreBusName);
+        TalonFXConfiguration armConfig = new TalonFXConfiguration();
+        CurrentLimitsConfigs armCurrentConfig = new CurrentLimitsConfigs();
+        MotorOutputConfigs armMotorConfig = new MotorOutputConfigs();
+        mArmMotor.getConfigurator().refresh(armConfig);
+        mArmMotor.getConfigurator().refresh(armCurrentConfig);
+        mArmMotor.getConfigurator().refresh(armMotorConfig);
+        armCurrentConfig.SupplyCurrentLimit = 60;
+        armCurrentConfig.SupplyCurrentLimitEnable = true;
+        armCurrentConfig.StatorCurrentLimitEnable = true;
+        armCurrentConfig.StatorCurrentLimit = 60;
+        armMotorConfig.NeutralMode = NeutralModeValue.Brake;
+        armConfig.withCurrentLimits(armCurrentConfig);
+        armConfig.withMotorOutput(armMotorConfig);
+        mArmMotor.getConfigurator().apply(armConfig);
 
-        rightCurrentConfig.StatorCurrentLimit = 30;
-
-        rightMotorConfig.Inverted = InvertedValue.Clockwise_Positive;
-
-        rightMotorConfig.NeutralMode = NeutralModeValue.Brake;
-
-        rightConfig.withCurrentLimits(rightCurrentConfig);
-
-        rightConfig.withMotorOutput(rightMotorConfig);
-
-        mArmMotor = new TalonFX(kArmMotorId, "CANivore");
-
-        mWristMotor = new TalonFX(kWristMotorId, "CANivore");
+        mWristMotor = new TalonFX(kWristMotorId, Constants.kCanivoreBusName);
+        TalonFXConfiguration wristConfig = new TalonFXConfiguration();
+        CurrentLimitsConfigs wristCurrentConfig = new CurrentLimitsConfigs();
+        MotorOutputConfigs wristMotorConfig = new MotorOutputConfigs();
+        mWristMotor.getConfigurator().refresh(wristConfig);
+        mWristMotor.getConfigurator().refresh(wristCurrentConfig);
+        mWristMotor.getConfigurator().refresh(wristMotorConfig);
+        wristCurrentConfig.SupplyCurrentLimit = 25;
+        wristCurrentConfig.SupplyCurrentLimitEnable = true;
+        wristCurrentConfig.StatorCurrentLimitEnable = true;
+        wristCurrentConfig.StatorCurrentLimit = 25;
+        wristMotorConfig.NeutralMode = NeutralModeValue.Brake;
+        wristConfig.withCurrentLimits(wristCurrentConfig);
+        wristConfig.withMotorOutput(wristMotorConfig);
+        mWristMotor.getConfigurator().apply(wristConfig);
 
         mArmEncoder = new DutyCycleEncoder(0);
-
         mWristEncoder = new DutyCycleEncoder(1);
 
         elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
-
         armPID = new ProfiledPIDController(kArmP, kArmI, kArmD, new Constraints(720, 720));
-
         wristPID = new ProfiledPIDController(kWristP, kWristI, kWristD, new Constraints(360, 360));
     }
 
@@ -189,42 +185,54 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public void stop()
     {
         carriagePreset = Optional.empty();
-
         mLeftElevatorMotor.stopMotor();
-
         mRightElevatorMotor.stopMotor();
-
         mArmMotor.stopMotor();
-
         mWristMotor.stopMotor();
     }
 
-    public void resetEncoder()
+    public void resetElevatorEncoder()
     {
         mLeftElevatorMotor.setPosition(0);
-
         mRightElevatorMotor.setPosition(0);
-
         elevatorPID.reset(initialHeight);
     }
 
     // SET ELEVATOR VOLTAGE METHOD
-    public void setElevatorVoltage(double voltage)
+    private void setElevatorVoltage(double voltage)
     {
-        mLeftElevatorMotor.setVoltage(voltage);
+        mLeftElevatorMotor.setVoltage(voltage + kElevatorKG);
+        mRightElevatorMotor.setVoltage(voltage + kElevatorKG);
+    }
 
-        mRightElevatorMotor.setVoltage(voltage);
+    public void setManualElevatorVoltage(double voltage)
+    {
+        carriagePreset = Optional.empty();
+        setElevatorVoltage(voltage);
     }
 
     // SET CARRIAGE VOLTAGE METHOD
-    public void setArmVoltage(double voltage)
+    private void setArmVoltage(double voltage) 
     {
-        mArmMotor.setVoltage(voltage);
+        mArmMotor.setVoltage(voltage + kArmKG * Math.cos(Math.toRadians(this.getArmAngle())));
     }
 
-    public void setWristVoltage(double voltage)
+    public void setManualArmVoltage(double voltage) 
     {
-        mWristMotor.setVoltage(voltage);
+        carriagePreset = Optional.empty();
+        setArmVoltage(voltage);
+    }
+
+
+    private void setWristVoltage(double voltage) 
+    {
+        mWristMotor.setVoltage(voltage + kWristKG * Math.cos(Math.toRadians(this.getAbsoluteWristAngle())));
+    }
+
+    public void setManualWristVoltage(double voltage) 
+    {
+        carriagePreset = Optional.empty();
+        setWristVoltage(voltage);
     }
 
     // SET PRESET METHOD
@@ -302,9 +310,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public void resetPID()
     {
         elevatorPID.reset(getElevatorHeight());
-
         armPID.reset(getArmAngle());
-
         wristPID.reset(getAbsoluteWristAngle());
     }
 
@@ -321,17 +327,17 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     // MOVES ARM METHOD
     private void moveArm(CarriagePreset preset)
     {
-        double armOutput = armPID.calculate(getArmAngle(), preset.kArmPreset) + kArmKG;
+        double armOutput = armPID.calculate(getArmAngle(), preset.kArmPreset);
 
-        mArmMotor.set(armOutput);
+        setArmVoltage(armOutput);
     }
 
     // MOVES WRIST METHOD
     private void moveWrist(CarriagePreset preset)
     {
-        double wristOutput = wristPID.calculate(getAbsoluteWristAngle(), preset.kWristPreset) + kWristKG;
+        double wristOutput = wristPID.calculate(getWristAngle(), preset.kWristPreset);
 
-        mWristMotor.set(wristOutput);
+        setWristVoltage(wristOutput);
     }
 
     // GETS ELEVATOR HEIGHT METHOD
@@ -344,11 +350,8 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public boolean isAtPosition(CarriagePreset preset)
     {
         double curHeight = getElevatorHeight();
-
         double tarHeight = preset.kElevatorPreset;
-
         double needed = 0.0; // THIS NUMBER NEEDS TO BE UPDATED
-
         return (curHeight - tarHeight) <= needed;
     }
 
@@ -373,9 +376,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public void periodic()
     {
         SmartDashboard.putNumber("Elevator Position", getElevatorPosition());
-
         SmartDashboard.putNumber("Arm Position", getArmAngle());
-
         SmartDashboard.putNumber("Wrist Position", getWristAngle());
 
         if (carriagePreset.isPresent())

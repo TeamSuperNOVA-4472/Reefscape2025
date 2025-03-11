@@ -110,7 +110,7 @@ public class RobotContainer
     // private final ClimberTester mClimberTester;
 
     // TODO: In the future I think more triggers should be brought out here.
-    private final Trigger algaeTrigger, algaeHighTrigger;
+    // private final Trigger algaeTrigger, algaeHighTrigger;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -144,7 +144,7 @@ public class RobotContainer
         mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mPartner);
         // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
         // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
-        Trigger carriage = new Trigger(() -> (mPartner.getRightBumperButton() && !mIntakeSubsystem.hasCoral()));
+        //Trigger carriage = new Trigger(() -> (mPartner.getRightBumperButton() && !mIntakeSubsystem.hasCoral()));
         // carriage.whileTrue( // FIXME: This is a MONSTROUS trigger. PLEASE make this its own command file.
         //     new ConditionalCommand(
         //         new InstantCommand(),
@@ -159,101 +159,101 @@ public class RobotContainer
         //         )
         //     )
         // );
-        carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));//.andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
+        //carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));//.andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
 
-        Trigger scoreTrigger = new Trigger(() -> mPartner.getRightTriggerAxis() > 0);
-        scoreTrigger.onTrue(
-            new InstantCommand(() -> mIntakeSubsystem.outtakeCoral())
-        );
-        scoreTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new InstantCommand(() -> mIntakeSubsystem.setCoral(false))));
-
-        Trigger l1Trigger = new Trigger(mPartner::getAButton);
-        // l1Trigger.whileTrue(
-         //   new CoralL1Preset()
+        // Trigger scoreTrigger = new Trigger(() -> mPartner.getRightTriggerAxis() > 0);
+        // scoreTrigger.onTrue(
+        //     new InstantCommand(() -> mIntakeSubsystem.outtakeCoral())
         // );
-        l1Trigger.onFalse(stowCarriage());
+        // scoreTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new InstantCommand(() -> mIntakeSubsystem.setCoral(false))));
 
-        Trigger l2Trigger = new Trigger(mPartner::getXButton);
-        l2Trigger.whileTrue(
-            new CoralL2Preset()
-        );
-        l2Trigger.onFalse(stowCarriage());
+        // Trigger l1Trigger = new Trigger(mPartner::getAButton);
+        // // l1Trigger.whileTrue(
+        //  //   new CoralL1Preset()
+        // // );
+        // l1Trigger.onFalse(stowCarriage());
+
+        // Trigger l2Trigger = new Trigger(mPartner::getXButton);
+        // l2Trigger.whileTrue(
+        //     new CoralL2Preset()
+        // );
+        // l2Trigger.onFalse(stowCarriage());
         
-        Trigger l3Trigger = new Trigger(mPartner::getBButton);
-        l3Trigger.whileTrue( 
-            new CoralL3Preset()
-        );
-        l3Trigger.onFalse(stowCarriage());
+        // Trigger l3Trigger = new Trigger(mPartner::getBButton);
+        // l3Trigger.whileTrue( 
+        //     new CoralL3Preset()
+        // );
+        // l3Trigger.onFalse(stowCarriage());
 
-        Trigger l4Trigger = new Trigger(mPartner::getYButton);
-        l4Trigger.whileTrue(
-            new CoralL4Preset()
-        );
-        l4Trigger.onFalse(stowCarriage());
+        // Trigger l4Trigger = new Trigger(mPartner::getYButton);
+        // l4Trigger.whileTrue(
+        //     new CoralL4Preset()
+        // );
+        // l4Trigger.onFalse(stowCarriage());
 
-        Trigger algaeTrigger = new Trigger(() -> (mPartner.getLeftBumperButton() && !mIntakeSubsystem.hasAlgae()));
-        algaeTrigger.whileTrue(
-            new AlgaeL2().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        );
-        algaeTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-        this.algaeTrigger = algaeTrigger;
+        // Trigger algaeTrigger = new Trigger(() -> (mPartner.getLeftBumperButton() && !mIntakeSubsystem.hasAlgae()));
+        // algaeTrigger.whileTrue(
+        //     new AlgaeL2().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
+        // );
+        // algaeTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
+        // this.algaeTrigger = algaeTrigger;
         
-        Trigger algaeHighTrigger = new Trigger(() -> (mPartner.getLeftTriggerAxis() > 0 && !mIntakeSubsystem.hasAlgae()));
-        algaeHighTrigger.whileTrue(
-            new AlgaeL3().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        );
-        algaeHighTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-        this.algaeHighTrigger = algaeHighTrigger;
+        // Trigger algaeHighTrigger = new Trigger(() -> (mPartner.getLeftTriggerAxis() > 0 && !mIntakeSubsystem.hasAlgae()));
+        // algaeHighTrigger.whileTrue(
+        //     new AlgaeL3().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
+        // );
+        // algaeHighTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
+        // this.algaeHighTrigger = algaeHighTrigger;
 
-        Trigger algaeGroundTrigger = new Trigger(() -> mPartner.getPOV() == 90);
-        algaeGroundTrigger.whileTrue(
-            new AlgaeGround().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        );
-        algaeGroundTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
+        // Trigger algaeGroundTrigger = new Trigger(() -> mPartner.getPOV() == 90);
+        // algaeGroundTrigger.whileTrue(
+        //     new AlgaeGround().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
+        // );
+        // algaeGroundTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
 
-        Trigger algaeProcessTrigger = new Trigger(() -> mPartner.getPOV() == 180);
-        algaeProcessTrigger.whileTrue(
-            new AlgaeProcessor()
-        );
+        // Trigger algaeProcessTrigger = new Trigger(() -> mPartner.getPOV() == 180);
+        // algaeProcessTrigger.whileTrue(
+        //     new AlgaeProcessor()
+        // );
 
-        Trigger algaeOut = new Trigger(() -> mPartner.getPOV() == 0);
-        algaeOut.onTrue(
-            new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
-        );
-        algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
+        // Trigger algaeOut = new Trigger(() -> mPartner.getPOV() == 0);
+        // algaeOut.onTrue(
+        //     new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
+        // );
+        // algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
 
-        Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
-        alignLeft.whileTrue(
-            new VisionAlignCommand(
-                VisionAlignCommand.kReefLeftOffset,
-                Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-            )
-        );
+        // Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
+        // alignLeft.whileTrue(
+        //     new VisionAlignCommand(
+        //         VisionAlignCommand.kReefLeftOffset,
+        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
+        //     )
+        // );
 
-        Trigger alignMiddle = new Trigger(mDriver::getXButton);
-        alignMiddle.whileTrue(
-            new VisionAlignCommand(
-                VisionAlignCommand.kReefMiddleOffset,
-                Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-            )
-        );
+        // Trigger alignMiddle = new Trigger(mDriver::getXButton);
+        // alignMiddle.whileTrue(
+        //     new VisionAlignCommand(
+        //         VisionAlignCommand.kReefMiddleOffset,
+        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
+        //     )
+        // );
 
-        Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
-        alignRight.whileTrue(
-            new VisionAlignCommand(
-                VisionAlignCommand.kReefRightOffset,
-                Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-            )
-        );
+        // Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
+        // alignRight.whileTrue(
+        //     new VisionAlignCommand(
+        //         VisionAlignCommand.kReefRightOffset,
+        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
+        //     )
+        // );
 
-        Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
-        algaeBarge.whileTrue(
-            new AlgaeBarge()
-        );
+        // Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
+        // algaeBarge.whileTrue(
+        //     new AlgaeBarge()
+        // );
 
-        Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton);
-        //climbTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new ArmBackPreset(), () -> mCarriageSubsystem.getArmSetpoint() == 95.0));
-        Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
+        // Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton);
+        // //climbTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new ArmBackPreset(), () -> mCarriageSubsystem.getArmSetpoint() == 95.0));
+        // Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
 
         // TODO: remove tester commands when robot is properly programmed
         //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
@@ -278,6 +278,7 @@ public class RobotContainer
         //mCarriageSubsystem.setDefaultCommand(mCarriageTester);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+
         // mClimbSubsystem.setDefaultCommand(mClimberTester);
 
 
@@ -317,26 +318,26 @@ public class RobotContainer
         return new StowCarriagePosition();
     }
 
-    private void applyHeightOffsetWhenVisionAlignFinishes()
-    {
-        // Scuffed as hell. As a completely last step, apply Christian's
-        // offsets for the different levels.
+    // private void applyHeightOffsetWhenVisionAlignFinishes()
+    // {
+    //     // Scuffed as hell. As a completely last step, apply Christian's
+    //     // offsets for the different levels.
 
-        Translation2d offset;
-        if (mPartner.getYButton()) offset = VisionAlignCommand.kDeltaForL4;
-        else if (mPartner.getBButton()) offset = VisionAlignCommand.kDeltaForL3;
-        else if (mPartner.getXButton()) offset = VisionAlignCommand.kDeltaForL2;
-        else if (mPartner.getAButton()) offset = VisionAlignCommand.kDeltaForL1;
-        else offset = Translation2d.kZero;
+    //     Translation2d offset;
+    //     if (mPartner.getYButton()) offset = VisionAlignCommand.kDeltaForL4;
+    //     else if (mPartner.getBButton()) offset = VisionAlignCommand.kDeltaForL3;
+    //     else if (mPartner.getXButton()) offset = VisionAlignCommand.kDeltaForL2;
+    //     else if (mPartner.getAButton()) offset = VisionAlignCommand.kDeltaForL1;
+    //     else offset = Translation2d.kZero;
 
-        // If in algae preset, go a little more towards the reef.
-        if (algaeTrigger.getAsBoolean() || algaeHighTrigger.getAsBoolean())
-            offset = offset.plus(VisionAlignCommand.kDeltaForAlgae);
+    //     // If in algae preset, go a little more towards the reef.
+    //     if (algaeTrigger.getAsBoolean() || algaeHighTrigger.getAsBoolean())
+    //         offset = offset.plus(VisionAlignCommand.kDeltaForAlgae);
 
-        Pose2d pose = new Pose2d(offset, Rotation2d.kZero);
-        DriveDistanceAndHeading moveCmd = new DriveDistanceAndHeading(() -> pose);
-        moveCmd.schedule(); // I really hope this works.
-    }
+    //     Pose2d pose = new Pose2d(offset, Rotation2d.kZero);
+    //     DriveDistanceAndHeading moveCmd = new DriveDistanceAndHeading(() -> pose);
+    //     moveCmd.schedule(); // I really hope this works.
+    // }
 
     // Specify which command will be used as the autonomous command.
     public Command getAutonomousCommand()
