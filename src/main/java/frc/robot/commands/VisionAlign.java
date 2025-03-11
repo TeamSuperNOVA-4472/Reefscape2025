@@ -50,16 +50,19 @@ public class VisionAlign {
     private final double kMaxVelocity = 4.5; // Max velocity for PathPlanner
     private final double kMaxAcceleration = 4.5; // Max acceleration for PathPlanner
 
+    // PID Constants for the Lateral PID Controller
     private final double kLateralP = 3;
     private final double kLateralI = 0;
     private final double kLateralD = 0.2;
     private final double kLateralTolerance = 0.02;
 
+    // PID Constants for the Rotation PID Controller
     private final double kRotationP = 5;
     private final double kRotationI = 0;
     private final double kRotationD = 0;
     private final double kRotationTolerance = 0.02;
 
+    // Gyro input constants
     private final double kMinContinuous = 0;
     private final double kMaxContinuous = 360;
 
