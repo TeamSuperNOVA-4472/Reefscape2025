@@ -6,11 +6,12 @@ package frc.robot;
 
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AlignToReef;
-import frc.robot.commands.CloseUpOnReef;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
-import frc.robot.commands.AlignToReef.EndTarget;
+import frc.robot.commands.VisionAlign;
+import frc.robot.objectmodels.ReefEndTarget;
+import frc.robot.objectmodels.VisionDirection;
+import frc.robot.objectmodels.VisionPoses;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -98,19 +99,12 @@ public class RobotContainer
             isFirst = false;
         });
 
-        Trigger visionTrigger = new Trigger(mDriver::getXButton);
-        visionTrigger.whileTrue(new DeferredCommand(() -> 
-            new AlignToReef(
-                mSwerveSubsystem, 
-                mVisionSubsystem,
-                AlignToReef.EndTarget.FAR_RIGHT), 
-            Set.of(mSwerveSubsystem, mVisionSubsystem))
-        );
+        VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
 
-        Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
-        driveTrigger.whileTrue(new DeferredCommand(() ->
-            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d())),
-            Set.of(mSwerveSubsystem))
+        Trigger visionTrigger = new Trigger(mDriver::getXButton);
+        visionTrigger.onTrue(new DeferredCommand(() ->
+        visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton),
+        Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
         );
 
         // Configure other things.
