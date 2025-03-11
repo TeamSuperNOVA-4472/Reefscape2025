@@ -54,6 +54,8 @@ public class RobotContainer
 
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
+    
+    private final VisionAlign mVisionAlign;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -73,6 +75,7 @@ public class RobotContainer
         mLightsSubsystem = new LightsSubsystem();
         mSwerveSubsystem = new SwerveSubsystem();
         mVisionSubsystem = new VisionSubsystem(mSwerveSubsystem);
+        mVisionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
 
         isFirst = true;
 
@@ -99,13 +102,12 @@ public class RobotContainer
             isFirst = false;
         });
 
-        VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
 
-        Trigger visionTrigger = new Trigger(mDriver::getXButton);
+        /*Trigger visionTrigger = new Trigger(mDriver::getXButton);
         visionTrigger.onTrue(new DeferredCommand(() ->
         visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton),
         Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
-        );
+        );*/
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -119,12 +121,6 @@ public class RobotContainer
         NamedCommands.registerCommand("IntakeCoral", new DoTheThingCommand());
         NamedCommands.registerCommand("GrabAlgae", new DoTheThingCommand());
         NamedCommands.registerCommand("ScoreAlgae", new DoTheThingCommand());
-        NamedCommands.registerCommand("VisionAlign", new DeferredCommand(() -> 
-        new AlignToReef(
-            mSwerveSubsystem, 
-            mVisionSubsystem,
-            AlignToReef.EndTarget.FAR_RIGHT), 
-            Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(
