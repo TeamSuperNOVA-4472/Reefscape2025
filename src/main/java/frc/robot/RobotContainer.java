@@ -8,9 +8,10 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
-import frc.robot.commands.Vision.AlignToReef;
-import frc.robot.commands.Vision.CloseUpOnReef;
-import frc.robot.commands.Vision.AlignToReef.EndTarget;
+import frc.robot.commands.VisionAlign;
+import frc.robot.objectmodels.ReefEndTarget;
+import frc.robot.objectmodels.VisionDirection;
+import frc.robot.objectmodels.VisionPoses;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -98,22 +99,13 @@ public class RobotContainer
             isFirst = false;
         });
 
-        Trigger visionTrigger = new Trigger(mDriver::getXButton);
-        visionTrigger.whileTrue(new DeferredCommand(() -> 
-            new AlignToReef(
-                mSwerveSubsystem, 
-                mVisionSubsystem,
-                AlignToReef.EndTarget.NEAR_RIGHT,
-                mDriver::getLeftBumperButton,
-                mDriver::getRightBumperButton),
-            Set.of(mSwerveSubsystem, mVisionSubsystem))
-        );
+        VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
 
-        /*Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
-        driveTrigger.whileTrue(new DeferredCommand(() ->
-            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d()), () -> CloseUpOnReef.Direction.LEFT),
-            Set.of(mSwerveSubsystem))
-        ); //FIXME delete because kyle is an opp :( */
+        Trigger visionTrigger = new Trigger(mDriver::getXButton);
+        visionTrigger.onTrue(new DeferredCommand(() ->
+        visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton),
+        Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
+        );
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
