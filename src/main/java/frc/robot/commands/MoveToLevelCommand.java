@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.objectmodels.CarriagePreset;
+import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 /**
@@ -11,24 +12,29 @@ import frc.robot.subsystems.ElevatorSubsystem;
  */
 public class MoveToLevelCommand extends Command
 {
-    private final ElevatorSubsystem mElevatorSubsystem;
+    private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
     private final CarriagePreset mPreset;
 
-    public MoveToLevelCommand(ElevatorSubsystem pElevatorSubsystem, CarriagePreset pPreset)
+    public MoveToLevelCommand(CarriagePreset pPreset)
     {
-        mElevatorSubsystem = pElevatorSubsystem;
+        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.instance();
         mPreset = pPreset;
-        addRequirements(mElevatorSubsystem);
+        addRequirements(mElevatorCarriageSubsystem);
     }
 
     @Override
     public void initialize() 
     {
-        mElevatorSubsystem.setPreset(mPreset);
+        mElevatorCarriageSubsystem.setPreset(mPreset);
     }
     @Override
     public boolean isFinished()
     {
-        return Math.abs(mElevatorSubsystem.getElevatorHeight() - mElevatorSubsystem.getElevatorPreset()) < 1.2;
+        if (mElevatorCarriageSubsystem.getActivePreset().isEmpty())
+        {
+            return true;
+        }
+
+        return Math.abs(mElevatorCarriageSubsystem.getElevatorHeight() - mElevatorCarriageSubsystem.getActivePreset().get().kElevatorPreset) < 1.2;
     }
 }

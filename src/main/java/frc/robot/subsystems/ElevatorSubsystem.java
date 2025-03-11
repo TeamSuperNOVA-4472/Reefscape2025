@@ -22,6 +22,13 @@ import frc.robot.objectmodels.LightStatusRequest;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
+    private static ElevatorSubsystem kInstance;
+    
+    public static ElevatorSubsystem instance()
+    {
+        return kInstance;
+    }
+
     public static final int kLeftElevatorMotorID = 0;
     public static final int kRightElevatorMotorID = 1;
 
@@ -51,8 +58,10 @@ public class ElevatorSubsystem extends SubsystemBase
 
     private LightStatusRequest lights;
 
-    public ElevatorSubsystem(LightsSubsystem lightController)
+    public ElevatorSubsystem()
     {
+        kInstance = this;
+
         //motorConfigRight = new MotorOutputConfigs();
         mElevatorLeft = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
         TalonFXConfiguration leftConfig = new TalonFXConfiguration();
@@ -71,7 +80,7 @@ public class ElevatorSubsystem extends SubsystemBase
         leftConfig.withMotorOutput(leftMotorConfig);
         mElevatorLeft.getConfigurator().apply(leftConfig);
         lights = new LightStatusRequest(LightState.kOff, -1);
-        lightController.addRequest(lights);
+        LightsSubsystem.instance().addRequest(lights);
         elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
         activePreset = Optional.of(CarriagePreset.kStowCoral);
     }

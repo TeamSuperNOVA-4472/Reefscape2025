@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.CarriageSubsystem;
+import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
 /**
@@ -12,31 +13,31 @@ import frc.robot.subsystems.IntakeSubsystem;
 public class moveOutOfDangerZone extends Command
 {
     IntakeSubsystem mIntakeSubsystem;
-    CarriageSubsystem mCarriageSubsystem;
+    ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
 
     double newWristTarget;
     double newArmTarget;
 
-    public moveOutOfDangerZone(CarriageSubsystem pCarriageSubsystem, IntakeSubsystem pIntakeSubsystem)
+    public moveOutOfDangerZone()
     {
-        mCarriageSubsystem = pCarriageSubsystem;
-        mIntakeSubsystem = pIntakeSubsystem;
-        addRequirements(mCarriageSubsystem);
+        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.instance();
+        mIntakeSubsystem = IntakeSubsystem.instance();
+        addRequirements(mElevatorCarriageSubsystem, mIntakeSubsystem);
     }
 
     @Override
     public void initialize()
     {
         // If the intake has an algae, we need to go to a different spot to be "safe."
-        if (mIntakeSubsystem.hasAlgae()) mCarriageSubsystem.setPreset(CarriagePreset.kStowAlgae);
-        else mCarriageSubsystem.setPreset(CarriagePreset.kStowCoral);
+        if (mIntakeSubsystem.hasAlgae()) mElevatorCarriageSubsystem.setPreset(CarriagePreset.kStowAlgae);
+        else mElevatorCarriageSubsystem.setPreset(CarriagePreset.kStowCoral);
     }
 
     @Override
     public boolean isFinished()
     {
-        double armDist = mCarriageSubsystem.getArmAngle() - mCarriageSubsystem.getArmSetpoint();
-        double wristDist = mCarriageSubsystem.getWristAngle() - mCarriageSubsystem.getWristSetpoint();
+        double armDist = mElevatorCarriageSubsystem.getArmAngle() - mElevatorCarriageSubsystem.getArmSetpoint();
+        double wristDist = mElevatorCarriageSubsystem.getAbsoluteWristAngle() - mElevatorCarriageSubsystem.getWristSetpoint();
 
         return Math.abs(armDist) < MoveCarriageToPresetCommand.kArmTolerence && Math.abs(wristDist) < MoveCarriageToPresetCommand.kWristTolerance;
     }
