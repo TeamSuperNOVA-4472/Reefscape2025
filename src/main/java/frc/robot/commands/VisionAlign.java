@@ -29,7 +29,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class VisionAlign {
-    // Members
+    // Member variables
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
 
@@ -43,9 +43,9 @@ public class VisionAlign {
     private final Transform2d kMatchLoadingTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
 
-    private final Transform2d kLeftCoralTransform = new Transform2d(0.65, -0.25, Rotation2d.k180deg);
-    private final Transform2d kRightCoralTransform = new Transform2d(0.65, 0.25, Rotation2d.k180deg);
-    private final Transform2d kAlgaeTransform = new Transform2d(0.65, 0, Rotation2d.k180deg);
+    private final Transform2d kLeftCoralTransform = new Transform2d(0.65, -0.25, Rotation2d.k180deg); // Position at left coral stick
+    private final Transform2d kRightCoralTransform = new Transform2d(0.65, 0.25, Rotation2d.k180deg); // Position at right coral stick
+    private final Transform2d kAlgaeTransform = new Transform2d(0.65, 0, Rotation2d.k180deg); // Position at algae
 
     private final double kMaxVelocity = 4.5; // Max velocity for PathPlanner
     private final double kMaxAcceleration = 4.5; // Max acceleration for PathPlanner
