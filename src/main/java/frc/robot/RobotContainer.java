@@ -49,9 +49,10 @@ import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.commands.Vision.AlignToReef;
-import frc.robot.commands.Vision.CloseUpOnReef;
-import frc.robot.commands.Vision.AlignToReef.EndTarget;
+import frc.robot.commands.VisionAlign;
+import frc.robot.objectmodels.ReefEndTarget;
+import frc.robot.objectmodels.VisionDirection;
+import frc.robot.objectmodels.VisionPoses;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
@@ -291,15 +292,12 @@ public class RobotContainer
             isFirst = false;
         });
 
+        VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
+
         Trigger visionTrigger = new Trigger(mDriver::getXButton);
-        visionTrigger.whileTrue(new DeferredCommand(() -> 
-            new AlignToReef(
-                mSwerveSubsystem, 
-                mVisionSubsystem,
-                AlignToReef.EndTarget.NEAR_RIGHT,
-                mDriver::getLeftBumperButton,
-                mDriver::getRightBumperButton),
-            Set.of(mSwerveSubsystem, mVisionSubsystem))
+        visionTrigger.onTrue(new DeferredCommand(() ->
+        visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton),
+        Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
         );
 
         // Register named commands.
@@ -318,12 +316,6 @@ public class RobotContainer
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stop()));
-        /*Trigger driveTrigger = new Trigger(mDriver::getRightBumperButton);
-        driveTrigger.whileTrue(new DeferredCommand(() ->
-            new CloseUpOnReef(mSwerveSubsystem, new Pose2d(15, 3, new Rotation2d()), () -> CloseUpOnReef.Direction.LEFT),
-            Set.of(mSwerveSubsystem))
-        ); //FIXME delete because kyle is an opp :( */
-
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
 
