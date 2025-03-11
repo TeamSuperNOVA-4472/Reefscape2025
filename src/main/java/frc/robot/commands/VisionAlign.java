@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -101,11 +102,19 @@ public class VisionAlign {
         Pose2d destination = VisionPoses.getTargetPose(target, mVisionSubsystem); // Pose after PID runs
         Pose2d exitPoint = destination.plus(kReefTransform); // Pose after pathfinding
 
-        // Creates and returns command
-        Command pathFind = pathFindToPlace(exitPoint, kWayPointTransform);
-        SequentialCommandGroup alignCommand = new SequentialCommandGroup(pathFind, runLast);
+        try {
 
-        return alignCommand;
+            // Creates and returns command
+            Command pathFind = pathFindToPlace(exitPoint, kWayPointTransform);
+            SequentialCommandGroup alignCommand = new SequentialCommandGroup(pathFind, runLast);
+
+            return alignCommand;
+
+        } catch (Exception ex)
+        {
+            System.out.println("[ALIGN] Not enough waypoints!");
+            return new SequentialCommandGroup(new InstantCommand());
+        }
     }
 
     /**
@@ -145,11 +154,17 @@ public class VisionAlign {
      */
     public SequentialCommandGroup alignToLeftMatchLoadingStation()
     {
+        // TODO: add support for right/left trigger movement
         Pose2d destination = VisionPoses.getLeftMatchLoadingStationPose(mVisionSubsystem);
         destination = destination.plus(kMatchLoadingTransform);
         Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
         
-        return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
+        try {
+            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
+        } catch (Exception e) {
+            System.out.println("[ALIGN] Not enough waypoints!");
+            return new SequentialCommandGroup(new InstantCommand());
+        }
     }
 
     /**
@@ -158,11 +173,17 @@ public class VisionAlign {
      */
     public SequentialCommandGroup alignToRightMatchLoadingStation()
     {
+        // TODO: add support for right/left trigger movement
         Pose2d destination = VisionPoses.getRightMatchLoadingStationPose(mVisionSubsystem);
         destination = destination.plus(kMatchLoadingTransform);
         Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
         
-        return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
+        try {
+            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
+        } catch (Exception e) {
+            System.out.println("[ALIGN] Not enough waypoints!");
+            return new SequentialCommandGroup(new InstantCommand());
+        }
     }
 
     /**
@@ -174,7 +195,12 @@ public class VisionAlign {
         Pose2d destination = VisionPoses.getProcessorPose(mVisionSubsystem).plus(kProcessorTransform);
         Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
         
-        return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
+        try {
+            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
+        } catch (Exception e) {
+            System.out.println("[ALIGN] Not enough waypoints!");
+            return new SequentialCommandGroup(new InstantCommand());
+        }
     }
 
     // Gets a supplier with the correct offset for left/right
@@ -215,7 +241,7 @@ public class VisionAlign {
         pathList.add(lastPose); // Add the last pose
 
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(pathList.toArray(new Pose2d[0])); // Create waypoints
-
+        
         // Create PathPlanner on-the-fly path with waypoints
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
