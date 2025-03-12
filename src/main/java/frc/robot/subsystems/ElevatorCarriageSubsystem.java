@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -24,6 +25,8 @@ import frc.robot.objectmodels.LightStatusRequest;
 // ALL MAIN VARIABLES
 public class ElevatorCarriageSubsystem extends SubsystemBase
 {
+    private final DigitalInput beamBreakSensor;
+
     private static ElevatorCarriageSubsystem kInstance = new ElevatorCarriageSubsystem();
 
     public static ElevatorCarriageSubsystem instance()
@@ -102,6 +105,8 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     // MAIN CONSTUCTOR
     private ElevatorCarriageSubsystem()
     {
+        beamBreakSensor = new DigitalInput(8);
+
         mLeftElevatorMotor = new TalonFX(kLeftElevatorMotorID, Constants.kCanivoreBusName);
 
         TalonFXConfiguration leftConfig = new TalonFXConfiguration();
@@ -179,6 +184,11 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
         elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
         armPID = new ProfiledPIDController(kArmP, kArmI, kArmD, new Constraints(720, 720));
         wristPID = new ProfiledPIDController(kWristP, kWristI, kWristD, new Constraints(360, 360));
+    }
+
+    public boolean isAtTheBottom()
+    {
+        return !beamBreakSensor.get();
     }
 
     // STOP EVERYTHING METHOD
