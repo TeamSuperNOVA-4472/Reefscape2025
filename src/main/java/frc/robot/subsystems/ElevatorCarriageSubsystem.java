@@ -311,7 +311,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     {
         elevatorPID.reset(getElevatorHeight());
         armPID.reset(getArmAngle());
-        wristPID.reset(getAbsoluteWristAngle());
+        wristPID.reset(getWristAngle());
     }
 
     // MOVES ELEVATOR METHOD

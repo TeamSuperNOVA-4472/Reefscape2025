@@ -1,5 +1,7 @@
 package frc.robot.objectmodels;
 
+import frc.robot.subsystems.ElevatorCarriageSubsystem;
+
 /**
  * Represets a position for the carriage (arm, wrist, and elevator) to be in.
  * Thanks to Sophia for coming up with this.
@@ -10,22 +12,22 @@ package frc.robot.objectmodels;
 public class CarriagePreset
 {
     // Actual presets go here.
-    public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 12.911);
-    public static final CarriagePreset kCoralL2 = new CarriagePreset(67, -71, 21.691);
-    public static final CarriagePreset kCoralL3 = new CarriagePreset(67, -71, 38.5);
-    public static final CarriagePreset kCoralL4 = new CarriagePreset(90, -102, 65.5);
-    public static final CarriagePreset kCoralLoad = new CarriagePreset(95, -50, 19.522);
-    public static final CarriagePreset kStowCoral = new CarriagePreset(65, 0, 12.875); // Also used to be known as "moving" in some places of the code.
+    public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 0.036);
+    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 10.316); // +2.5in
+    public static final CarriagePreset kCoralL3 = new CarriagePreset(89, -114, 28.125); // +2.5in
+    public static final CarriagePreset kCoralL4 = new CarriagePreset(90, -102, 52.625);
+    public static final CarriagePreset kCoralLoad = new CarriagePreset(95, -50, 6.647);
+    public static final CarriagePreset kStowCoral = new CarriagePreset(65, 0, 0); // Also used to be known as "moving" in some places of the code.
     
-    public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -100, 65);
-    public static final CarriagePreset kAlgaeProcessor = new CarriagePreset(20, -110, 12.875);
-    public static final CarriagePreset kAlgaeGround = new CarriagePreset(-45, -90, 25);
-    public static final CarriagePreset kAlgaeL2 = new CarriagePreset(40, -120, 25);
-    public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 43.344);
-    public static final CarriagePreset kStowAlgae = new CarriagePreset(65, -60, 12.875);
+    public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -100, 52.125);
+    public static final CarriagePreset kAlgaeProcessor = new CarriagePreset(20, -110, 0);
+    public static final CarriagePreset kAlgaeGround = new CarriagePreset(-45, -90, 12.125);
+    public static final CarriagePreset kAlgaeL2 = new CarriagePreset(40, -120, 12.125);
+    public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 30.469);
+    public static final CarriagePreset kStowAlgae = new CarriagePreset(65, -60, 0);
 
-    public static final CarriagePreset kAway = new CarriagePreset(0, 0, 12.875);
-    public static final CarriagePreset kClimb = new CarriagePreset(85, 25, 12.875);
+    public static final CarriagePreset kAway = new CarriagePreset(0, 0, 0);
+    public static final CarriagePreset kClimb = new CarriagePreset(85, 25, 0);
 
     public final double kArmPreset, kWristPreset, kElevatorPreset;
 
@@ -33,7 +35,7 @@ public class CarriagePreset
     {
         kArmPreset = pArmPreset;
         kWristPreset = pWristPreset;
-        kElevatorPreset = pElevatorPreset;
+        kElevatorPreset = pElevatorPreset + ElevatorCarriageSubsystem.initialHeight;
     }
 
     @Override
