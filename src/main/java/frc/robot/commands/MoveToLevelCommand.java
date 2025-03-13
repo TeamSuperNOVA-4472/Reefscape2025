@@ -16,7 +16,7 @@ public class MoveToLevelCommand extends Command
 
     public MoveToLevelCommand(CarriagePreset pPreset)
     {
-        mElevatorSubsystem = ElevatorSubsystem.instance();
+        mElevatorSubsystem = ElevatorSubsystem.kInstance;
         mPreset = pPreset;
         addRequirements(mElevatorSubsystem);
     }

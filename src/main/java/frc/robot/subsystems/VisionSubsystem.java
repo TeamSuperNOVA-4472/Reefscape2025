@@ -31,11 +31,7 @@ import frc.robot.objectmodels.CameraInfo;
 
 public class VisionSubsystem extends SubsystemBase
 {
-    private static VisionSubsystem kInstance;
-    public static VisionSubsystem instance()
-    {
-        return kInstance;
-    }
+    public static final VisionSubsystem kInstance = new VisionSubsystem();
 
     // The first camera in this array is considered the "main camera."
     // TODO: More information for more cameras!
@@ -71,10 +67,8 @@ public class VisionSubsystem extends SubsystemBase
 
     private Timer statusCheckTimer;
     
-    public VisionSubsystem()
+    private VisionSubsystem()
     {
-        kInstance = this;
-
         // If anything goes wrong during setup, do not let vision run.
         initPass = true;
         poseListeners = new ArrayList<>();
@@ -97,7 +91,7 @@ public class VisionSubsystem extends SubsystemBase
 
         field = new Field2d();
         SmartDashboard.putData("Subsystems/VisionSubsystem/Vision Pose", field);
-        mSwerve = SwerveSubsystem.instance();
+        mSwerve = SwerveSubsystem.kInstance;
 
         // Initialize cameras. This means we don't need a million variables for
         // all the cameras.

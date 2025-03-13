@@ -29,11 +29,7 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
-    private static SwerveSubsystem kInstance;
-    public static SwerveSubsystem instance()
-    {
-        return kInstance;
-    }
+    public static final SwerveSubsystem kInstance = new SwerveSubsystem();
 
     public static final double kMaxSpeedMS = 4.5; // I'm not trustworthy. = 4.5;
     public static final double kMetersPerInch = Units.inchesToMeters(1);
@@ -118,10 +114,8 @@ public class SwerveSubsystem extends SubsystemBase
     }
 
     /** Creates a new ExampleSubsystem. */
-    public SwerveSubsystem()
+    private SwerveSubsystem()
     {
-        kInstance = this;
-
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false);

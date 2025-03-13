@@ -16,7 +16,7 @@ public class AlgaeL2IntakePreset extends SequentialCommandGroup
         addCommands(
             new AlgaeL2(),
             new InstantCommand(
-                () -> CarriageSubsystem.instance().setAlgaeMode(true)
+                () -> CarriageSubsystem.kInstance.setAlgaeMode(true)
             )
         );
     }    

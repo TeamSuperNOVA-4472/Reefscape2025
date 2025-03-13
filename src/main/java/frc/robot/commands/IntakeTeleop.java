@@ -16,7 +16,7 @@ public class IntakeTeleop extends Command
     {
         mIntakeButton = pIntakeButton;
         mOuttakeButton = pOuttakeButton;
-        mIntakeSubsystem = IntakeSubsystem.instance();
+        mIntakeSubsystem = IntakeSubsystem.kInstance;
         addRequirements(mIntakeSubsystem);
     }
 

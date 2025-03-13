@@ -27,7 +27,7 @@ public class MoveCarriageToPresetCommand extends Command
     public MoveCarriageToPresetCommand(Supplier<CarriagePreset> preset)
     {
         presetSupplier = preset;
-        mCarriageSubsystem = CarriageSubsystem.instance();
+        mCarriageSubsystem = CarriageSubsystem.kInstance;
         addRequirements(mCarriageSubsystem);
     }
 

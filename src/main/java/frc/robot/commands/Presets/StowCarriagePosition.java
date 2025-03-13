@@ -17,7 +17,7 @@ public class StowCarriagePosition extends SequentialCommandGroup
 {
     public StowCarriagePosition()
     {
-        IntakeSubsystem intake = IntakeSubsystem.instance();
+        IntakeSubsystem intake = IntakeSubsystem.kInstance;
         CarriagePreset stowPreset;
         if (intake.hasAlgae()) stowPreset = CarriagePreset.kStowAlgae;
         else stowPreset = CarriagePreset.kStowCoral;
@@ -26,7 +26,7 @@ public class StowCarriagePosition extends SequentialCommandGroup
             new moveToLevelSafe(stowPreset),
             new MoveCarriageToPresetCommand(stowPreset),
             new InstantCommand(
-                () -> CarriageSubsystem.instance().setAlgaeMode(intake.hasAlgae())
+                () -> CarriageSubsystem.kInstance.setAlgaeMode(intake.hasAlgae())
             )
         );
     }    

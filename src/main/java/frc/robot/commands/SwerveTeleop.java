@@ -54,7 +54,7 @@ public class SwerveTeleop extends Command
         mSideInput = pSideInput;
         mTurnInput = pTurnInput;
         mResetHeadingInput = pResetHeadingInput;
-        mSwerveSubsystem = SwerveSubsystem.instance();
+        mSwerveSubsystem = SwerveSubsystem.kInstance;
 
         mTargetHeading = mSwerveSubsystem.getHeadingDegrees();
 

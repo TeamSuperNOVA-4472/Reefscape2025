@@ -50,7 +50,7 @@ public class DriveDistanceAndHeading extends Command {
     private double mNewHeading;
 
     public DriveDistanceAndHeading(Supplier<Pose2d> pOffset) {
-        mSwerveSubsystem = SwerveSubsystem.instance();
+        mSwerveSubsystem = SwerveSubsystem.kInstance;
         mOffset = pOffset;
         mGyroController.enableContinuousInput(0, 360);
         // TODO: Maybe the tolerances should be variables?

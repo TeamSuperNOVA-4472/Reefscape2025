@@ -4,21 +4,14 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase 
 {
-    private static IntakeSubsystem kInstance;
-    public static IntakeSubsystem instance()
-    {
-        return kInstance;
-    }
+    public static final IntakeSubsystem kInstance = new IntakeSubsystem();
 
     public static final int kIntakeMotorId = 1;
     public static final double kCoralIntakeVoltage = 4;
@@ -36,10 +29,8 @@ public class IntakeSubsystem extends SubsystemBase
     private TalonFX mAlgaeIntake;
     private TalonFX mCoralIntake;
 
-    public IntakeSubsystem()
+    private IntakeSubsystem()
     {
-        kInstance = this;
-
         mCoralIntake = new TalonFX(23, "CANivore");
         mAlgaeIntake = new TalonFX(24, "CANivore");
         

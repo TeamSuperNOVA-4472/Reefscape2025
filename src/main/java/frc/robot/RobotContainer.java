@@ -121,14 +121,14 @@ public class RobotContainer
         mPartner = new XboxController(kPartnerPort);
 
         // Initialize subsystems.
-        mLightsSubsystem = new LightsSubsystem();
-        mSwerveSubsystem = new SwerveSubsystem();
-        mVisionSubsystem = new VisionSubsystem();
-        mCarriageSubsystem = new CarriageSubsystem();
-        mElevatorSubsystem = new ElevatorSubsystem();
-        mClimbSubsystem = new ClimbSubsystem();
+        mLightsSubsystem = LightsSubsystem.kInstance;
+        mSwerveSubsystem = SwerveSubsystem.kInstance;
+        mVisionSubsystem = VisionSubsystem.kInstance;
+        mCarriageSubsystem = CarriageSubsystem.kInstance;
+        mElevatorSubsystem = ElevatorSubsystem.kInstance;
+        mClimbSubsystem = ClimbSubsystem.kInstance;
         //mElevatorCarriageSubsystem = new ElevatorCarriageSubsystem(mElevatorSubsystem, mCarriageSubsystem);
-        mIntakeSubsystem = new IntakeSubsystem();
+        mIntakeSubsystem = IntakeSubsystem.kInstance;
 
         // Initialize commands.
         // TODO: Should weighting go here? Or in the command?

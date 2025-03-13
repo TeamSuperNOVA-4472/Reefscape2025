@@ -19,8 +19,8 @@ public class moveOutOfDangerZone extends Command
 
     public moveOutOfDangerZone()
     {
-        mCarriageSubsystem = CarriageSubsystem.instance();
-        mIntakeSubsystem = IntakeSubsystem.instance();
+        mCarriageSubsystem = CarriageSubsystem.kInstance;
+        mIntakeSubsystem = IntakeSubsystem.kInstance;
         addRequirements(mCarriageSubsystem, mIntakeSubsystem);
     }
 

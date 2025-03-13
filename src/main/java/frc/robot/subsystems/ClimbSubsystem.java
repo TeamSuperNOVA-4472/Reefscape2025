@@ -15,11 +15,7 @@ import frc.robot.Robot;
 // TODO: Actual motor ports
 public class ClimbSubsystem extends SubsystemBase
 {
-    private static ClimbSubsystem kInstance;
-    public static ClimbSubsystem instance()
-    {
-        return kInstance;
-    }
+    public static final ClimbSubsystem kInstance = new ClimbSubsystem();
 
     // THE CONSTANTS
     private static final int LEFT_MOTOR = 12;
@@ -65,10 +61,8 @@ public class ClimbSubsystem extends SubsystemBase
     private double mLeftTargetAngle = LEFT_CLIMB_OUT_ANGLE;
     private double mRightTargetAngle = RIGHT_CLIMB_OUT_ANGLE;
     // Constructor
-    public ClimbSubsystem()
+    private ClimbSubsystem()
     {
-        kInstance = this;
-
         mLeftClimbMotor = new TalonFX(LEFT_MOTOR, "CANivore"); // Move these to constants at the top, DONE
         mRightClimbMotor = new TalonFX(RIGHT_MOTOR); // Two krakens using TalonFX motor controllers
         mGrabberMotor = new SparkMax(GRABBER_MOTOR, MotorType.kBrushless);  // Two krakens using TalonFX motor controllers
