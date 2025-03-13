@@ -1,5 +1,7 @@
 package frc.robot.objectmodels;
 
+import static frc.robot.subsystems.SwerveSubsystem.kA;
+
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 
 /**
@@ -56,20 +58,37 @@ public class CarriagePreset
     }
 
     /**
-     * Returns a NEW preset with the same elevator position as the current preset,
-     * but with new arm & wrist positions.
+     * Returns a NEW preset with the same arm & elevator positions as the current preset,
+     * but with a new arm position.
      */
-    public CarriagePreset withArmWristPreset(double armPreset, double wristPreset)
+    public CarriagePreset withArmPreset(double armPreset)
     {
-        return new CarriagePreset(armPreset, wristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+        return new CarriagePreset(armPreset, kWristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
     }
     /**
-     * Returns a NEW preset with the same elevator position as the current preset,
-     * but with the arm & wrist positions from the variable.
+     * Returns a NEW preset with the same arm & elevator positions as the current preset,
+     * but with the arm position from the variable.
      */
-    public CarriagePreset withArmWristPreset(CarriagePreset armWristPreset)
+    public CarriagePreset withArmPreset(CarriagePreset armPreset)
     {
-        return new CarriagePreset(armWristPreset.kArmPreset, armWristPreset.kWristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+        return new CarriagePreset(armPreset.kArmPreset, kWristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+    }
+
+    /**
+     * Returns a NEW preset with the same arm & elevator positions as the current preset,
+     * but with a new arm position.
+     */
+    public CarriagePreset withWristPreset(double wristPreset)
+    {
+        return new CarriagePreset(kArmPreset, wristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+    }
+    /**
+     * Returns a NEW preset with the same arm & elevator positions as the current preset,
+     * but with the arm position from the variable.
+     */
+    public CarriagePreset withWristPreset(CarriagePreset wristPreset)
+    {
+        return new CarriagePreset(kArmPreset, wristPreset.kWristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
     }
 
     @Override

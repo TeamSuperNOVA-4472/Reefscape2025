@@ -28,7 +28,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
 
     private final Supplier<CarriagePreset> mPresetSupplier;
 
-    private CarriagePreset safePosition, elevatorPosition, fullPosition;
+    private CarriagePreset safePosition, elevatorPosition, wristPosition, armPosition;
 
     public SwitchPresetCommand(CarriagePreset newPreset)
     {
@@ -45,7 +45,8 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             new InstantCommand(this::init),                // Run initial setup.
             new MovePresetCommand(() -> safePosition),     // Move to the safe position.
             new MovePresetCommand(() -> elevatorPosition), // Move the elevator.
-            new MovePresetCommand(() -> fullPosition),     // Move the carriage.
+            new MovePresetCommand(() -> wristPosition),    // Move the wrist.
+            new MovePresetCommand(() -> armPosition),      // Move the arm.
             new InstantCommand(() -> System.out.println("[SWITCH] Done"))
         );
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
@@ -77,11 +78,8 @@ public class SwitchPresetCommand extends SequentialCommandGroup
 
         safePosition = safePosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
         elevatorPosition = safePosition.withElevatorPreset(newPreset);
-        fullPosition = elevatorPosition.withArmWristPreset(newPreset);
-
-        System.out.println("[SWITCH] Safe position: " + safePosition);
-        System.out.println("[SWITCH] Elevator position: " + elevatorPosition);
-        System.out.println("[SWITCH] Full position: " + fullPosition);
+        wristPosition = elevatorPosition.withWristPreset(newPreset);
+        armPosition = wristPosition.withArmPreset(newPreset);
     }
     private void initStowOnly()
     {
@@ -92,11 +90,10 @@ public class SwitchPresetCommand extends SequentialCommandGroup
 
         safePosition = stowPosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
         elevatorPosition = stowPosition;
-        fullPosition = stowPosition;
-        
-        System.out.println("[SWITCH] Safe position: " + safePosition);
-        System.out.println("[SWITCH] Elevator position: " + elevatorPosition);
-        System.out.println("[SWITCH] Full position: " + fullPosition);
+
+        // Redundant
+        wristPosition = stowPosition;
+        armPosition = stowPosition;
     }
 
     // Unsafe preset command. Just runs `setPreset()` and waits for completion.
@@ -127,19 +124,17 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         }
 
         @Override
+        public void execute()
+        {            
+            mElevatorCarriage.setPreset(activePreset);
+        }
+
+        @Override
         public boolean isFinished()
         {
-            final double armDelta = 0.1,
-                         wristDelta = 0.1,
-                         elevatorDelta = 0.1;
-
-            if (Math.abs(mElevatorCarriage.getArmAngle() - activePreset.kArmPreset) <= armDelta &&
-                Math.abs(mElevatorCarriage.getWristAngle() - activePreset.kWristPreset) <= wristDelta &&
-                Math.abs(mElevatorCarriage.getElevatorHeight() - activePreset.kElevatorPreset) <= elevatorDelta)
-                {
-                    System.out.println("DONEZO");
-                }
-                else System.out.println("Delta height: " + (mElevatorCarriage.getElevatorHeight() - activePreset.kElevatorPreset));
+            final double armDelta = 10, // 1 or 2
+                         wristDelta = 10,
+                         elevatorDelta = 1;
             
             return Math.abs(mElevatorCarriage.getArmAngle() - activePreset.kArmPreset) <= armDelta &&
                    Math.abs(mElevatorCarriage.getWristAngle() - activePreset.kWristPreset) <= wristDelta &&

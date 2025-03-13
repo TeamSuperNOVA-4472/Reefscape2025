@@ -266,9 +266,8 @@ public class RobotContainer
         mElevatorCarriageSubsystem.setDefaultCommand(new ElevatorCarriageTeleop(mPartner));
 
         // FIXME: Temporary
-        Trigger bruh = new Trigger(mPartner::getXButton);
-        bruh.onTrue(new InstantCommand(() -> System.out.println("Testing on????????")));
-        bruh.whileTrue(new SwitchPresetCommand(() -> CarriagePreset.kCoralL1));
+        //Trigger bruh = new Trigger(mPartner::getXButton);
+        //bruh.whileTrue(new SwitchPresetCommand(() -> CarriagePreset.kCoralL2));
 
         // mClimbSubsystem.setDefaultCommand(mClimberTester);
 
