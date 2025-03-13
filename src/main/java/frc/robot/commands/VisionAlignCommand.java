@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Robot;
 import frc.robot.objectmodels.LightState;
 import frc.robot.objectmodels.LightStatusRequest;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -54,14 +55,15 @@ public class VisionAlignCommand extends SequentialCommandGroup
     // Extra stuff.
     private Optional<Runnable> runOnComplete;
 
+    private VisionSubsystem mVision;
+
     public VisionAlignCommand(
-        SwerveSubsystem pSwerve,
-        VisionSubsystem pVision,
         Translation2d pOffsetFromTarget,
         Optional<Runnable> pRunOnComplete)
     {
         offsetFromTarget = pOffsetFromTarget;
         runOnComplete = pRunOnComplete;
+        mVision = VisionSubsystem.kInstance;
 
         // Here's the deal: we're going to run a few commands:
         // - Wait for the vision subsystem to recognize a tag.
@@ -77,36 +79,36 @@ public class VisionAlignCommand extends SequentialCommandGroup
 
             // Rotation step 1
             new InstantCommand(this::alignReset), // This line not technically required, but it serves as a reference.
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(mVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignRotation),
-            new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
+            new DriveDistanceAndHeading(() -> drivePerIterOffset),
 
             // Translation step 1
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(mVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
-            new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
+            new DriveDistanceAndHeading(() -> drivePerIterOffset),
 
             // Rotation step 2
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(mVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignRotation),
-            new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
+            new DriveDistanceAndHeading(() -> drivePerIterOffset),
 
             // Translation step 2
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(mVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
-            new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
+            new DriveDistanceAndHeading(() -> drivePerIterOffset),
 
             // Translation step 3
             new InstantCommand(this::alignReset),
-            new WaitForTagCommand(pVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
+            new WaitForTagCommand(mVision, this::passDesiredTarget, 2.0, (seen) -> activeTarget = seen),
             new InstantCommand(this::alignTranslation),
-            new DriveDistanceAndHeading(pSwerve, () -> drivePerIterOffset),
+            new DriveDistanceAndHeading(() -> drivePerIterOffset),
 
             // One more thing. Apply the offset and end stuff.
-            new DriveDistanceAndHeading(pSwerve, () -> new Pose2d(offsetFromTarget, Rotation2d.kZero)),
+            new DriveDistanceAndHeading(() -> new Pose2d(offsetFromTarget, Rotation2d.kZero)),
             new InstantCommand(() -> onComplete(false)),
 
             // Runnable to invoke on completion of the command.

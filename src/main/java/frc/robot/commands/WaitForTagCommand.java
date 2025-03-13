@@ -21,16 +21,16 @@ public class WaitForTagCommand extends Command
     private Supplier<Integer> specificTagSupplier;
     private Timer timer;
 
-    public WaitForTagCommand(VisionSubsystem vision, int tagId, double maxTime)
+    public WaitForTagCommand(int tagId, double maxTime)
     {
-        mVision = vision;
+        mVision = VisionSubsystem.kInstance;
         mMaxTime = maxTime;
         specificTagSupplier = () -> tagId;
         result = Optional.empty();
         callback = Optional.empty();
         timer = new Timer();
 
-        addRequirements(vision);
+        addRequirements(mVision);
     }
     // More constructors can be added if you want.
     public WaitForTagCommand(VisionSubsystem vision, Supplier<Integer> tagSupplier, double maxTime, Consumer<PhotonTrackedTarget> callback)

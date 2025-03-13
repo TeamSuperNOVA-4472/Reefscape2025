@@ -49,8 +49,8 @@ public class DriveDistanceAndHeading extends Command {
     private Translation2d mEstDistanceTraveled = new Translation2d();
     private double mNewHeading;
 
-    public DriveDistanceAndHeading(SwerveSubsystem pSwerveSubsystem, Supplier<Pose2d> pOffset) {
-        mSwerveSubsystem =pSwerveSubsystem;
+    public DriveDistanceAndHeading(Supplier<Pose2d> pOffset) {
+        mSwerveSubsystem = SwerveSubsystem.kInstance;
         mOffset = pOffset;
         mGyroController.enableContinuousInput(0, 360);
         // TODO: Maybe the tolerances should be variables?

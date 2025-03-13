@@ -13,11 +13,11 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class AlgaeProcessor extends SequentialCommandGroup
 {
-    public AlgaeProcessor(ElevatorSubsystem pElevator, CarriageSubsystem pCarriage, IntakeSubsystem pIntakeSubsystem)
+    public AlgaeProcessor()
     {
         addCommands(
-            new moveToLevelSafe(pCarriage, pElevator, pIntakeSubsystem, CarriagePreset.kAlgaeProcessor),
-            new MoveCarriageToPresetCommand(pCarriage, CarriagePreset.kAlgaeProcessor)
+            new moveToLevelSafe(CarriagePreset.kAlgaeProcessor),
+            new MoveCarriageToPresetCommand(CarriagePreset.kAlgaeProcessor)
         );
     }    
 }
