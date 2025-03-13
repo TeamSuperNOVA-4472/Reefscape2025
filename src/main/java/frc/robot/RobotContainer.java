@@ -82,7 +82,7 @@ public class RobotContainer
     //private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakeSubsystem mIntakeSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
-    // private final ClimbSubsystem mClimbSubsystem;
+    private final ClimbSubsystem mClimbSubsystem;
 
     // Controllers go here:
     private final XboxController mDriver;
@@ -96,7 +96,7 @@ public class RobotContainer
 
     // TODO: Remove tester commands when robot is properly programmed
     private final IntakeTester mIntakeTester;
-    // private final ClimberTester mClimberTester;
+    private final ClimberTester mClimberTester;
 
     // TODO: In the future I think more triggers should be brought out here.
     // private final Trigger algaeTrigger, algaeHighTrigger;
@@ -116,6 +116,7 @@ public class RobotContainer
         mVisionSubsystem = VisionSubsystem.kInstance;
         mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.kInstance;
         mIntakeSubsystem = IntakeSubsystem.kInstance;
+        mClimbSubsystem = ClimbSubsystem.kInstance;
 
         // Initialize commands.
         // TODO: Should weighting go here? Or in the command?
@@ -245,7 +246,7 @@ public class RobotContainer
         //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
         //mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
         mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
-        // mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
+        mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
         // Configure subsystems
         // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
         // This is the fastest fix I could make.
@@ -271,7 +272,7 @@ public class RobotContainer
         //Trigger bruh = new Trigger(mPartner::getXButton);
         //bruh.whileTrue(new SwitchPresetCommand(() -> CarriagePreset.kCoralL2));
 
-        // mClimbSubsystem.setDefaultCommand(mClimberTester);
+        mClimbSubsystem.setDefaultCommand(mClimberTester);
 
 
         // Register named commands.
