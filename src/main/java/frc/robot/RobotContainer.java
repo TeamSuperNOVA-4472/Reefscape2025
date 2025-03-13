@@ -128,7 +128,7 @@ public class RobotContainer
         //mCarriageSubsystem = new CarriageSubsystem();
         //mElevatorSubsystem = new ElevatorSubsystem();
         // mClimbSubsystem = new ClimbSubsystem();
-        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.instance();
+        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.kInstance;
         mIntakeSubsystem = new IntakeSubsystem();
 
         // Initialize commands.
