@@ -14,12 +14,12 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class ArmBackPreset extends SequentialCommandGroup
 {
-    public ArmBackPreset(ElevatorSubsystem pElevator, CarriageSubsystem pCarriage, IntakeSubsystem pIntakeSubsystem)
+    public ArmBackPreset()
     {
         addCommands(
-            new moveToLevelSafe(pCarriage, pElevator, pIntakeSubsystem, CarriagePreset.kClimb),
-            new MoveCarriageToPresetCommand(pCarriage, new CarriagePreset(CarriagePreset.kStowAlgae.kArmPreset, 10.0, 12.875)),
-            new MoveCarriageToPresetCommand(pCarriage, new CarriagePreset(95.0, 10.0, 12.875))
+            new moveToLevelSafe(CarriagePreset.kClimb),
+            new MoveCarriageToPresetCommand(new CarriagePreset(CarriagePreset.kStowAlgae.kArmPreset, 10.0, 12.875)),
+            new MoveCarriageToPresetCommand(new CarriagePreset(95.0, 10.0, 12.875))
         );
     }    
 }

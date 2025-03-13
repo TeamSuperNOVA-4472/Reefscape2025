@@ -13,11 +13,11 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class CoralL3Preset extends SequentialCommandGroup
 {
-    public CoralL3Preset(ElevatorSubsystem pElevator, CarriageSubsystem pCarriage, IntakeSubsystem pIntakeSubsystem)
+    public CoralL3Preset()
     {
         addCommands(
-            new moveToLevelSafe(pCarriage, pElevator, pIntakeSubsystem, CarriagePreset.kCoralL3),
-            new MoveCarriageToPresetCommand(pCarriage, CarriagePreset.kCoralL3)
+            new moveToLevelSafe(CarriagePreset.kCoralL3),
+            new MoveCarriageToPresetCommand(CarriagePreset.kCoralL3)
         );
     }    
 }

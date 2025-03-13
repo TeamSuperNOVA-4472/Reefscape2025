@@ -15,7 +15,7 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class LoadCoral extends SequentialCommandGroup
 {
-    public LoadCoral(ElevatorSubsystem pElevator, CarriageSubsystem pCarriage, IntakeSubsystem pIntake)
+    public LoadCoral()
     {
         // I didn't feel fully comfortable getting rid of the old code, but
         // this should in theory do the same thing. It appears this code was
@@ -30,8 +30,8 @@ public class LoadCoral extends SequentialCommandGroup
         );*/
 
         addCommands(
-            new moveToLevelSafe(pCarriage, pElevator, pIntake, CarriagePreset.kCoralLoad),
-            new MoveCarriageToPresetCommand(pCarriage, CarriagePreset.kCoralLoad)
+            new moveToLevelSafe(CarriagePreset.kCoralLoad),
+            new MoveCarriageToPresetCommand(CarriagePreset.kCoralLoad)
         );
     }
 }

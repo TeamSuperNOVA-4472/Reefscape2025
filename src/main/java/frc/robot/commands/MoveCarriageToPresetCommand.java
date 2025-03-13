@@ -19,15 +19,15 @@ public class MoveCarriageToPresetCommand extends Command
 
     private final Supplier<CarriagePreset> presetSupplier;
 
-    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, CarriagePreset preset)
+    public MoveCarriageToPresetCommand(CarriagePreset preset)
     {
-        this(carriageSubsystem, () -> preset);
+        this(() -> preset);
     }
 
-    public MoveCarriageToPresetCommand(CarriageSubsystem carriageSubsystem, Supplier<CarriagePreset> preset)
+    public MoveCarriageToPresetCommand(Supplier<CarriagePreset> preset)
     {
         presetSupplier = preset;
-        mCarriageSubsystem = carriageSubsystem;
+        mCarriageSubsystem = CarriageSubsystem.kInstance;
         addRequirements(mCarriageSubsystem);
     }
 

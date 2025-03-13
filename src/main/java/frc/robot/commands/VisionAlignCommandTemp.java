@@ -47,7 +47,6 @@ public class VisionAlignCommandTemp extends SequentialCommandGroup {
         mTarget = mVisionSubsystem.getLastSeenTarget();
 
         mRotate = new DriveDistanceAndHeading(
-            mSwerveSubsystem,
             () -> {
                 double difference;
                 if (mVisionSubsystem.getLastSeenTarget() != null)
@@ -70,7 +69,6 @@ public class VisionAlignCommandTemp extends SequentialCommandGroup {
         );
 
         mLateral = new DriveDistanceAndHeading(
-            mSwerveSubsystem, 
             () -> {
                 PhotonTrackedTarget lastSeenTarget = mVisionSubsystem.getLastSeenTarget();
                 if (lastSeenTarget != null)

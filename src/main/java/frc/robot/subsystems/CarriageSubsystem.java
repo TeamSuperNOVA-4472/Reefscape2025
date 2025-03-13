@@ -17,7 +17,9 @@ import frc.robot.objectmodels.CarriagePreset;
 
 public class CarriageSubsystem extends SubsystemBase 
 {
-    // Motor IDs
+    public static final CarriageSubsystem kInstance = new CarriageSubsystem();
+
+    // Motor IDs    
     public static final int armMotorId = 22;
     public static final int wristMotorId = 20;
 
@@ -61,7 +63,7 @@ public class CarriageSubsystem extends SubsystemBase
 
     boolean algaeMode = false;
 
-    public CarriageSubsystem() 
+    private CarriageSubsystem() 
     {
         armMotor = new TalonFX(armMotorId, "CANivore");
         wristMotor = new TalonFX(wristMotorId, "CANivore");

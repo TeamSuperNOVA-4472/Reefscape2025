@@ -22,6 +22,8 @@ import frc.robot.objectmodels.lightpatterns.RandomLEDPattern;
 // Ask me any questions you've got about this, I'd be happy to answer them!
 public class LightsSubsystem extends SubsystemBase
 {
+    public static final LightsSubsystem kInstance = new LightsSubsystem();
+
     public static final int kLightChannel = 7;
     public static final int kLightCount = 50;
 
@@ -44,7 +46,7 @@ public class LightsSubsystem extends SubsystemBase
     private LightState prevState;
     private boolean initialized, enabled = true;
 
-    public LightsSubsystem()
+    private LightsSubsystem()
     {
         lightData = new AddressableLEDBuffer(kLightCount);
         try

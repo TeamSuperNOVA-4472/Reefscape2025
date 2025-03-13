@@ -13,12 +13,11 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class moveToLevelSafe extends SequentialCommandGroup
 {
-    public moveToLevelSafe(CarriageSubsystem pCarriageSubsystem, ElevatorSubsystem pElevatorSubsystem, IntakeSubsystem pIntakeSubsystem, CarriagePreset pNewLevel) 
+    public moveToLevelSafe(CarriagePreset pNewLevel) 
     {
-        addRequirements(pCarriageSubsystem, pElevatorSubsystem);
         addCommands(
-            new moveOutOfDangerZone(pCarriageSubsystem, pIntakeSubsystem),
-            new MoveToLevelCommand(pElevatorSubsystem, pNewLevel)
+            new moveOutOfDangerZone(),
+            new MoveToLevelCommand(pNewLevel)
         );
     }
 }
