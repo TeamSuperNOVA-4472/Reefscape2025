@@ -349,4 +349,12 @@ public class RobotContainer
     {
         return autoChooser.getSelected();
     }
+
+    /**
+     * Used to establish field oriented control to the correct alliance side
+     */
+    public void resetHeadingToAlliance() {
+        mSwerveTeleop.resetHeadingToAlliance();
+    }
+
 }
