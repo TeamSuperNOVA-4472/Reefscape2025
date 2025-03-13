@@ -138,7 +138,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
         mRightElevatorMotor.getConfigurator().apply(rightConfig);
 
         lights = new LightStatusRequest(LightState.kOff, -1);
-        LightsSubsystem.instance().addRequest(lights);
+        LightsSubsystem.kInstance.addRequest(lights);
 
 
         mArmMotor = new TalonFX(kArmMotorId, Constants.kCanivoreBusName);
