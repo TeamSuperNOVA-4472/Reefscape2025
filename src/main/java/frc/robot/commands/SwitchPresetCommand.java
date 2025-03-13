@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -46,51 +45,58 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             new InstantCommand(this::init),                // Run initial setup.
             new MovePresetCommand(() -> safePosition),     // Move to the safe position.
             new MovePresetCommand(() -> elevatorPosition), // Move the elevator.
-            new MovePresetCommand(() -> fullPosition)      // Move the carriage.
+            new MovePresetCommand(() -> fullPosition),     // Move the carriage.
+            new InstantCommand(() -> System.out.println("[SWITCH] Done"))
         );
+        addRequirements(mElevatorCarriage); // Not actively modifying intake.
+
+        System.out.println("YEAH " + mElevatorCarriage.getElevatorHeight());
     }
     private SwitchPresetCommand(boolean justStow) // Just stow. Nothing else.
     {
         mElevatorCarriage = ElevatorCarriageSubsystem.kInstance;
         mIntake = IntakeSubsystem.kInstance;
-        mPresetSupplier = null; // Unused in this instance. Careful!
+        mPresetSupplier = null; // Unused in this context. Careful!
 
         addCommands(
             new InstantCommand(this::initStowOnly),       // Run initial setup.
             new MovePresetCommand(() -> safePosition),    // Move to the safe position.
-            new MovePresetCommand(() -> elevatorPosition) // Move the elevator.
+            new MovePresetCommand(() -> elevatorPosition), // Move the elevator.
+            new InstantCommand(() -> System.out.println("[SWITCH] Done"))
         );
+        addRequirements(mElevatorCarriage); // Not actively modifying intake.
     }
 
     private void init()
     {
+        System.out.println("[SWITCH] Initializing.");
         CarriagePreset newPreset = mPresetSupplier.get();
 
         if (mIntake.hasAlgae()) safePosition = CarriagePreset.kStowAlgae;
         else safePosition = CarriagePreset.kStowCoral;
 
-        Optional<CarriagePreset> activePreset = mElevatorCarriage.getActivePreset();
-        if (activePreset.isPresent())
-        {
-            safePosition = safePosition.withElevatorPreset(activePreset.get());
-        }
-
+        safePosition = safePosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
         elevatorPosition = safePosition.withElevatorPreset(newPreset);
         fullPosition = elevatorPosition.withArmWristPreset(newPreset);
+
+        System.out.println("[SWITCH] Safe position: " + safePosition);
+        System.out.println("[SWITCH] Elevator position: " + elevatorPosition);
+        System.out.println("[SWITCH] Full position: " + fullPosition);
     }
     private void initStowOnly()
     {
+        System.out.println("[SWITCH] Initializing (stow).");
         CarriagePreset stowPosition;
         if (mIntake.hasAlgae()) stowPosition = CarriagePreset.kStowAlgae;
         else stowPosition = CarriagePreset.kStowCoral;
 
-        Optional<CarriagePreset> activePreset = mElevatorCarriage.getActivePreset();
-        if (activePreset.isPresent())
-        {
-            safePosition = stowPosition.withElevatorPreset(activePreset.get());
-        }
+        safePosition = stowPosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
         elevatorPosition = stowPosition;
         fullPosition = stowPosition;
+        
+        System.out.println("[SWITCH] Safe position: " + safePosition);
+        System.out.println("[SWITCH] Elevator position: " + elevatorPosition);
+        System.out.println("[SWITCH] Full position: " + fullPosition);
     }
 
     // Unsafe preset command. Just runs `setPreset()` and waits for completion.
@@ -112,14 +118,12 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         {
             activePreset = mPresetSupplier.get();
             mElevatorCarriage.setPreset(activePreset);
-        }
 
-        @Override
-        public void cancel()
-        {
-            // TODO: Is this necessary? Usually a cancel
-            //       means another command will be run immediately after.
-            mElevatorCarriage.stop();
+            double deltaArm = mElevatorCarriage.getArmAngle() - activePreset.kArmPreset;
+            double deltaWrist = mElevatorCarriage.getWristAngle() - activePreset.kWristPreset;
+            double deltaElev = mElevatorCarriage.getElevatorHeight() - activePreset.kElevatorPreset;
+            System.out.println("[SWITCH] Beginning move sequence.");
+            System.out.println("[SWITCH] Delta Arm: " + deltaArm + ", Delta Wrist: " + deltaWrist + ", Delta Height" + deltaElev);
         }
 
         @Override
@@ -127,7 +131,15 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         {
             final double armDelta = 0.1,
                          wristDelta = 0.1,
-                         elevatorDelta = 0.1;            
+                         elevatorDelta = 0.1;
+
+            if (Math.abs(mElevatorCarriage.getArmAngle() - activePreset.kArmPreset) <= armDelta &&
+                Math.abs(mElevatorCarriage.getWristAngle() - activePreset.kWristPreset) <= wristDelta &&
+                Math.abs(mElevatorCarriage.getElevatorHeight() - activePreset.kElevatorPreset) <= elevatorDelta)
+                {
+                    System.out.println("DONEZO");
+                }
+                else System.out.println("Delta height: " + (mElevatorCarriage.getElevatorHeight() - activePreset.kElevatorPreset));
             
             return Math.abs(mElevatorCarriage.getArmAngle() - activePreset.kArmPreset) <= armDelta &&
                    Math.abs(mElevatorCarriage.getWristAngle() - activePreset.kWristPreset) <= wristDelta &&

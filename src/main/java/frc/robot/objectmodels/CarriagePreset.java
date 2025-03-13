@@ -44,7 +44,7 @@ public class CarriagePreset
      */
     public CarriagePreset withElevatorPreset(double elevatorPreset)
     {
-        return new CarriagePreset(kArmPreset, kWristPreset, elevatorPreset);
+        return new CarriagePreset(kArmPreset, kWristPreset, elevatorPreset - ElevatorCarriageSubsystem.initialHeight);
     }
     /**
      * Returns a NEW preset with the same arm & wrist positions as the current preset,
@@ -52,7 +52,7 @@ public class CarriagePreset
      */
     public CarriagePreset withElevatorPreset(CarriagePreset elevatorPreset)
     {
-        return new CarriagePreset(kArmPreset, kWristPreset, elevatorPreset.kElevatorPreset);
+        return new CarriagePreset(kArmPreset, kWristPreset, elevatorPreset.kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
     }
 
     /**
@@ -61,7 +61,7 @@ public class CarriagePreset
      */
     public CarriagePreset withArmWristPreset(double armPreset, double wristPreset)
     {
-        return new CarriagePreset(armPreset, wristPreset, kElevatorPreset);
+        return new CarriagePreset(armPreset, wristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
     }
     /**
      * Returns a NEW preset with the same elevator position as the current preset,
@@ -69,7 +69,7 @@ public class CarriagePreset
      */
     public CarriagePreset withArmWristPreset(CarriagePreset armWristPreset)
     {
-        return new CarriagePreset(armWristPreset.kArmPreset, armWristPreset.kWristPreset, kElevatorPreset);
+        return new CarriagePreset(armWristPreset.kArmPreset, armWristPreset.kWristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
     }
 
     @Override
@@ -82,5 +82,11 @@ public class CarriagePreset
         return kArmPreset == otherPreset.kArmPreset &&
                kWristPreset == otherPreset.kWristPreset &&
                kElevatorPreset == otherPreset.kElevatorPreset;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Arm: " + kArmPreset + "deg, Wrist: " + kWristPreset + "deg, Elev: " + kElevatorPreset + "in";
     }
 }
