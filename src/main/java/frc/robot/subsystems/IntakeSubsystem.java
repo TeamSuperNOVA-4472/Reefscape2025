@@ -4,10 +4,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,6 +22,7 @@ public class IntakeSubsystem extends SubsystemBase
     public static final double kCoralOuttakeVoltage = 8;
     public static final double kCoralDefaultVoltage = 1;
     public static final double kAlgaeIntakeVoltage = 6;
+    public static final double kAlgaeOuttakeVoltage = 12;
     public static final double kAlgaeDefaultVoltage = 1;
     public static final double kAlgaeCurrentThreshold = 2;
 
@@ -64,10 +62,10 @@ public class IntakeSubsystem extends SubsystemBase
         mCoralIntake.getConfigurator().refresh(coralConfig);
         mCoralIntake.getConfigurator().refresh(coralCurrentConfig);
         mCoralIntake.getConfigurator().refresh(coralMotorConfig);
-        coralCurrentConfig.SupplyCurrentLimit = 30;
+        coralCurrentConfig.SupplyCurrentLimit = 20;
         coralCurrentConfig.SupplyCurrentLimitEnable = true;
         coralCurrentConfig.StatorCurrentLimitEnable = true;
-        coralCurrentConfig.StatorCurrentLimit = 30;
+        coralCurrentConfig.StatorCurrentLimit = 20;
         coralMotorConfig.NeutralMode = NeutralModeValue.Brake;
         coralConfig.withCurrentLimits(coralCurrentConfig);
         coralConfig.withMotorOutput(coralMotorConfig);
@@ -77,7 +75,7 @@ public class IntakeSubsystem extends SubsystemBase
 
     public void intakeCoral()
     {
-        mCoralIntake.setVoltage(-kCoralIntakeVoltage);
+        mCoralIntake.setVoltage(kCoralIntakeVoltage);
         mIsIntaking = true;
         mIsOutTaking = false;
 
@@ -85,15 +83,15 @@ public class IntakeSubsystem extends SubsystemBase
 
     public void outtakeCoral()
     {
-        mCoralIntake.setVoltage(kCoralOuttakeVoltage);
+        mCoralIntake.setVoltage(-kCoralOuttakeVoltage);
         mIsIntaking = false;
         mIsOutTaking = true;
     }
 
     public void intakeAlgae()
     {
-        mAlgaeIntake.setVoltage(kAlgaeIntakeVoltage);
-        algaeTargetVoltage = kAlgaeIntakeVoltage;
+        mAlgaeIntake.setVoltage(-kAlgaeIntakeVoltage);
+        algaeTargetVoltage = -kAlgaeIntakeVoltage;
         mIsIntaking = true;
         mIsOutTaking = false;
 
@@ -101,16 +99,16 @@ public class IntakeSubsystem extends SubsystemBase
 
     public void outtakeAlgae()
     {
-        mAlgaeIntake.setVoltage(-12);//-kAlgaeIntakeVoltage);
-        algaeTargetVoltage = -12.0;
+        mAlgaeIntake.setVoltage(kAlgaeOuttakeVoltage);
+        algaeTargetVoltage = kAlgaeOuttakeVoltage;
         mIsIntaking = false;
         mIsOutTaking = true;
     }
 
     public void stop()
     {
-        mCoralIntake.setVoltage(-kCoralDefaultVoltage);
-        mAlgaeIntake.setVoltage(kAlgaeDefaultVoltage);
+        mCoralIntake.setVoltage(kCoralDefaultVoltage);
+        mAlgaeIntake.setVoltage(-kAlgaeDefaultVoltage);
         algaeTargetVoltage = kAlgaeDefaultVoltage;
         mIsIntaking = false;
         mIsOutTaking = false;
