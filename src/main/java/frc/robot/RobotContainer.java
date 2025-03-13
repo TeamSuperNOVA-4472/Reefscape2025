@@ -20,21 +20,10 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.OperatorConfig.weightJoystick;
-import frc.robot.commands.Presets.AlgaeBarge;
-import frc.robot.commands.Presets.AlgaeGround;
-import frc.robot.commands.Presets.AlgaeL2;
-import frc.robot.commands.Presets.AlgaeL3;
-import frc.robot.commands.Presets.AlgaeProcessor;
-import frc.robot.commands.Presets.ArmBackPreset;
-import frc.robot.commands.Presets.CoralL1Preset;
-import frc.robot.commands.Presets.CoralL2Preset;
-import frc.robot.commands.Presets.CoralL3Preset;
-import frc.robot.commands.Presets.CoralL4Preset;
-import frc.robot.commands.Presets.LoadCoral;
-import frc.robot.commands.Presets.StowCarriagePosition;
 import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.ElevatorCarriageTeleop;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.SwitchPresetCommand;
 import frc.robot.commands.VisionAlignCommand;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ClimberTester;
@@ -281,15 +270,15 @@ public class RobotContainer
 
         // Register named commands.
         NamedCommands.registerCommand("StowCarriage", stowCarriage());
-        NamedCommands.registerCommand("MoveCoralL1", new CoralL1Preset());
-        NamedCommands.registerCommand("MoveCoralL2", new CoralL2Preset());
-        NamedCommands.registerCommand("MoveCoralL3", new CoralL3Preset());
-        NamedCommands.registerCommand("MoveCoralL4", new CoralL4Preset());
+        NamedCommands.registerCommand("MoveCoralL1", new SwitchPresetCommand(CarriagePreset.kCoralL1));
+        NamedCommands.registerCommand("MoveCoralL2", new SwitchPresetCommand(CarriagePreset.kCoralL2));
+        NamedCommands.registerCommand("MoveCoralL3", new SwitchPresetCommand(CarriagePreset.kCoralL3));
+        NamedCommands.registerCommand("MoveCoralL4", new SwitchPresetCommand(CarriagePreset.kCoralL4));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(VisionAlignCommand.kReefLeftOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignMiddle", new VisionAlignCommand(VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(VisionAlignCommand.kReefRightOffset, Optional.empty()));
-        NamedCommands.registerCommand("MoveAlgaeL2", new AlgaeL2());
-        NamedCommands.registerCommand("MoveAlgaeL3", new AlgaeL3());
+        NamedCommands.registerCommand("MoveAlgaeL2", new SwitchPresetCommand(CarriagePreset.kAlgaeL2));
+        NamedCommands.registerCommand("MoveAlgaeL3", new SwitchPresetCommand(CarriagePreset.kAlgaeL3));
         NamedCommands.registerCommand("IntakeCoral", new InstantCommand(() -> mIntakeSubsystem.intakeCoral()));
         NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
@@ -312,7 +301,7 @@ public class RobotContainer
         // Kyle here. I've tweaked the StowCarriagePosition command to do what this method used to do.
         // It's still cleaner than having a million copies of this one line around, but it won't be needed
         // when the command rewrite is done.
-        return new StowCarriagePosition();
+        return SwitchPresetCommand.stow();
     }
 
     // private void applyHeightOffsetWhenVisionAlignFinishes()

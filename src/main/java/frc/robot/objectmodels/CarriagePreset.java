@@ -38,6 +38,40 @@ public class CarriagePreset
         kElevatorPreset = pElevatorPreset + ElevatorCarriageSubsystem.initialHeight;
     }
 
+    /**
+     * Returns a NEW preset with the same arm & wrist positions as the current preset,
+     * but with a new elevator position.
+     */
+    public CarriagePreset withElevatorPreset(double elevatorPreset)
+    {
+        return new CarriagePreset(kArmPreset, kWristPreset, elevatorPreset);
+    }
+    /**
+     * Returns a NEW preset with the same arm & wrist positions as the current preset,
+     * but with the elevator position from the variable.
+     */
+    public CarriagePreset withElevatorPreset(CarriagePreset elevatorPreset)
+    {
+        return new CarriagePreset(kArmPreset, kWristPreset, elevatorPreset.kElevatorPreset);
+    }
+
+    /**
+     * Returns a NEW preset with the same elevator position as the current preset,
+     * but with new arm & wrist positions.
+     */
+    public CarriagePreset withArmWristPreset(double armPreset, double wristPreset)
+    {
+        return new CarriagePreset(armPreset, wristPreset, kElevatorPreset);
+    }
+    /**
+     * Returns a NEW preset with the same elevator position as the current preset,
+     * but with the arm & wrist positions from the variable.
+     */
+    public CarriagePreset withArmWristPreset(CarriagePreset armWristPreset)
+    {
+        return new CarriagePreset(armWristPreset.kArmPreset, armWristPreset.kWristPreset, kElevatorPreset);
+    }
+
     @Override
     public boolean equals(Object other)
     {
