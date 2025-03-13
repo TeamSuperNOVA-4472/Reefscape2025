@@ -63,7 +63,7 @@ public class VisionAlignCommand extends SequentialCommandGroup
     {
         offsetFromTarget = pOffsetFromTarget;
         runOnComplete = pRunOnComplete;
-        mVision = VisionSubsystem.instance();
+        mVision = VisionSubsystem.kInstance;
 
         // Here's the deal: we're going to run a few commands:
         // - Wait for the vision subsystem to recognize a tag.

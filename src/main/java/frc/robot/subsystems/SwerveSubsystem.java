@@ -29,11 +29,8 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
-    private static SwerveSubsystem kInstance = new SwerveSubsystem();
-    public static SwerveSubsystem instance()
-    {
-        return kInstance;
-    }
+
+    public static final SwerveSubsystem kInstance = new SwerveSubsystem();
 
     public static final double kMaxSpeedMS = 4.5; // I'm not trustworthy. = 4.5;
     public static final double kMetersPerInch = Units.inchesToMeters(1);
@@ -120,7 +117,6 @@ public class SwerveSubsystem extends SubsystemBase
     /** Creates a new ExampleSubsystem. */
     private SwerveSubsystem()
     {
-
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false);
@@ -133,19 +129,13 @@ public class SwerveSubsystem extends SubsystemBase
     }
 
     // Drive in some direction with its reference point set to the field itself.
-    public void driveFieldOriented(ChassisSpeeds pVelocity)
+    public void driveFieldOriented(ChassisSpeeds pVelocity, double pFieldHeadingDegrees)
     {
-        if (Robot.isRedAlliance())
-        {
-            ChassisSpeeds fieldOrientedVelocity = ChassisSpeeds.fromFieldRelativeSpeeds(
-                    pVelocity,
-                    mSwerveDrive.getYaw().plus(Rotation2d.fromRadians(Math.PI)));
+        ChassisSpeeds fieldOrientedVelocity =
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                pVelocity,
+                Rotation2d.fromDegrees(getGyroDegrees()).minus(Rotation2d.fromDegrees(pFieldHeadingDegrees)));
             mSwerveDrive.drive(fieldOrientedVelocity);
-        }
-        else
-        {
-            mSwerveDrive.driveFieldOriented(pVelocity);
-        }
     }
 
     public void driveRobotOriented(ChassisSpeeds pVelocity)
@@ -164,16 +154,6 @@ public class SwerveSubsystem extends SubsystemBase
         mSwerveDrive.resetOdometry(pPose);
     }
 
-    public void resetHeading()
-    {
-        Rotation2d newHeading = Rotation2d.fromRadians(0);
-        if (Robot.isRedAlliance())
-        {
-            newHeading = Rotation2d.fromRadians(Math.PI);
-        }
-        resetOdometry(new Pose2d(getPose().getTranslation(), newHeading));
-    }
-
     public Pose2d getPose()
     {
         return mSwerveDrive.getPose();
@@ -182,6 +162,14 @@ public class SwerveSubsystem extends SubsystemBase
     public double getHeadingDegrees()
     {
         return mSwerveDrive.getPose().getRotation().getDegrees();
+    }
+
+    /**
+     * @return The current heading read from the gyroscope in degrees
+     */
+    public double getGyroDegrees() {
+        double gyroReading = Rotation2d.fromRadians(mSwerveDrive.getGyro().getRotation3d().getZ()).getDegrees();
+        return ((gyroReading % 360) + 360) % 360;
     }
 
     public ChassisSpeeds getRobotRelativeSpeeds()

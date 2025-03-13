@@ -23,7 +23,7 @@ public class WaitForTagCommand extends Command
 
     public WaitForTagCommand(int tagId, double maxTime)
     {
-        mVision = VisionSubsystem.instance();
+        mVision = VisionSubsystem.kInstance;
         mMaxTime = maxTime;
         specificTagSupplier = () -> tagId;
         result = Optional.empty();

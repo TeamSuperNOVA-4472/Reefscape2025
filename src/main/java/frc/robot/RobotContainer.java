@@ -122,14 +122,14 @@ public class RobotContainer
         mPartner = new XboxController(kPartnerPort);
 
         // Initialize subsystems.
-        mLightsSubsystem = new LightsSubsystem();
-        mSwerveSubsystem = SwerveSubsystem.instance();
-        mVisionSubsystem = new VisionSubsystem();
+        mLightsSubsystem = LightsSubsystem.kInstance;
+        mSwerveSubsystem = SwerveSubsystem.kInstance;
+        mVisionSubsystem = VisionSubsystem.kInstance;
         //mCarriageSubsystem = new CarriageSubsystem();
         //mElevatorSubsystem = new ElevatorSubsystem();
         // mClimbSubsystem = new ClimbSubsystem();
         mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.kInstance;
-        mIntakeSubsystem = new IntakeSubsystem();
+        mIntakeSubsystem = IntakeSubsystem.kInstance;
 
         // Initialize commands.
         // TODO: Should weighting go here? Or in the command?
@@ -344,4 +344,12 @@ public class RobotContainer
     {
         return autoChooser.getSelected();
     }
+
+    /**
+     * Used to establish field oriented control to the correct alliance side
+     */
+    public void resetHeadingToAlliance() {
+        mSwerveTeleop.resetHeadingToAlliance();
+    }
+
 }
