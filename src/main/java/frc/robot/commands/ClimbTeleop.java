@@ -23,9 +23,9 @@ public class ClimbTeleop extends Command
     @Override
     public void execute()
     {
-        if(mClimbUpButton.get())
+        /*if(mClimbUpButton.get())
         {
-            mClimbSubsystem.closeClimber();
+            mClimbSubsystem.setRightClimbVoltage(GRAB_VOLTAGE);
             mClimbSubsystem.setGrabberVoltage(0.0);
         }
         else if(mGrabOnCageButton.get())
@@ -35,7 +35,7 @@ public class ClimbTeleop extends Command
         }
         else
         {
-            mClimbSubsystem.setGrabberVoltage(0);
-        }
+            //mClimbSubsystem.setGrabberVoltage(0);
+        }*/
     }
 }

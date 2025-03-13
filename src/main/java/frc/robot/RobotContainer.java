@@ -249,7 +249,9 @@ public class RobotContainer
         // Configure subsystems
         // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
         // This is the fastest fix I could make.
+
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+        
         /*mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
             mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
