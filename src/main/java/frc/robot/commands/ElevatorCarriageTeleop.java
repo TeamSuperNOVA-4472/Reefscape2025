@@ -2,45 +2,51 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 
+// FIXME: THIS IS A TEST FILE, PLEASE REPLACE WITH FARIS'S PRESETTELEOP COMMAND.
 public class ElevatorCarriageTeleop extends Command 
 {
     private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
+
     private final XboxController mController;
-    public ElevatorCarriageTeleop(ElevatorCarriageSubsystem pElevatorCarriageSubsystem, XboxController pController)
+    
+    private Command activeCommand;
+
+    public ElevatorCarriageTeleop(XboxController pController)
     {
-        mElevatorCarriageSubsystem = pElevatorCarriageSubsystem;
+        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.kInstance;
         mController = pController;
-        addRequirements(pElevatorCarriageSubsystem);
+
+        addRequirements(mElevatorCarriageSubsystem);
+
+        mElevatorCarriageSubsystem.resetElevatorEncoder();
+    }
+
+    @Override
+    public void initialize()
+    {
+        mElevatorCarriageSubsystem.resetPID();
+        //mElevatorCarriageSubsystem.stop();
+        mElevatorCarriageSubsystem.setPreset(CarriagePreset.kCoralL2);
+        /*activeCommand = new SequentialCommandGroup(
+            //new moveToLevelSafe(CarriagePreset.kStowCoral),
+            new MoveCarriageToPresetCommand(CarriagePreset.kStowCoral)
+        );
+        activeCommand.schedule();*/
     }
 
     @Override
     public void execute()
     {
-        /*if(mIntakePresets == IntakePresets.kScoreL1)
-        {
-            //do level one command
+
+        if(mElevatorCarriageSubsystem.getActivePreset().isEmpty()) {
+            mElevatorCarriageSubsystem.setManualElevatorVoltage(-mController.getLeftY() * 6);
+            mElevatorCarriageSubsystem.setManualArmVoltage(-mController.getRightY() * 12);
+            mElevatorCarriageSubsystem.setManualWristVoltage(mController.getRightX() * 2);
         }
-        else if(mIntakePresets == IntakePresets.kScoreL2)
-        {
-            //do level two command
-        }
-        else if(mIntakePresets == IntakePresets.kScoreL3)
-        {
-            //do level three command
-        }
-        else if(mIntakePresets == IntakePresets.kScoreL4)
-        {
-            //do level four command
-        }
-        else if(mIntakePresets == IntakePresets.kAway)
-        {
-            //do away command
-        }
-        else if(mIntakePresets == IntakePresets.kGroundPickup)
-        {
-            //do ground pickup command
-        }*/
+    
     }
 }

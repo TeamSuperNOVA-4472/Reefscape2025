@@ -10,6 +10,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 public final class Constants
 {
     public static final String kCanivoreBusName = "CANivore";
+    public static final String kRioBusName = "rio";
     public static final double kMaxVolts = 12.0;
     public static class OperatorConstants
     {
