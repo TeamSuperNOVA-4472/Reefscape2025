@@ -28,7 +28,7 @@ public class MoveCarriageToPresetCommand extends Command
     public MoveCarriageToPresetCommand(Supplier<CarriagePreset> preset)
     {
         presetSupplier = preset;
-        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.instance();
+        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.kInstance;
         addRequirements(mElevatorCarriageSubsystem);
     }
 

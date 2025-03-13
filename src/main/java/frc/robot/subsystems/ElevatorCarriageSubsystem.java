@@ -27,12 +27,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
 {
     private final DigitalInput beamBreakSensor;
 
-    private static ElevatorCarriageSubsystem kInstance = new ElevatorCarriageSubsystem();
-
-    public static ElevatorCarriageSubsystem instance()
-    {
-        return kInstance;
-    }
+    public static final ElevatorCarriageSubsystem kInstance = new ElevatorCarriageSubsystem();
 
     public static final int kLeftElevatorMotorID = 0;
 

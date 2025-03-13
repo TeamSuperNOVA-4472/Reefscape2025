@@ -17,7 +17,7 @@ public class ElevatorCarriageTeleop extends Command
 
     public ElevatorCarriageTeleop(XboxController pController)
     {
-        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.instance();
+        mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.kInstance;
         mController = pController;
 
         addRequirements(mElevatorCarriageSubsystem);
