@@ -46,6 +46,7 @@ public class VisionAlign {
     private final Transform2d kLeftCoralTransform = new Transform2d(0.4, -0.25, Rotation2d.k180deg); // Position at left coral stick
     private final Transform2d kRightCoralTransform = new Transform2d(0.4, 0.25, Rotation2d.k180deg); // Position at right coral stick
     private final Transform2d kAlgaeTransform = new Transform2d(0.4, 0, Rotation2d.k180deg); // Position at algae
+    private final Transform2d kMatchLoadingApproachTransform = new Transform2d(0.5, 0, new Rotation2d());
 
     private final double kMaxVelocity = 1.5; // Max velocity for PathPlanner
     private final double kMaxAcceleration = 1.5; // Max acceleration for PathPlanner
@@ -146,6 +147,21 @@ public class VisionAlign {
         return alignToReef(target, getClose);
     }
 
+    private SequentialCommandGroup alignToMatchLoadingStation(Pose2d destination)
+    {
+        destination = destination.plus(kMatchLoadingTransform);
+        Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
+
+        Command approach = getCloseToCommand(destination, () -> VisionDirection.MatchLoading);
+        
+        try {
+            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform), approach);
+        } catch (Exception e) {
+            System.out.println("[ALIGN] Not enough waypoints!");
+            return new SequentialCommandGroup(new InstantCommand());
+        }
+    }
+
     /**
      * Aligns to the left match loading station from field-oriented view.
      * @return The sequence of pathfinding and PID alignment.
@@ -154,15 +170,8 @@ public class VisionAlign {
     {
         // TODO: add support for right/left trigger movement
         Pose2d destination = VisionPoses.getLeftMatchLoadingStationPose(mVisionSubsystem);
-        destination = destination.plus(kMatchLoadingTransform);
-        Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
         
-        try {
-            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
-        } catch (Exception e) {
-            System.out.println("[ALIGN] Not enough waypoints!");
-            return new SequentialCommandGroup(new InstantCommand());
-        }
+        return alignToMatchLoadingStation(destination);
     }
 
     /**
@@ -173,15 +182,8 @@ public class VisionAlign {
     {
         // TODO: add support for right/left trigger movement
         Pose2d destination = VisionPoses.getRightMatchLoadingStationPose(mVisionSubsystem);
-        destination = destination.plus(kMatchLoadingTransform);
-        Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
         
-        try {
-            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
-        } catch (Exception e) {
-            System.out.println("[ALIGN] Not enough waypoints!");
-            return new SequentialCommandGroup(new InstantCommand());
-        }
+        return alignToMatchLoadingStation(destination);
     }
 
     /**
@@ -338,6 +340,8 @@ public class VisionAlign {
                 return kLeftCoralTransform;
             case RightCoral:
                 return kRightCoralTransform;
+            case MatchLoading:
+                return kMatchLoadingApproachTransform;
             default:
                 return kAlgaeTransform;
         }
