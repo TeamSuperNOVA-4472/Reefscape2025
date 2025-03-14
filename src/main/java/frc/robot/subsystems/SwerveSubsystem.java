@@ -21,7 +21,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -116,7 +115,6 @@ public class SwerveSubsystem extends SubsystemBase
     /** Creates a new ExampleSubsystem. */
     private SwerveSubsystem()
     {
-
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false);
@@ -136,6 +134,11 @@ public class SwerveSubsystem extends SubsystemBase
                 pVelocity,
                 Rotation2d.fromDegrees(getGyroDegrees()).minus(Rotation2d.fromDegrees(pFieldHeadingDegrees)));
             mSwerveDrive.drive(fieldOrientedVelocity);
+    }
+
+
+    public void driveFieldOriented(ChassisSpeeds pVelocity) {
+        mSwerveDrive.driveFieldOriented(pVelocity);
     }
 
     public void driveRobotOriented(ChassisSpeeds pVelocity)
