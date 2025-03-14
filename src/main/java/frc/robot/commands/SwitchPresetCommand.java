@@ -74,6 +74,8 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         elevatorPosition = safePosition.withElevatorPreset(newPreset);
         wristPosition = elevatorPosition.withWristPreset(newPreset);
         armPosition = wristPosition.withArmPreset(newPreset);
+
+        mElevatorCarriage.setDesiredPreset(newPreset);
     }
     private void initStowOnly()
     {
@@ -87,6 +89,15 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         // Redundant
         wristPosition = stowPosition;
         armPosition = stowPosition;
+        
+        mElevatorCarriage.setDesiredPreset(stowPosition);
+    }
+
+    @Override
+    public void cancel()
+    {
+        mElevatorCarriage.emptyDesiredPreset();
+        super.cancel();
     }
 
     // Unsafe preset command. Just runs `setPreset()` and waits for completion.

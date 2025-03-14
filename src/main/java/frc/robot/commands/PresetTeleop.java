@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -63,5 +62,23 @@ public class PresetTeleop
 
         scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
         scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
+
+        // Left bumber is algae l2, trigger is l3
+        Trigger algaeL2 = new Trigger(partner::getLeftBumperButton),
+                algaeL3 = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25);
+        
+        algaeL2.whileTrue(new SequentialCommandGroup(
+            new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false),
+            new InstantCommand(() -> intake.intakeAlgae()),
+            new ForeverCommand()
+        ));
+        algaeL2.onFalse(new InstantCommand(() -> intake.stopAlgae()));
+
+        algaeL3.whileTrue(new SequentialCommandGroup(
+            new SwitchPresetCommand(CarriagePreset.kAlgaeL3, false),
+            new InstantCommand(() -> intake.intakeAlgae()),
+            new ForeverCommand()
+        ));
+        algaeL3.onFalse(new InstantCommand(() -> intake.stopAlgae()));
     }
 }
