@@ -359,6 +359,7 @@ public class RobotContainer
     // Specify which command will be used as the autonomous command.
     public Command getAutonomousCommand()
     {
+        return mSwerveSubsystem.getSysIDCommand();
         return autoChooser.getSelected();
     }
 
