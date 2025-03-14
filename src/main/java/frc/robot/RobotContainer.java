@@ -263,26 +263,30 @@ public class RobotContainer
         //mElevatorSubsystem.setDefaultCommand(mElevatorTester);
         //mCarriageSubsystem.setDefaultCommand(mCarriageTester);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
-        mElevatorCarriageSubsystem.setDefaultCommand(new ElevatorCarriageTeleop(mPartner));
+        mElevatorCarriageSubsystem.setDefaultCommand(SwitchPresetCommand.stow(true));
 
         // FIXME: Temporary
-        //Trigger bruh = new Trigger(mPartner::getXButton);
-        //bruh.whileTrue(new SwitchPresetCommand(() -> CarriagePreset.kCoralL2));
+        Trigger bruh = new Trigger(mPartner::getXButton);
+        bruh.whileTrue(new SwitchPresetCommand(() -> CarriagePreset.kCoralL4, true));
+
+        Trigger outtake = new Trigger(mPartner::getYButton);
+        outtake.onTrue(new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
+        outtake.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));
 
         // mClimbSubsystem.setDefaultCommand(mClimberTester);
 
 
         // Register named commands.
-        NamedCommands.registerCommand("StowCarriage", stowCarriage());
-        NamedCommands.registerCommand("MoveCoralL1", new SwitchPresetCommand(CarriagePreset.kCoralL1));
-        NamedCommands.registerCommand("MoveCoralL2", new SwitchPresetCommand(CarriagePreset.kCoralL2));
-        NamedCommands.registerCommand("MoveCoralL3", new SwitchPresetCommand(CarriagePreset.kCoralL3));
-        NamedCommands.registerCommand("MoveCoralL4", new SwitchPresetCommand(CarriagePreset.kCoralL4));
+        NamedCommands.registerCommand("StowCarriage", SwitchPresetCommand.stow(false));
+        NamedCommands.registerCommand("MoveCoralL1", new SwitchPresetCommand(CarriagePreset.kCoralL1, false));
+        NamedCommands.registerCommand("MoveCoralL2", new SwitchPresetCommand(CarriagePreset.kCoralL2, false));
+        NamedCommands.registerCommand("MoveCoralL3", new SwitchPresetCommand(CarriagePreset.kCoralL3, false));
+        NamedCommands.registerCommand("MoveCoralL4", new SwitchPresetCommand(CarriagePreset.kCoralL4, false));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(VisionAlignCommand.kReefLeftOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignMiddle", new VisionAlignCommand(VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(VisionAlignCommand.kReefRightOffset, Optional.empty()));
-        NamedCommands.registerCommand("MoveAlgaeL2", new SwitchPresetCommand(CarriagePreset.kAlgaeL2));
-        NamedCommands.registerCommand("MoveAlgaeL3", new SwitchPresetCommand(CarriagePreset.kAlgaeL3));
+        NamedCommands.registerCommand("MoveAlgaeL2", new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false));
+        NamedCommands.registerCommand("MoveAlgaeL3", new SwitchPresetCommand(CarriagePreset.kAlgaeL3, false));
         NamedCommands.registerCommand("IntakeCoral", new InstantCommand(() -> mIntakeSubsystem.intakeCoral()));
         NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
@@ -297,15 +301,6 @@ public class RobotContainer
                 new InstantCommand(() -> System.out.println("The Event has triggered")));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
-    }
-
-    /** If the algae is detected, call the StowCarriageAlgae command, otherwise do the one for the coral. */
-    private Command stowCarriage()
-    {
-        // Kyle here. I've tweaked the StowCarriagePosition command to do what this method used to do.
-        // It's still cleaner than having a million copies of this one line around, but it won't be needed
-        // when the command rewrite is done.
-        return SwitchPresetCommand.stow();
     }
 
     // private void applyHeightOffsetWhenVisionAlignFinishes()

@@ -17,7 +17,7 @@ public class CarriagePreset
     public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 0.036);
     public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 10.316); // +2.5in
     public static final CarriagePreset kCoralL3 = new CarriagePreset(89, -114, 28.125); // +2.5in
-    public static final CarriagePreset kCoralL4 = new CarriagePreset(90, -102, 52.625);
+    public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 60.125); // +3in
     public static final CarriagePreset kCoralLoad = new CarriagePreset(95, -50, 6.647);
     public static final CarriagePreset kStowCoral = new CarriagePreset(65, 0, 0); // Also used to be known as "moving" in some places of the code.
     

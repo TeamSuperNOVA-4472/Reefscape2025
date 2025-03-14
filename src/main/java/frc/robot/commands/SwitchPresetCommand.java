@@ -15,12 +15,9 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class SwitchPresetCommand extends SequentialCommandGroup
 {
-    public static SwitchPresetCommand stow()
+    public static SwitchPresetCommand stow(boolean keepAlive)
     {
-        // Not sure if I want to make it a final field here, as
-        // passing the same reference might cause issues. This
-        // always makes a new reference.
-        return new SwitchPresetCommand(true);
+        return new SwitchPresetCommand(true, keepAlive);
     }
 
     private final ElevatorCarriageSubsystem mElevatorCarriage;
@@ -30,12 +27,12 @@ public class SwitchPresetCommand extends SequentialCommandGroup
 
     private CarriagePreset safePosition, elevatorPosition, wristPosition, armPosition;
 
-    public SwitchPresetCommand(CarriagePreset newPreset)
+    public SwitchPresetCommand(CarriagePreset newPreset, boolean keepAlive)
     {
         // Same thing as the other constructor but with a simple constant supplier.
-        this(() -> newPreset);
+        this(() -> newPreset, keepAlive);
     }
-    public SwitchPresetCommand(Supplier<CarriagePreset> newPreset)
+    public SwitchPresetCommand(Supplier<CarriagePreset> newPreset, boolean keepAlive)
     {
         mElevatorCarriage = ElevatorCarriageSubsystem.kInstance;
         mIntake = IntakeSubsystem.kInstance;
@@ -49,11 +46,10 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             new MovePresetCommand(() -> armPosition),      // Move the arm.
             new InstantCommand(() -> System.out.println("[SWITCH] Done"))
         );
+        if (keepAlive) addCommands(new ForeverCommand());
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
-
-        System.out.println("YEAH " + mElevatorCarriage.getElevatorHeight());
     }
-    private SwitchPresetCommand(boolean justStow) // Just stow. Nothing else.
+    private SwitchPresetCommand(boolean justStow, boolean keepAlive) // Just stow. Nothing else.
     {
         mElevatorCarriage = ElevatorCarriageSubsystem.kInstance;
         mIntake = IntakeSubsystem.kInstance;
@@ -65,6 +61,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             new MovePresetCommand(() -> elevatorPosition), // Move the elevator.
             new InstantCommand(() -> System.out.println("[SWITCH] Done"))
         );
+        if (keepAlive) addCommands(new ForeverCommand());
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
     }
 
