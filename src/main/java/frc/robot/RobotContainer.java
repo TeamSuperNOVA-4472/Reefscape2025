@@ -300,6 +300,12 @@ public class RobotContainer
         Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
         );
 
+        Trigger reefTrigger = new Trigger(mDriver::getYButton);
+        reefTrigger.whileTrue(new DeferredCommand(() ->
+        visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton),
+        Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
+        );
+
         // Register named commands.
         NamedCommands.registerCommand("StowCarriage", stowCarriage());
         NamedCommands.registerCommand("MoveCoralL1", new CoralL1Preset());
