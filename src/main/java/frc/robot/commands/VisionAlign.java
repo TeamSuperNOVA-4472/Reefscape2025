@@ -177,7 +177,7 @@ public class VisionAlign {
         Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
         
         try {
-            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform), );
+            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
         } catch (Exception e) {
             System.out.println("[ALIGN] Not enough waypoints!");
             return new SequentialCommandGroup(new InstantCommand());
