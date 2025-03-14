@@ -46,7 +46,7 @@ public class VisionAlign {
     private final Transform2d kLeftCoralTransform = new Transform2d(0.4, -0.25, Rotation2d.k180deg); // Position at left coral stick
     private final Transform2d kRightCoralTransform = new Transform2d(0.4, 0.25, Rotation2d.k180deg); // Position at right coral stick
     private final Transform2d kAlgaeTransform = new Transform2d(0.4, 0, Rotation2d.k180deg); // Position at algae
-    private final Transform2d kMatchLoadingApproachTransform = new Transform2d(0.5, 0, new Rotation2d());
+    private final Transform2d kMatchLoadingApproachTransform = new Transform2d(0.65, 0, new Rotation2d());
 
     private final double kMaxVelocity = 1.5; // Max velocity for PathPlanner
     private final double kMaxAcceleration = 1.5; // Max acceleration for PathPlanner
