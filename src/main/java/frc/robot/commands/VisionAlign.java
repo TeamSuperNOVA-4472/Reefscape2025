@@ -43,12 +43,12 @@ public class VisionAlign {
     private final Transform2d kMatchLoadingTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
 
-    private final Transform2d kLeftCoralTransform = new Transform2d(0.65, -0.25, Rotation2d.k180deg); // Position at left coral stick
-    private final Transform2d kRightCoralTransform = new Transform2d(0.65, 0.25, Rotation2d.k180deg); // Position at right coral stick
-    private final Transform2d kAlgaeTransform = new Transform2d(0.65, 0, Rotation2d.k180deg); // Position at algae
+    private final Transform2d kLeftCoralTransform = new Transform2d(0.4, -0.25, Rotation2d.k180deg); // Position at left coral stick
+    private final Transform2d kRightCoralTransform = new Transform2d(0.4, 0.25, Rotation2d.k180deg); // Position at right coral stick
+    private final Transform2d kAlgaeTransform = new Transform2d(0.4, 0, Rotation2d.k180deg); // Position at algae
 
-    private final double kMaxVelocity = 4.5; // Max velocity for PathPlanner
-    private final double kMaxAcceleration = 4.5; // Max acceleration for PathPlanner
+    private final double kMaxVelocity = 1.5; // Max velocity for PathPlanner
+    private final double kMaxAcceleration = 1.5; // Max acceleration for PathPlanner
 
     // PID Constants for the Lateral PID Controller
     private final double kLateralP = 3;
@@ -177,7 +177,7 @@ public class VisionAlign {
         Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
         
         try {
-            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform));
+            return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform), );
         } catch (Exception e) {
             System.out.println("[ALIGN] Not enough waypoints!");
             return new SequentialCommandGroup(new InstantCommand());
@@ -320,8 +320,8 @@ public class VisionAlign {
 
         ChassisSpeeds speed = new ChassisSpeeds(
             // Calculates X, Y, and rotation error from current pose to destination
-            -mXPIDController.calculate(curPose.getX(), fixedPose.getX()),
-            -mYPIDController.calculate(curPose.getY(), fixedPose.getY()),
+            mXPIDController.calculate(curPose.getX(), fixedPose.getX()),
+            mYPIDController.calculate(curPose.getY(), fixedPose.getY()),
             mRotationPIDController.calculate(curPose.getRotation().getRadians(), fixedPose.getRotation().getRadians())
         );
 

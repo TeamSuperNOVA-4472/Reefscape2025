@@ -295,8 +295,8 @@ public class RobotContainer
         VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
 
         Trigger visionTrigger = new Trigger(mDriver::getXButton);
-        visionTrigger.onTrue(new DeferredCommand(() ->
-        visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton),
+        visionTrigger.whileTrue(new DeferredCommand(() ->
+        visionAlign.alignToRightMatchLoadingStation(),
         Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
         );
 
