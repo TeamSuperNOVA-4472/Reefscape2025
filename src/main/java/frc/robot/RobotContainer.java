@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.OperatorConfig.weightJoystick;
 import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.ElevatorCarriageTeleop;
+import frc.robot.commands.PresetTeleop;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.SwitchPresetCommand;
 import frc.robot.commands.VisionAlignCommand;
@@ -90,7 +91,6 @@ public class RobotContainer
     
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
-    private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     //private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     //private final IntakeTeleop mIntakeTeleop;
 
@@ -127,120 +127,6 @@ public class RobotContainer
             weightJoystick(mDriver::getRightX, true),
             mDriver::getAButton);
 
-        mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mPartner);
-        // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
-        // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
-        //Trigger carriage = new Trigger(() -> (mPartner.getRightBumperButton() && !mIntakeSubsystem.hasCoral()));
-        // carriage.whileTrue( // FIXME: This is a MONSTROUS trigger. PLEASE make this its own command file.
-        //     new ConditionalCommand(
-        //         new InstantCommand(),
-        //         new LoadCoral(), 
-        //         () -> 
-        //             mIntakeSubsystem.hasAlgae() ||
-        //             (mCarriageSubsystem.getActivePreset().isPresent() &&
-        //              mCarriageSubsystem.getActivePreset().get().equals(CarriagePreset.kCoralLoad)))
-        //     .andThen(
-        //         new InstantCommand(
-        //             () -> mIntakeSubsystem.intakeCoral()
-        //         )
-        //     )
-        // );
-        //carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));//.andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
-
-        // Trigger scoreTrigger = new Trigger(() -> mPartner.getRightTriggerAxis() > 0);
-        // scoreTrigger.onTrue(
-        //     new InstantCommand(() -> mIntakeSubsystem.outtakeCoral())
-        // );
-        // scoreTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new InstantCommand(() -> mIntakeSubsystem.setCoral(false))));
-
-        // Trigger l1Trigger = new Trigger(mPartner::getAButton);
-        // // l1Trigger.whileTrue(
-        //  //   new CoralL1Preset()
-        // // );
-        // l1Trigger.onFalse(stowCarriage());
-
-        // Trigger l2Trigger = new Trigger(mPartner::getXButton);
-        // l2Trigger.whileTrue(
-        //     new CoralL2Preset()
-        // );
-        // l2Trigger.onFalse(stowCarriage());
-        
-        // Trigger l3Trigger = new Trigger(mPartner::getBButton);
-        // l3Trigger.whileTrue( 
-        //     new CoralL3Preset()
-        // );
-        // l3Trigger.onFalse(stowCarriage());
-
-        // Trigger l4Trigger = new Trigger(mPartner::getYButton);
-        // l4Trigger.whileTrue(
-        //     new CoralL4Preset()
-        // );
-        // l4Trigger.onFalse(stowCarriage());
-
-        // Trigger algaeTrigger = new Trigger(() -> (mPartner.getLeftBumperButton() && !mIntakeSubsystem.hasAlgae()));
-        // algaeTrigger.whileTrue(
-        //     new AlgaeL2().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        // );
-        // algaeTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-        // this.algaeTrigger = algaeTrigger;
-        
-        // Trigger algaeHighTrigger = new Trigger(() -> (mPartner.getLeftTriggerAxis() > 0 && !mIntakeSubsystem.hasAlgae()));
-        // algaeHighTrigger.whileTrue(
-        //     new AlgaeL3().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        // );
-        // algaeHighTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-        // this.algaeHighTrigger = algaeHighTrigger;
-
-        // Trigger algaeGroundTrigger = new Trigger(() -> mPartner.getPOV() == 90);
-        // algaeGroundTrigger.whileTrue(
-        //     new AlgaeGround().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        // );
-        // algaeGroundTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-
-        // Trigger algaeProcessTrigger = new Trigger(() -> mPartner.getPOV() == 180);
-        // algaeProcessTrigger.whileTrue(
-        //     new AlgaeProcessor()
-        // );
-
-        // Trigger algaeOut = new Trigger(() -> mPartner.getPOV() == 0);
-        // algaeOut.onTrue(
-        //     new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
-        // );
-        // algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-
-        // Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
-        // alignLeft.whileTrue(
-        //     new VisionAlignCommand(
-        //         VisionAlignCommand.kReefLeftOffset,
-        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-        //     )
-        // );
-
-        // Trigger alignMiddle = new Trigger(mDriver::getXButton);
-        // alignMiddle.whileTrue(
-        //     new VisionAlignCommand(
-        //         VisionAlignCommand.kReefMiddleOffset,
-        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-        //     )
-        // );
-
-        // Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
-        // alignRight.whileTrue(
-        //     new VisionAlignCommand(
-        //         VisionAlignCommand.kReefRightOffset,
-        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-        //     )
-        // );
-
-        // Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
-        // algaeBarge.whileTrue(
-        //     new AlgaeBarge()
-        // );
-
-        // Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton);
-        // //climbTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new ArmBackPreset(), () -> mCarriageSubsystem.getArmSetpoint() == 95.0));
-        // Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
-
         // TODO: remove tester commands when robot is properly programmed
         //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
         //mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
@@ -256,25 +142,15 @@ public class RobotContainer
                                                   newVisionPose.timestampSeconds);
         });*/ // FIXME: This causes weird things.
 
-        // mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
-        // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        
 
         // TODO: remove tester commands when robot is properly programmed
         //mElevatorSubsystem.setDefaultCommand(mElevatorTester);
         //mCarriageSubsystem.setDefaultCommand(mCarriageTester);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
-        mElevatorCarriageSubsystem.setDefaultCommand(SwitchPresetCommand.stow(true));
-
-        // FIXME: Temporary
-        Trigger bruh = new Trigger(mPartner::getXButton);
-        bruh.whileTrue(new SwitchPresetCommand(() -> CarriagePreset.kCoralL4, true));
-
-        Trigger outtake = new Trigger(mPartner::getYButton);
-        outtake.onTrue(new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
-        outtake.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));
+        PresetTeleop.setup(mPartner);
 
         // mClimbSubsystem.setDefaultCommand(mClimberTester);
-
 
         // Register named commands.
         NamedCommands.registerCommand("StowCarriage", SwitchPresetCommand.stow(false));
@@ -291,7 +167,7 @@ public class RobotContainer
         NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
-        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stop()));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopBoth()));
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();

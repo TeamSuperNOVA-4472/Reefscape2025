@@ -42,9 +42,8 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             new InstantCommand(this::init),                // Run initial setup.
             new MovePresetCommand(() -> safePosition),     // Move to the safe position.
             new MovePresetCommand(() -> elevatorPosition), // Move the elevator.
-            new MovePresetCommand(() -> wristPosition),    // Move the wrist.
-            new MovePresetCommand(() -> armPosition),      // Move the arm.
-            new InstantCommand(() -> System.out.println("[SWITCH] Done"))
+            new MovePresetCommand(() -> wristPosition),    // Move the wrist. Might be worth combining.
+            new MovePresetCommand(() -> armPosition)       // Move the arm.
         );
         if (keepAlive) addCommands(new ForeverCommand());
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
@@ -58,8 +57,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         addCommands(
             new InstantCommand(this::initStowOnly),       // Run initial setup.
             new MovePresetCommand(() -> safePosition),    // Move to the safe position.
-            new MovePresetCommand(() -> elevatorPosition), // Move the elevator.
-            new InstantCommand(() -> System.out.println("[SWITCH] Done"))
+            new MovePresetCommand(() -> elevatorPosition) // Move the elevator.
         );
         if (keepAlive) addCommands(new ForeverCommand());
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
@@ -67,7 +65,6 @@ public class SwitchPresetCommand extends SequentialCommandGroup
 
     private void init()
     {
-        System.out.println("[SWITCH] Initializing.");
         CarriagePreset newPreset = mPresetSupplier.get();
 
         if (mIntake.hasAlgae()) safePosition = CarriagePreset.kStowAlgae;
@@ -80,7 +77,6 @@ public class SwitchPresetCommand extends SequentialCommandGroup
     }
     private void initStowOnly()
     {
-        System.out.println("[SWITCH] Initializing (stow).");
         CarriagePreset stowPosition;
         if (mIntake.hasAlgae()) stowPosition = CarriagePreset.kStowAlgae;
         else stowPosition = CarriagePreset.kStowCoral;
@@ -112,12 +108,6 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         {
             activePreset = mPresetSupplier.get();
             mElevatorCarriage.setPreset(activePreset);
-
-            double deltaArm = mElevatorCarriage.getArmAngle() - activePreset.kArmPreset;
-            double deltaWrist = mElevatorCarriage.getWristAngle() - activePreset.kWristPreset;
-            double deltaElev = mElevatorCarriage.getElevatorHeight() - activePreset.kElevatorPreset;
-            System.out.println("[SWITCH] Beginning move sequence.");
-            System.out.println("[SWITCH] Delta Arm: " + deltaArm + ", Delta Wrist: " + deltaWrist + ", Delta Height" + deltaElev);
         }
 
         @Override
