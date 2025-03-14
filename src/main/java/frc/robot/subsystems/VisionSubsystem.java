@@ -31,14 +31,19 @@ import frc.robot.objectmodels.CameraInfo;
 
 public class VisionSubsystem extends SubsystemBase
 {
-    public static final VisionSubsystem kInstance = new VisionSubsystem();
 
+    // TODO: CHANGE BACK TO OG
     // The first camera in this array is considered the "main camera."
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("AprilTagCam", new Transform3d(new Translation3d(0.288671, 0.206121, 0.26035 ), new Rotation3d(0, 0, 0))) // Can be changed.
+        new CameraInfo("LeftCamera", new Transform3d(new Translation3d(0.3023604062, 0.3023616, 0.2413), new Rotation3d(0, 0, 0.523599))),
+        new CameraInfo("RightCamera", new Transform3d(new Translation3d(0.3023604062, -0.3023616, 0.2413), new Rotation3d(0, 0, -0.523599))),
+        new CameraInfo("BackCamera", new Transform3d(new Translation3d(0.288671, 0.009525, 0.8509), new Rotation3d(0, -0.3926991, 3.14159))) // Can be changed.
+ 
     };
+
+    public static final VisionSubsystem kInstance = new VisionSubsystem();
 
     // Cameras go here.
     private PhotonCamera[] cameras;
@@ -232,7 +237,6 @@ public class VisionSubsystem extends SubsystemBase
 
         if (getPoseInfo()!=null&&getTargetInView().isPresent())
         {
-            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Pose", getPose().toString());
             Pose3d dest = tagLayout.getTagPose(getTargetInView().get().fiducialId).get();
             double destDeg = ((dest.getRotation().toRotation2d().getDegrees())+360)%360;
             double currentDeg = (getPose().getRotation().toRotation2d().getDegrees()+360)%360;
@@ -243,6 +247,11 @@ public class VisionSubsystem extends SubsystemBase
                 SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision mY", getCameraToTarget(getTargetInView().get()).getY());
                 SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision difference in Y", dest.getY() - getPose().getY());
             }
+        }
+
+        if (getPoseInfo()!=null)
+        {
+            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Pose String: ", getPose().toString());
         }
 
         if (RobotBase.isSimulation())
@@ -297,6 +306,10 @@ public class VisionSubsystem extends SubsystemBase
 
     public boolean isActive()
     {
+        if (RobotBase.isSimulation())
+        {
+            return initPass && enabled;
+        }
         return initPass && mainConnectedPass && enabled;
     }
     public void enable()

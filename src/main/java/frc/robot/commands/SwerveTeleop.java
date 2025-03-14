@@ -97,6 +97,9 @@ public class SwerveTeleop extends Command
             resetFieldHeading();
         }
 
+        SmartDashboard.putString("Swerve pose: ", mSwerveSubsystem.getPose().toString());
+        SmartDashboard.putNumber("Swerve rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
+
     }
 
     private void resetFieldHeading() {

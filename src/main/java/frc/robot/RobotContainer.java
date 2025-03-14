@@ -34,6 +34,9 @@ import frc.robot.commands.Presets.LoadCoral;
 import frc.robot.commands.Presets.StowCarriagePosition;
 import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.ElevatorCarriageTeleop;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.VisionAlignCommand;
 import frc.robot.commands.tester.CarriageTester;
@@ -46,8 +49,14 @@ import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.commands.VisionAlign;
+import frc.robot.objectmodels.ReefEndTarget;
+import frc.robot.objectmodels.VisionDirection;
+import frc.robot.objectmodels.VisionPoses;
 import frc.robot.subsystems.LightsSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+
+import java.util.Set;
 
 import org.photonvision.EstimatedRobotPose;
 
@@ -61,6 +70,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -75,6 +85,9 @@ import static frc.robot.OperatorConfig.weightJoystick;
 import frc.robot.subsystems.VisionSubsystem;
 
 import java.util.Optional;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
@@ -114,6 +127,7 @@ public class RobotContainer
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
+    private boolean isFirst;
 
     public RobotContainer()
     {
@@ -130,6 +144,8 @@ public class RobotContainer
         // mClimbSubsystem = new ClimbSubsystem();
         mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.kInstance;
         mIntakeSubsystem = IntakeSubsystem.kInstance;
+
+        isFirst = true;
 
         // Initialize commands.
         // TODO: Should weighting go here? Or in the command?
@@ -264,23 +280,25 @@ public class RobotContainer
         // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
         // This is the fastest fix I could make.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
-        /*mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
-            // Update the swerve's odometry with the new vision estimate.
-            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
-                                                  newVisionPose.timestampSeconds);
-        });*/ // FIXME: This causes weird things.
-
-        // mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
-        // mIntakeSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
-
-        // TODO: remove tester commands when robot is properly programmed
-        //mElevatorSubsystem.setDefaultCommand(mElevatorTester);
-        //mCarriageSubsystem.setDefaultCommand(mCarriageTester);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
+            // Update the swerve's odometry with the new vision estimate.
+            /*Pose2d vision = newVisionPose.estimatedPose.toPose2d();
+            Pose2d current = mSwerveSubsystem.getPose();
 
-        // mClimbSubsystem.setDefaultCommand(mClimberTester);
+            Pose2d measurement = new Pose2d(vision.getTranslation(), current.getRotation());*/
+            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(), newVisionPose.timestampSeconds);
+            isFirst = false;
+        });
 
+        VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
+
+        Trigger visionTrigger = new Trigger(mDriver::getXButton);
+        visionTrigger.whileTrue(new DeferredCommand(() ->
+        visionAlign.alignToRightMatchLoadingStation(),
+        Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
+        );
 
         // Register named commands.
         NamedCommands.registerCommand("StowCarriage", stowCarriage());
@@ -298,7 +316,6 @@ public class RobotContainer
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stop()));
-
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
 
