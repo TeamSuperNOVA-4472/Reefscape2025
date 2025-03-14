@@ -20,11 +20,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import swervelib.parser.SwerveParser;
-import swervelib.telemetry.SwerveDriveTelemetry;
-import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
@@ -45,6 +46,7 @@ public class SwerveSubsystem extends SubsystemBase
     public static final double kA = 0.239;
 
     private final SwerveDrive mSwerveDrive;
+    private final Command mSwerveSysID;
 
     private static SwerveDrive readSwerveConfig()
     {
@@ -116,9 +118,19 @@ public class SwerveSubsystem extends SubsystemBase
     /** Creates a new ExampleSubsystem. */
     private SwerveSubsystem()
     {
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        //SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false);
+        mSwerveSysID = SwerveDriveTest.generateSysIdCommand(
+            SwerveDriveTest.setDriveSysIdRoutine(
+                new Config(),
+                this,
+                mSwerveDrive,
+                12,
+                true),
+                3.0,
+                5,
+                3);
         configAutoBuilder(this);
     }
 
@@ -179,5 +191,9 @@ public class SwerveSubsystem extends SubsystemBase
     public ChassisSpeeds getRobotRelativeSpeeds()
     {
         return mSwerveDrive.getRobotVelocity();
+    }
+
+    public Command getSysIDCommand() {
+        return mSwerveSysID;
     }
 }
