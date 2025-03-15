@@ -35,6 +35,7 @@ import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.objectmodels.ReefEndTarget;
+import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LightsSubsystem;
