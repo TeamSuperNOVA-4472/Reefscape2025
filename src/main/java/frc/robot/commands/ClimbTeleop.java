@@ -7,35 +7,34 @@ import frc.robot.subsystems.ClimbSubsystem;
 
 public class ClimbTeleop extends Command 
 {
-    private static final double GRAB_VOLTAGE = 0;
+    private static final double CLIMB_VOLTAGE = 12;
 
     private final ClimbSubsystem mClimbSubsystem;
-    Supplier<Boolean> mGrabOnCageButton;
-    Supplier<Boolean> mClimbUpButton;
+    Supplier<Boolean> mClimbFwd;
+    Supplier<Boolean> mClimbRev;
 
-    public ClimbTeleop(Supplier<Boolean> pGrabOnCageButton, Supplier<Boolean> pClimbUpButton)
+    public ClimbTeleop(Supplier<Boolean> pClimbFwd, Supplier<Boolean> pClimbRev)
     {
         mClimbSubsystem = ClimbSubsystem.kInstance;
-        mClimbUpButton = pClimbUpButton;
-        mGrabOnCageButton = pGrabOnCageButton;
+        mClimbFwd = pClimbFwd;
+        mClimbRev = pClimbRev;
+        addRequirements(mClimbSubsystem);
     }    
 
     @Override
     public void execute()
     {
-        if(mClimbUpButton.get())
+        if(mClimbFwd.get())
         {
-            mClimbSubsystem.closeClimber();
-            mClimbSubsystem.setGrabberVoltage(0.0);
+            mClimbSubsystem.setVoltage(CLIMB_VOLTAGE);
         }
-        else if(mGrabOnCageButton.get())
+        else if(mClimbRev.get())
         {
-            mClimbSubsystem.openClimber();
-            mClimbSubsystem.setGrabberVoltage(GRAB_VOLTAGE);
+            mClimbSubsystem.setVoltage(-CLIMB_VOLTAGE);
         }
         else
         {
-            mClimbSubsystem.setGrabberVoltage(0);
+            mClimbSubsystem.setVoltage(0);
         }
     }
 }
