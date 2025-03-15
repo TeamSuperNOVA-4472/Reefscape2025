@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Start Bottom"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MoveCoralL2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignToFarBottom-Right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OuttakeCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignToBottomLoading"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Loading"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "IntakeCoral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MoveCoralL2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignToFarBottom-Right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OuttakeCoral"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Sebastians New Autos",
+  "choreoAuto": false
+}

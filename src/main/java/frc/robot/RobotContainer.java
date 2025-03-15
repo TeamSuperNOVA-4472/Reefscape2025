@@ -198,9 +198,25 @@ public class RobotContainer
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopBoth()));
+        NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false));
+        
+        // Align to Reef named commands. There is going to be a lot
+        NamedCommands.registerCommand("AlignToFarBottom-Right", new DeferredCommand(
+            () -> new VisionAlign(
+                    mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.RightCoral),
+                    Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToBottomLoading", new DeferredCommand(
+            () -> new VisionAlign(
+                    mSwerveSubsystem, mVisionSubsystem).alignToRightMatchLoadingStation(),
+                    Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
+
+        autoChooser.addOption("BScoreReefFar-Right", new PathPlannerAuto("BScoreReefFar-Right"));
+        autoChooser.addOption("Demo Auto", new PathPlannerAuto("Demo Auto"));
+
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(
