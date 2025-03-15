@@ -63,9 +63,9 @@ public class PresetTeleop
         scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
         scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
 
-        // Left bumber is algae l2, trigger is l3
-        Trigger algaeL2 = new Trigger(partner::getLeftBumperButton),
-                algaeL3 = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25);
+        // Right is algae l2, left is l3
+        Trigger algaeL2 = new Trigger(() -> partner.getPOV() == 90),
+                algaeL3 = new Trigger(() -> partner.getPOV() == 270);
         
         algaeL2.whileTrue(new SequentialCommandGroup(
             new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false),
@@ -80,5 +80,17 @@ public class PresetTeleop
             new ForeverCommand()
         ));
         algaeL3.onFalse(new InstantCommand(() -> intake.stopAlgae()));
+
+        // down is algae Processor, up is Barge
+        Trigger algaeProccessorTrigger = new Trigger(() -> partner.getPOV() == 180),
+                algaeBarge = new Trigger(() -> partner.getPOV() == 0);
+        
+        algaeProccessorTrigger.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeProcessor, true));
+        algaeBarge.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeBarge, true));
+
+        // Outake Algae
+        Trigger algaeOutakeTrigger = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25);
+        algaeOutakeTrigger.onTrue(new InstantCommand(() -> intake.outtakeAlgae()));
+        algaeOutakeTrigger.onFalse(new InstantCommand(() -> intake.stopAlgae()));
     }
 }

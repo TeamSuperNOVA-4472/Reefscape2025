@@ -21,11 +21,11 @@ public class CarriagePreset
     public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 5);
     public static final CarriagePreset kStowCoral = new CarriagePreset(65, 0, 0); // Also used to be known as "moving" in some places of the code.
     
-    public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -100, 52.125);
+    public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -130, 60.125);
     public static final CarriagePreset kAlgaeProcessor = new CarriagePreset(20, -110, 0);
     public static final CarriagePreset kAlgaeGround = new CarriagePreset(-45, -90, 12.125);
     public static final CarriagePreset kAlgaeL2 = new CarriagePreset(40, -120, 12.125);
-    public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 30.469);
+    public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 28);
     public static final CarriagePreset kStowAlgae = new CarriagePreset(65, -60, 0);
 
     public static final CarriagePreset kAway = new CarriagePreset(0, 0, 0);

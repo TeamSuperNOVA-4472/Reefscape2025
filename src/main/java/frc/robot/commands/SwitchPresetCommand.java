@@ -124,8 +124,8 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         @Override
         public void execute()
         {            
-            mElevatorCarriage.setPreset(activePreset);
-        }
+            //mElevatorCarriage.setPreset(activePreset);
+        }   
 
         @Override
         public boolean isFinished()
