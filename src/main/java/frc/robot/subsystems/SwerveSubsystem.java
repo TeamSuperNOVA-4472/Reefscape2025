@@ -12,6 +12,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -31,7 +32,7 @@ public class SwerveSubsystem extends SubsystemBase
 {
     public static final SwerveSubsystem kInstance = new SwerveSubsystem();
 
-    public static final double kMaxSpeedMS = 4.5; // I'm not trustworthy. = 4.5;
+    public static final double kMaxSpeedMS = 4.5;
     public static final double kMetersPerInch = Units.inchesToMeters(1);
     public static final double kSwerveLocYInches = 7.5;
     public static final double kSwerveLocXInches = 7;
@@ -40,9 +41,9 @@ public class SwerveSubsystem extends SubsystemBase
     public static final double kSwerveRadiusInches = Math.sqrt(Math.pow(kSwerveLocXInches, 2) + Math.pow(kSwerveLocYInches, 2));
     public static final double kSwerveCircumferenceMeters = 2 * Math.PI * kSwerveRadiusInches * kMetersPerInch; // 1.6372863352652361048052029816421
     public static final double kMetersPerSecondToRadiansPerSecond = (2 * Math.PI) / kSwerveCircumferenceMeters;
-    public static final double kS = 0.267;
-    public static final double kV = 2.65;
-    public static final double kA = 0.239;
+    public static final double kS = 0.14557; //BL: 0.11472 //BR: 0.16985 //FL: 0.15312 //FR: 0.14459
+    public static final double kV = 2.113175; //BL: 2.0722 //BR: 2.1609 //FL: 2.1133 //FR: 2.1063
+    public static final double kA = 0.18558; //BL: 0.24512 //BR: 0.13383 //FL: 0.15566 //FR: 0.20771
 
     private final SwerveDrive mSwerveDrive;
     private final Command mSwerveSysID;
@@ -55,8 +56,8 @@ public class SwerveSubsystem extends SubsystemBase
         {
             swerveDrive = new SwerveParser(swerveJsonDirectory)
                     .createSwerveDrive(kMaxSpeedMS);
-            // swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(kS, kV,
-            // kA));
+            swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(kS, kV,
+            kA));
         }
         catch (IOException e)
         {
