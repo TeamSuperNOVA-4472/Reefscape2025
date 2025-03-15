@@ -84,7 +84,7 @@ public class VisionAlign {
 
         mXPIDController = new ProfiledPIDController(kLateralP, kLateralI, kLateralD, new Constraints(1.0, 1.0));
         mYPIDController = new ProfiledPIDController(kLateralP, kLateralI, kLateralD, new Constraints(1.0, 1.0));
-        mRotationPIDController = new ProfiledPIDController(kRotationP, kRotationI, kRotationD, new Constraints(90, 90));
+        mRotationPIDController = new ProfiledPIDController(kRotationP, kRotationI, kRotationD, new Constraints(2 * Math.PI, 2 * Math.PI));
 
         mRotationPIDController.enableContinuousInput(kMinContinuous, kMaxContinuous);
 
