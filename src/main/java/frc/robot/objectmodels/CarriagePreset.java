@@ -1,7 +1,5 @@
 package frc.robot.objectmodels;
 
-import static frc.robot.subsystems.SwerveSubsystem.kA;
-
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 
 /**
@@ -18,7 +16,7 @@ public class CarriagePreset
     public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 10.316); // +2.5in
     public static final CarriagePreset kCoralL3 = new CarriagePreset(89, -114, 28.125); // +2.5in
     public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 60.125); // +3in
-    public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 5);
+    public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 6);
     public static final CarriagePreset kStowCoral = new CarriagePreset(65, 0, 0); // Also used to be known as "moving" in some places of the code.
     
     public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -130, 60.125);
