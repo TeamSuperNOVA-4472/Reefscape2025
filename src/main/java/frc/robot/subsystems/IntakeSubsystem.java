@@ -24,8 +24,6 @@ public class IntakeSubsystem extends SubsystemBase
 
     private double algaeTargetVoltage = kAlgaeDefaultVoltage;
 
-    private boolean mIsIntaking;
-    private boolean mIsOutTaking;
     private boolean hasCoral;
     private TalonFX mAlgaeIntake;
     private TalonFX mCoralIntake;
@@ -70,24 +68,17 @@ public class IntakeSubsystem extends SubsystemBase
     public void intakeCoral()
     {
         mCoralIntake.setVoltage(kCoralIntakeVoltage);
-        mIsIntaking = true;
-        mIsOutTaking = false;
-
     }
 
     public void outtakeCoral()
     {
         mCoralIntake.setVoltage(-kCoralOuttakeVoltage);
-        mIsIntaking = false;
-        mIsOutTaking = true;
     }
 
     public void intakeAlgae()
     {
         mAlgaeIntake.setVoltage(-kAlgaeIntakeVoltage);
         algaeTargetVoltage = -kAlgaeIntakeVoltage;
-        mIsIntaking = true;
-        mIsOutTaking = false;
 
     }
 
@@ -95,27 +86,26 @@ public class IntakeSubsystem extends SubsystemBase
     {
         mAlgaeIntake.setVoltage(kAlgaeOuttakeVoltage);
         algaeTargetVoltage = kAlgaeOuttakeVoltage;
-        mIsIntaking = false;
-        mIsOutTaking = true;
     }
 
-    public void stop()
+    public void stopCoral()
     {
         mCoralIntake.setVoltage(kCoralDefaultVoltage);
+    }
+    public void stopAlgae()
+    {
         mAlgaeIntake.setVoltage(-kAlgaeDefaultVoltage);
         algaeTargetVoltage = kAlgaeDefaultVoltage;
-        mIsIntaking = false;
-        mIsOutTaking = false;
     }
 
-    public boolean isIntaking()
+    /**
+     * Stops both the algae intake/outtake and the coral intake/outtake at the same time.
+     * Just a shorthand for calling stopCoral() and stopAlgae().
+     */
+    public void stopBoth()
     {
-        return mIsIntaking;
-    }
-
-    public boolean isOutTaking()
-    {
-        return mIsOutTaking;
+        stopCoral();
+        stopAlgae();
     }
 
     public boolean hasAlgae(){

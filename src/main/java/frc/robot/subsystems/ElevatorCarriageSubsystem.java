@@ -96,6 +96,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     private ProfiledPIDController wristPID;
 
     private Optional<CarriagePreset> carriagePreset = Optional.empty();
+    private Optional<CarriagePreset> desiredPreset = Optional.empty(); // Doesn't do anything on its own,
 
     // MAIN CONSTUCTOR
     private ElevatorCarriageSubsystem()
@@ -190,6 +191,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public void stop()
     {
         carriagePreset = Optional.empty();
+        desiredPreset = Optional.empty();
         mLeftElevatorMotor.stopMotor();
         mRightElevatorMotor.stopMotor();
         mArmMotor.stopMotor();
@@ -213,6 +215,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public void setManualElevatorVoltage(double voltage)
     {
         carriagePreset = Optional.empty();
+        desiredPreset = Optional.empty();
         setElevatorVoltage(voltage);
     }
 
@@ -225,6 +228,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public void setManualArmVoltage(double voltage) 
     {
         carriagePreset = Optional.empty();
+        desiredPreset = Optional.empty();
         setArmVoltage(voltage);
     }
 
@@ -237,6 +241,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public void setManualWristVoltage(double voltage) 
     {
         carriagePreset = Optional.empty();
+        desiredPreset = Optional.empty();
         setWristVoltage(voltage);
     }
 
@@ -249,6 +254,26 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public Optional<CarriagePreset> getActivePreset()
     {
         return carriagePreset;
+    }
+
+    /**
+     * Stores the desired preset of the robot.
+     * IN CODE, THIS DOES NOTHING ON ITS OWN!!!
+     * This is mostly for compatibility with Sophia's vision system.
+     */
+    public void setDesiredPreset(CarriagePreset preset)
+    {
+        desiredPreset = Optional.of(preset);
+    }
+    /** Returns the desired preset of the robot. */
+    public Optional<CarriagePreset> getDesiredPreset()
+    {
+        return desiredPreset;
+    }
+    /** Clears the desired preset of the robot. */
+    public void emptyDesiredPreset()
+    {
+        desiredPreset = Optional.empty();
     }
 
     // GET ELEVATOR POSITION METHOD

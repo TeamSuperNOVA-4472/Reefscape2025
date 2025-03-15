@@ -22,7 +22,6 @@ import frc.robot.objectmodels.LightStatusRequest;
 
 public class ElevatorSubsystem extends SubsystemBase
 {
-
     public static final ElevatorSubsystem kInstance = new ElevatorSubsystem();
 
     public static final int kLeftElevatorMotorID = 0;
@@ -36,7 +35,7 @@ public class ElevatorSubsystem extends SubsystemBase
     public static final double kElevatorP = 0.9;
     public static final double kElevatorI = 0;
     public static final double kElevatorD = 0;
-    public static final double kG = 0.2;
+    public static final double kG = 0.1;
 
     public static final double rotationsToInches = 0.45;
 

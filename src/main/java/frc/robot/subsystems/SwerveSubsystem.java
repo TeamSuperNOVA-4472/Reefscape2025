@@ -29,7 +29,6 @@ import swervelib.parser.SwerveParser;
 
 public class SwerveSubsystem extends SubsystemBase
 {
-
     public static final SwerveSubsystem kInstance = new SwerveSubsystem();
 
     public static final double kMaxSpeedMS = 4.5; // I'm not trustworthy. = 4.5;

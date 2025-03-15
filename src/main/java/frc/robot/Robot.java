@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.objectmodels.LightState;
 import frc.robot.objectmodels.LightStatusRequest;
+import frc.robot.subsystems.ElevatorCarriageSubsystem;
 
 // This code shouldn't be messed with in most scenarios.
 // Most of this is run automatically.
@@ -86,6 +87,8 @@ public class Robot extends TimedRobot
         autonLights.active = true;
         disabledLights.state = LightState.kDisabledError;
 
+        ElevatorCarriageSubsystem.kInstance.resetPID();
+
         // Schedule the autonomous command (example)
         if (mAutonomousCommand != null)
         {
@@ -116,6 +119,8 @@ public class Robot extends TimedRobot
         teleopLights.active = true;
         autonLights.active = false;
         disabledLights.state = LightState.kDisabledError;
+        
+        ElevatorCarriageSubsystem.kInstance.resetPID();
 
         mRobotContainer.resetHeadingToAlliance();
     }

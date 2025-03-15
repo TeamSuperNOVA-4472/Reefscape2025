@@ -20,24 +20,14 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.OperatorConfig.weightJoystick;
-import frc.robot.commands.Presets.AlgaeBarge;
-import frc.robot.commands.Presets.AlgaeGround;
-import frc.robot.commands.Presets.AlgaeL2;
-import frc.robot.commands.Presets.AlgaeL3;
-import frc.robot.commands.Presets.AlgaeProcessor;
-import frc.robot.commands.Presets.ArmBackPreset;
-import frc.robot.commands.Presets.CoralL1Preset;
-import frc.robot.commands.Presets.CoralL2Preset;
-import frc.robot.commands.Presets.CoralL3Preset;
-import frc.robot.commands.Presets.CoralL4Preset;
-import frc.robot.commands.Presets.LoadCoral;
-import frc.robot.commands.Presets.StowCarriagePosition;
 import frc.robot.commands.DriveDistanceAndHeading;
 import frc.robot.commands.ElevatorCarriageTeleop;
+import frc.robot.commands.PresetTeleop;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.SwitchPresetCommand;
 import frc.robot.commands.VisionAlignCommand;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ClimberTester;
@@ -114,7 +104,6 @@ public class RobotContainer
     
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
-    private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     //private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     //private final IntakeTeleop mIntakeTeleop;
 
@@ -139,9 +128,6 @@ public class RobotContainer
         mLightsSubsystem = LightsSubsystem.kInstance;
         mSwerveSubsystem = SwerveSubsystem.kInstance;
         mVisionSubsystem = VisionSubsystem.kInstance;
-        //mCarriageSubsystem = new CarriageSubsystem();
-        //mElevatorSubsystem = new ElevatorSubsystem();
-        // mClimbSubsystem = new ClimbSubsystem();
         mElevatorCarriageSubsystem = ElevatorCarriageSubsystem.kInstance;
         mIntakeSubsystem = IntakeSubsystem.kInstance;
 
@@ -157,120 +143,6 @@ public class RobotContainer
             weightJoystick(mDriver::getRightX, true),
             mDriver::getAButton);
 
-        mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mPartner);
-        // mElevatorCarriageTeleop = new ElevatorCarriageTeleop(mElevatorCarriageSubsystem, mDriver);
-        // mIntakeTeleop = new IntakeTeleop(mIntakeSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
-        //Trigger carriage = new Trigger(() -> (mPartner.getRightBumperButton() && !mIntakeSubsystem.hasCoral()));
-        // carriage.whileTrue( // FIXME: This is a MONSTROUS trigger. PLEASE make this its own command file.
-        //     new ConditionalCommand(
-        //         new InstantCommand(),
-        //         new LoadCoral(), 
-        //         () -> 
-        //             mIntakeSubsystem.hasAlgae() ||
-        //             (mCarriageSubsystem.getActivePreset().isPresent() &&
-        //              mCarriageSubsystem.getActivePreset().get().equals(CarriagePreset.kCoralLoad)))
-        //     .andThen(
-        //         new InstantCommand(
-        //             () -> mIntakeSubsystem.intakeCoral()
-        //         )
-        //     )
-        // );
-        //carriage.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()));//.andThen(new StowCarriagePositionAlgae(mCarriageSubsystem, mElevatorSubsystem)));
-
-        // Trigger scoreTrigger = new Trigger(() -> mPartner.getRightTriggerAxis() > 0);
-        // scoreTrigger.onTrue(
-        //     new InstantCommand(() -> mIntakeSubsystem.outtakeCoral())
-        // );
-        // scoreTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(new InstantCommand(() -> mIntakeSubsystem.setCoral(false))));
-
-        // Trigger l1Trigger = new Trigger(mPartner::getAButton);
-        // // l1Trigger.whileTrue(
-        //  //   new CoralL1Preset()
-        // // );
-        // l1Trigger.onFalse(stowCarriage());
-
-        // Trigger l2Trigger = new Trigger(mPartner::getXButton);
-        // l2Trigger.whileTrue(
-        //     new CoralL2Preset()
-        // );
-        // l2Trigger.onFalse(stowCarriage());
-        
-        // Trigger l3Trigger = new Trigger(mPartner::getBButton);
-        // l3Trigger.whileTrue( 
-        //     new CoralL3Preset()
-        // );
-        // l3Trigger.onFalse(stowCarriage());
-
-        // Trigger l4Trigger = new Trigger(mPartner::getYButton);
-        // l4Trigger.whileTrue(
-        //     new CoralL4Preset()
-        // );
-        // l4Trigger.onFalse(stowCarriage());
-
-        // Trigger algaeTrigger = new Trigger(() -> (mPartner.getLeftBumperButton() && !mIntakeSubsystem.hasAlgae()));
-        // algaeTrigger.whileTrue(
-        //     new AlgaeL2().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        // );
-        // algaeTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-        // this.algaeTrigger = algaeTrigger;
-        
-        // Trigger algaeHighTrigger = new Trigger(() -> (mPartner.getLeftTriggerAxis() > 0 && !mIntakeSubsystem.hasAlgae()));
-        // algaeHighTrigger.whileTrue(
-        //     new AlgaeL3().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        // );
-        // algaeHighTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-        // this.algaeHighTrigger = algaeHighTrigger;
-
-        // Trigger algaeGroundTrigger = new Trigger(() -> mPartner.getPOV() == 90);
-        // algaeGroundTrigger.whileTrue(
-        //     new AlgaeGround().andThen(new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()))
-        // );
-        // algaeGroundTrigger.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-
-        // Trigger algaeProcessTrigger = new Trigger(() -> mPartner.getPOV() == 180);
-        // algaeProcessTrigger.whileTrue(
-        //     new AlgaeProcessor()
-        // );
-
-        // Trigger algaeOut = new Trigger(() -> mPartner.getPOV() == 0);
-        // algaeOut.onTrue(
-        //     new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae())
-        // );
-        // algaeOut.onFalse(new InstantCommand(() -> mIntakeSubsystem.stop()).andThen(stowCarriage()));
-
-        // Trigger alignLeft = new Trigger(() -> mDriver.getLeftTriggerAxis() > 0);
-        // alignLeft.whileTrue(
-        //     new VisionAlignCommand(
-        //         VisionAlignCommand.kReefLeftOffset,
-        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-        //     )
-        // );
-
-        // Trigger alignMiddle = new Trigger(mDriver::getXButton);
-        // alignMiddle.whileTrue(
-        //     new VisionAlignCommand(
-        //         VisionAlignCommand.kReefMiddleOffset,
-        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-        //     )
-        // );
-
-        // Trigger alignRight = new Trigger(() -> mDriver.getRightTriggerAxis() > 0);
-        // alignRight.whileTrue(
-        //     new VisionAlignCommand(
-        //         VisionAlignCommand.kReefRightOffset,
-        //         Optional.of(this::applyHeightOffsetWhenVisionAlignFinishes)
-        //     )
-        // );
-
-        // Trigger algaeBarge = new Trigger(() -> mPartner.getPOV() == 270);
-        // algaeBarge.whileTrue(
-        //     new AlgaeBarge()
-        // );
-
-        // Trigger climbTrigger = new Trigger(mDriver::getRightBumperButton);
-        // //climbTrigger.onTrue(new ConditionalCommand(new InstantCommand(), new ArmBackPreset(), () -> mCarriageSubsystem.getArmSetpoint() == 95.0));
-        // Trigger climbDropTrigger = new Trigger(() -> (mDriver.getRightBumperButton() && false)); //TODO: add climb commands.
-
         // TODO: remove tester commands when robot is properly programmed
         //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
         //mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
@@ -280,8 +152,10 @@ public class RobotContainer
         // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
         // This is the fastest fix I could make.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
+        
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
-        mElevatorCarriageSubsystem.setDefaultCommand(mElevatorCarriageTeleop);
+        PresetTeleop.setup(mPartner);
+        
         mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
             /*Pose2d vision = newVisionPose.estimatedPose.toPose2d();
@@ -300,22 +174,29 @@ public class RobotContainer
         Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
         );
 
+        Trigger reefTrigger = new Trigger(mDriver::getYButton);
+        reefTrigger.whileTrue(new DeferredCommand(() ->
+        visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton),
+        Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
+        );
+
         // Register named commands.
-        NamedCommands.registerCommand("StowCarriage", stowCarriage());
-        NamedCommands.registerCommand("MoveCoralL1", new CoralL1Preset());
-        NamedCommands.registerCommand("MoveCoralL2", new CoralL2Preset());
-        NamedCommands.registerCommand("MoveCoralL3", new CoralL3Preset());
-        NamedCommands.registerCommand("MoveCoralL4", new CoralL4Preset());
+        NamedCommands.registerCommand("StowCarriage", SwitchPresetCommand.stow(false));
+        NamedCommands.registerCommand("MoveCoralL1", new SwitchPresetCommand(CarriagePreset.kCoralL1, false));
+        NamedCommands.registerCommand("MoveCoralL2", new SwitchPresetCommand(CarriagePreset.kCoralL2, false));
+        NamedCommands.registerCommand("MoveCoralL3", new SwitchPresetCommand(CarriagePreset.kCoralL3, false));
+        NamedCommands.registerCommand("MoveCoralL4", new SwitchPresetCommand(CarriagePreset.kCoralL4, false));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(VisionAlignCommand.kReefLeftOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignMiddle", new VisionAlignCommand(VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(VisionAlignCommand.kReefRightOffset, Optional.empty()));
-        NamedCommands.registerCommand("MoveAlgaeL2", new AlgaeL2());
-        NamedCommands.registerCommand("MoveAlgaeL3", new AlgaeL3());
+        NamedCommands.registerCommand("MoveAlgaeL2", new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false));
+        NamedCommands.registerCommand("MoveAlgaeL3", new SwitchPresetCommand(CarriagePreset.kAlgaeL3, false));
         NamedCommands.registerCommand("IntakeCoral", new InstantCommand(() -> mIntakeSubsystem.intakeCoral()));
         NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
-        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stop()));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopBoth()));
+
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -324,15 +205,6 @@ public class RobotContainer
                 new InstantCommand(() -> System.out.println("The Event has triggered")));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
-    }
-
-    /** If the algae is detected, call the StowCarriageAlgae command, otherwise do the one for the coral. */
-    private Command stowCarriage()
-    {
-        // Kyle here. I've tweaked the StowCarriagePosition command to do what this method used to do.
-        // It's still cleaner than having a million copies of this one line around, but it won't be needed
-        // when the command rewrite is done.
-        return new StowCarriagePosition();
     }
 
     // private void applyHeightOffsetWhenVisionAlignFinishes()

@@ -30,7 +30,7 @@ public class ElevatorCarriageTeleop extends Command
     {
         mElevatorCarriageSubsystem.resetPID();
         //mElevatorCarriageSubsystem.stop();
-        mElevatorCarriageSubsystem.setPreset(CarriagePreset.kCoralL2);
+        //mElevatorCarriageSubsystem.setPreset(CarriagePreset.kCoralL2);
         /*activeCommand = new SequentialCommandGroup(
             //new moveToLevelSafe(CarriagePreset.kStowCoral),
             new MoveCarriageToPresetCommand(CarriagePreset.kStowCoral)
@@ -42,11 +42,11 @@ public class ElevatorCarriageTeleop extends Command
     public void execute()
     {
 
-        if(mElevatorCarriageSubsystem.getActivePreset().isEmpty()) {
+        /*if(mElevatorCarriageSubsystem.getActivePreset().isEmpty()) {
             mElevatorCarriageSubsystem.setManualElevatorVoltage(-mController.getLeftY() * 6);
             mElevatorCarriageSubsystem.setManualArmVoltage(-mController.getRightY() * 12);
             mElevatorCarriageSubsystem.setManualWristVoltage(mController.getRightX() * 2);
-        }
+        }*/
     
     }
 }

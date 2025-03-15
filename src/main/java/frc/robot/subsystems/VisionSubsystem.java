@@ -220,40 +220,6 @@ public class VisionSubsystem extends SubsystemBase
             }
         }
 
-        // DEBUG: Distance to best april tag.
-        Optional<PhotonTrackedTarget> best = getTargetInView();
-        if (best.isPresent())
-        {
-            PhotonTrackedTarget target = best.get();
-            Pose3d curPose = poseApproximation.estimatedPose;
-            Pose3d targetPose = tagLayout.getTagPose(target.getFiducialId()).get();
-            
-            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Distance to April Tag", targetPose.minus(curPose).toString());
-        }
-        else
-        {
-            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Distance to April Tag", "No Tag in View");
-        }
-
-        if (getPoseInfo()!=null&&getTargetInView().isPresent())
-        {
-            Pose3d dest = tagLayout.getTagPose(getTargetInView().get().fiducialId).get();
-            double destDeg = ((dest.getRotation().toRotation2d().getDegrees())+360)%360;
-            double currentDeg = (getPose().getRotation().toRotation2d().getDegrees()+360)%360;
-            SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision Rotation to April Tag", destDeg);
-            SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision Rotation DT", currentDeg);
-            if (getTargetInView().isPresent())
-            {
-                SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision mY", getCameraToTarget(getTargetInView().get()).getY());
-                SmartDashboard.putNumber("Subsystems/VisionSubsystem/Vision difference in Y", dest.getY() - getPose().getY());
-            }
-        }
-
-        if (getPoseInfo()!=null)
-        {
-            SmartDashboard.putString("Subsystems/VisionSubsystem/Vision Pose String: ", getPose().toString());
-        }
-
         if (RobotBase.isSimulation())
         {
             Pose2d currentPose = mSwerve.getPose();

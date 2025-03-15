@@ -27,7 +27,7 @@ public class IntakeTester extends Command {
         mAlgaeOuttake = pAlgaeOuttake;
         mIntakeSubsystem = pIntakeSubsystem;
         addRequirements(mIntakeSubsystem);
-        mIntakeSubsystem.stop();
+        mIntakeSubsystem.stopBoth();
     }
 
     @Override

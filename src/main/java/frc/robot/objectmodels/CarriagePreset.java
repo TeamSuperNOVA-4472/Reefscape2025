@@ -1,5 +1,7 @@
 package frc.robot.objectmodels;
 
+import static frc.robot.subsystems.SwerveSubsystem.kA;
+
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 
 /**
@@ -15,15 +17,15 @@ public class CarriagePreset
     public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 0.036);
     public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 10.316); // +2.5in
     public static final CarriagePreset kCoralL3 = new CarriagePreset(89, -114, 28.125); // +2.5in
-    public static final CarriagePreset kCoralL4 = new CarriagePreset(90, -102, 52.625);
-    public static final CarriagePreset kCoralLoad = new CarriagePreset(95, -50, 6.647);
+    public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 60.125); // +3in
+    public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 5);
     public static final CarriagePreset kStowCoral = new CarriagePreset(65, 0, 0); // Also used to be known as "moving" in some places of the code.
     
-    public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -100, 52.125);
+    public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -130, 60.125);
     public static final CarriagePreset kAlgaeProcessor = new CarriagePreset(20, -110, 0);
     public static final CarriagePreset kAlgaeGround = new CarriagePreset(-45, -90, 12.125);
     public static final CarriagePreset kAlgaeL2 = new CarriagePreset(40, -120, 12.125);
-    public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 30.469);
+    public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 28);
     public static final CarriagePreset kStowAlgae = new CarriagePreset(65, -60, 0);
 
     public static final CarriagePreset kAway = new CarriagePreset(0, 0, 0);
@@ -38,6 +40,57 @@ public class CarriagePreset
         kElevatorPreset = pElevatorPreset + ElevatorCarriageSubsystem.initialHeight;
     }
 
+    /**
+     * Returns a NEW preset with the same arm & wrist positions as the current preset,
+     * but with a new elevator position.
+     */
+    public CarriagePreset withElevatorPreset(double elevatorPreset)
+    {
+        return new CarriagePreset(kArmPreset, kWristPreset, elevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+    }
+    /**
+     * Returns a NEW preset with the same arm & wrist positions as the current preset,
+     * but with the elevator position from the variable.
+     */
+    public CarriagePreset withElevatorPreset(CarriagePreset elevatorPreset)
+    {
+        return new CarriagePreset(kArmPreset, kWristPreset, elevatorPreset.kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+    }
+
+    /**
+     * Returns a NEW preset with the same arm & elevator positions as the current preset,
+     * but with a new arm position.
+     */
+    public CarriagePreset withArmPreset(double armPreset)
+    {
+        return new CarriagePreset(armPreset, kWristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+    }
+    /**
+     * Returns a NEW preset with the same arm & elevator positions as the current preset,
+     * but with the arm position from the variable.
+     */
+    public CarriagePreset withArmPreset(CarriagePreset armPreset)
+    {
+        return new CarriagePreset(armPreset.kArmPreset, kWristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+    }
+
+    /**
+     * Returns a NEW preset with the same arm & elevator positions as the current preset,
+     * but with a new arm position.
+     */
+    public CarriagePreset withWristPreset(double wristPreset)
+    {
+        return new CarriagePreset(kArmPreset, wristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+    }
+    /**
+     * Returns a NEW preset with the same arm & elevator positions as the current preset,
+     * but with the arm position from the variable.
+     */
+    public CarriagePreset withWristPreset(CarriagePreset wristPreset)
+    {
+        return new CarriagePreset(kArmPreset, wristPreset.kWristPreset, kElevatorPreset - ElevatorCarriageSubsystem.initialHeight);
+    }
+
     @Override
     public boolean equals(Object other)
     {
@@ -48,5 +101,11 @@ public class CarriagePreset
         return kArmPreset == otherPreset.kArmPreset &&
                kWristPreset == otherPreset.kWristPreset &&
                kElevatorPreset == otherPreset.kElevatorPreset;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Arm: " + kArmPreset + "deg, Wrist: " + kWristPreset + "deg, Elev: " + kElevatorPreset + "in";
     }
 }

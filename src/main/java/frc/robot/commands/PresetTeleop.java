@@ -1,6 +1,8 @@
 package frc.robot.commands;
+
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
@@ -26,201 +28,69 @@ Task 15: If all conditions fail, move back to the stow position. (DONE/NOT-DONE)
 Task 16: If at any point you attempt to stow the carriage, check if algae is preset in the intake (IntakeSubsystem.hasAlgae() might be useful here). If it is, move to the algae stow position. (DONE/NOT-DONE)
 */
 
-public class PresetTeleop extends Command
+public class PresetTeleop
 {
-    private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
-
-    private final IntakeSubsystem mIntakeSubsystem;
-
-    private final XboxController mController;
-
-    private final Trigger aButton;
-
-    private final Trigger xButton;
-
-    private final Trigger bButton;
-
-    private final Trigger yButton;
-
-    private final Trigger rightBumper;
-
-    private final Trigger rightTrigger;
-
-    private final Trigger leftBumper;
-
-    private final Trigger leftTrigger;
-
-    private final Trigger dpadRight;
-
-    private final Trigger dpadDown;
-
-    private final Trigger dpadLeft;
-    
-    private final Trigger dpadUp;
-
-    public PresetTeleop(ElevatorCarriageSubsystem elevatorCarriage, IntakeSubsystem intake, XboxController controller)
+    public static void setup(XboxController partner)
     {
-        mElevatorCarriageSubsystem = elevatorCarriage;
+        // Set up partner controls with triggers.
+        ElevatorCarriageSubsystem elevatorCarriage = ElevatorCarriageSubsystem.kInstance;
+        IntakeSubsystem intake = IntakeSubsystem.kInstance;
 
-        mIntakeSubsystem = intake;
+        // If nothing is to be done, stow the carriage.
+        elevatorCarriage.setDefaultCommand(SwitchPresetCommand.stow(true));
 
-        mController = controller;
+        // Check for moving to L1, L2, L3, and L4 positions.
+        Trigger moveL1 = new Trigger(partner::getAButton),
+                moveL2 = new Trigger(partner::getXButton),
+                moveL3 = new Trigger(partner::getBButton),
+                moveL4 = new Trigger(partner::getYButton);
+        moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
+        moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
+        moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
+        moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
 
-        aButton = new Trigger(mController::getAButton);
+        // Handle loading and scoring coral.
+        Trigger loadCoral = new Trigger(partner::getRightBumperButton),
+                scoreCoral = new Trigger(() -> partner.getRightTriggerAxis() > 0.25);
 
-        xButton = new Trigger(mController::getXButton);
+        loadCoral.whileTrue(new SequentialCommandGroup(
+            new SwitchPresetCommand(CarriagePreset.kCoralLoad, false),
+            new InstantCommand(() -> intake.intakeCoral()),
+            new ForeverCommand()
+        ));
+        loadCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
 
-        bButton = new Trigger(mController::getBButton);
+        scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
+        scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
 
-        yButton = new Trigger(mController::getYButton);
+        // Right is algae l2, left is l3
+        Trigger algaeL2 = new Trigger(() -> partner.getPOV() == 90),
+                algaeL3 = new Trigger(() -> partner.getPOV() == 270);
+        
+        algaeL2.whileTrue(new SequentialCommandGroup(
+            new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false),
+            new InstantCommand(() -> intake.intakeAlgae()),
+            new ForeverCommand()
+        ));
+        algaeL2.onFalse(new InstantCommand(() -> intake.stopAlgae()));
 
-        rightBumper = new Trigger(mController::getRightBumper);
+        algaeL3.whileTrue(new SequentialCommandGroup(
+            new SwitchPresetCommand(CarriagePreset.kAlgaeL3, false),
+            new InstantCommand(() -> intake.intakeAlgae()),
+            new ForeverCommand()
+        ));
+        algaeL3.onFalse(new InstantCommand(() -> intake.stopAlgae()));
 
-        rightTrigger = new Trigger(() -> mController.getRightTriggerAxis() > 0.1);
+        // down is algae Processor, up is Barge
+        Trigger algaeProccessorTrigger = new Trigger(() -> partner.getPOV() == 180),
+                algaeBarge = new Trigger(() -> partner.getPOV() == 0);
+        
+        algaeProccessorTrigger.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeProcessor, true));
+        algaeBarge.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeBarge, true));
 
-        leftBumper = new Trigger(mController::getLeftBumper);
-
-        leftTrigger = new Trigger(() -> mController.getLeftTriggerAxis() > 0.1);
-
-        dpadRight = new Trigger(() -> mController.getPOV() == 90);    
-
-        dpadDown = new Trigger(() -> mController.getPOV() == 180);
-
-        dpadLeft = new Trigger(() -> mController.getPOV() == 270);
-
-        dpadUp = new Trigger(() -> mController.getPOV() == 0);    
-
-        addRequirements(mElevatorCarriageSubsystem);
-    }
-
-    @Override
-    public void execute()
-    {
-        CarriagePreset target = CarriagePreset.kStowCoral;
-
-        // Task 1
-        if (aButton.getAsBoolean())
-        {
-            target = CarriagePreset.kCoralL1;
-        }
-
-        // Task 2
-        else if (xButton.getAsBoolean())
-        {
-            target = CarriagePreset.kCoralL2;
-        }
-
-        // Task 3
-        else if (bButton.getAsBoolean())
-        {
-            target = CarriagePreset.kCoralL3;
-        }
-
-        // Task 4
-        else if (yButton.getAsBoolean())
-        {
-            target = CarriagePreset.kCoralL4;
-        }
-
-        // Task 6
-        else if (rightBumper.getAsBoolean())
-        {
-            target = CarriagePreset.kCoralLoad;
-
-            if (mElevatorCarriageSubsystem.isAtPosition(target))
-            {
-                mIntakeSubsystem.intakeCoral();
-            }
-        }
-
-        // Task 7
-        else if (rightTrigger.getAsBoolean())
-        {
-            mIntakeSubsystem.outtakeCoral();
-        }
-
-        // Task 11
-        else
-        {
-            mIntakeSubsystem.stop();
-        }
-
-        // Task 8
-        if (leftBumper.getAsBoolean())
-        {
-            target = CarriagePreset.kAlgaeL2;
-
-            if (mElevatorCarriageSubsystem.isAtPosition(target))
-            {
-                mIntakeSubsystem.intakeAlgae();
-            }
-        }
-
-        // Task 9
-        else if (leftTrigger.getAsBoolean())
-        {
-            target = CarriagePreset.kAlgaeL3;
-
-            if (mElevatorCarriageSubsystem.isAtPosition(target))
-            {
-                mIntakeSubsystem.intakeAlgae();
-            }
-        }
-
-        // Task 10
-        else if (dpadRight.getAsBoolean())
-        {
-            target = CarriagePreset.kAlgaeGround;
-
-            if (mElevatorCarriageSubsystem.isAtPosition(target))
-            {
-                mIntakeSubsystem.intakeAlgae();
-            }
-        }
-
-        // Task 11
-        if (!mController.getLeftBumper() && mController.getLeftTriggerAxis() <= 0.1 && mController.getPOV() != 90)
-        {
-            mIntakeSubsystem.stop();
-        }
-
-        // Task 12
-        else if (dpadDown.getAsBoolean())
-        {
-            target = CarriagePreset.kAlgaeProcessor;
-        }
-
-        // Task 13
-        else if (dpadLeft.getAsBoolean())
-        {
-            target = CarriagePreset.kAlgaeBarge;
-        }
-
-        // Task 14
-        else if (dpadUp.getAsBoolean())
-        {
-            mIntakeSubsystem.outtakeAlgae();
-        }
-
-        // Task 11
-        else
-        {
-            mIntakeSubsystem.stop();
-        }
-
-        // Task 16
-        if (target == CarriagePreset.kStowCoral && mIntakeSubsystem.hasAlgae())
-        {
-            target = CarriagePreset.kStowAlgae;
-        }
-    }
-
-    // added just for the safety during situations like climbing and such, to stop everything
-    @Override
-    public void end(boolean stopping)
-    {
-        mElevatorCarriageSubsystem.stop();
-
-        mIntakeSubsystem.stop();
+        // Outake Algae
+        Trigger algaeOutakeTrigger = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25);
+        algaeOutakeTrigger.onTrue(new InstantCommand(() -> intake.outtakeAlgae()));
+        algaeOutakeTrigger.onFalse(new InstantCommand(() -> intake.stopAlgae()));
     }
 }
