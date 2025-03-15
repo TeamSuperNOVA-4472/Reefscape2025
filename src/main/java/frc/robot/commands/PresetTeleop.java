@@ -54,7 +54,7 @@ public class PresetTeleop
                 scoreCoral = new Trigger(() -> partner.getRightTriggerAxis() > 0.25);
 
         loadCoral.whileTrue(new SequentialCommandGroup(
-            new SwitchPresetCommand(CarriagePreset.kCoralLoad, false),
+            SwitchPresetCommand.load(false),
             new InstantCommand(() -> intake.intakeCoral()),
             new ForeverCommand()
         ));

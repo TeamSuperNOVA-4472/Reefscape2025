@@ -2,6 +2,8 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import javax.sound.midi.MetaEventListener;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -17,7 +19,28 @@ public class SwitchPresetCommand extends SequentialCommandGroup
 {
     public static SwitchPresetCommand stow(boolean keepAlive)
     {
-        return new SwitchPresetCommand(true, keepAlive);
+        SwitchPresetCommand preset = new SwitchPresetCommand(true);
+        preset.addCommands(
+            new InstantCommand(preset::initStowOnly),         // Run initial setup.
+            new MovePresetCommand(() -> preset.posPoints[0]), // Move to the safe position.
+            new MovePresetCommand(() -> preset.posPoints[1])  // Move the elevator.
+        );
+        if (keepAlive) preset.addCommands(new ForeverCommand());
+        return preset;
+    }
+    public static SwitchPresetCommand load(boolean keepAlive)
+    {
+        SwitchPresetCommand preset = new SwitchPresetCommand(true);
+        preset.addCommands(
+            new InstantCommand(preset::initCoralLoad),        // Run initial setup
+            new MovePresetCommand(() -> preset.posPoints[0]), // Move to the safe position.
+            new MovePresetCommand(() -> preset.posPoints[1]), // Move the elevator to the bottom.
+            new MovePresetCommand(() -> preset.posPoints[2]), // Move the wrist to load position.
+            new MovePresetCommand(() -> preset.posPoints[3]), // Move the arm to load position.
+            new MovePresetCommand(() -> preset.posPoints[4])  // Move the elevator to load position.
+        );
+        if (keepAlive) preset.addCommands(new ForeverCommand());
+        return preset;
     }
 
     private final ElevatorCarriageSubsystem mElevatorCarriage;
@@ -25,7 +48,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
 
     private final Supplier<CarriagePreset> mPresetSupplier;
 
-    private CarriagePreset safePosition, elevatorPosition, wristPosition, armPosition;
+    private CarriagePreset[] posPoints;
 
     public SwitchPresetCommand(CarriagePreset newPreset, boolean keepAlive)
     {
@@ -39,27 +62,22 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         mPresetSupplier = newPreset;
 
         addCommands(
-            new InstantCommand(this::init),                // Run initial setup.
-            new MovePresetCommand(() -> safePosition),     // Move to the safe position.
-            new MovePresetCommand(() -> elevatorPosition), // Move the elevator.
-            new MovePresetCommand(() -> wristPosition),    // Move the wrist. Might be worth combining.
-            new MovePresetCommand(() -> armPosition)       // Move the arm.
+            new InstantCommand(this::init),            // Run initial setup.
+            new MovePresetCommand(() -> posPoints[0]), // Move to the safe position.
+            new MovePresetCommand(() -> posPoints[1]), // Move the elevator.
+            new MovePresetCommand(() -> posPoints[2]), // Move the wrist. Might be worth combining.
+            new MovePresetCommand(() -> posPoints[3])  // Move the arm.
         );
         if (keepAlive) addCommands(new ForeverCommand());
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
     }
-    private SwitchPresetCommand(boolean justStow, boolean keepAlive) // Just stow. Nothing else.
+    private SwitchPresetCommand(boolean special) // Do custom constructor things. Nothing else.
     {
+        // Anything using this constructor should do some defining of its own.
+        // Used in the static methods above.
         mElevatorCarriage = ElevatorCarriageSubsystem.kInstance;
         mIntake = IntakeSubsystem.kInstance;
         mPresetSupplier = null; // Unused in this context. Careful!
-
-        addCommands(
-            new InstantCommand(this::initStowOnly),       // Run initial setup.
-            new MovePresetCommand(() -> safePosition),    // Move to the safe position.
-            new MovePresetCommand(() -> elevatorPosition) // Move the elevator.
-        );
-        if (keepAlive) addCommands(new ForeverCommand());
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
     }
 
@@ -67,13 +85,22 @@ public class SwitchPresetCommand extends SequentialCommandGroup
     {
         CarriagePreset newPreset = mPresetSupplier.get();
 
+        CarriagePreset safePosition;
         if (mIntake.hasAlgae()) safePosition = CarriagePreset.kStowAlgae;
         else safePosition = CarriagePreset.kStowCoral;
 
         safePosition = safePosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
-        elevatorPosition = safePosition.withElevatorPreset(newPreset);
-        wristPosition = elevatorPosition.withWristPreset(newPreset);
-        armPosition = wristPosition.withArmPreset(newPreset);
+        CarriagePreset elevatorPosition = safePosition.withElevatorPreset(newPreset);
+        CarriagePreset wristPosition = elevatorPosition.withWristPreset(newPreset);
+        CarriagePreset armPosition = wristPosition.withArmPreset(newPreset);
+
+        posPoints = new CarriagePreset[]
+        {
+            safePosition,     // Arm & Wrist to stow angle.
+            elevatorPosition, // Elevator to final position
+            wristPosition,    // Wrist to final position
+            armPosition       // Arm to final position
+        };
 
         mElevatorCarriage.setDesiredPreset(newPreset);
     }
@@ -83,14 +110,36 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         if (mIntake.hasAlgae()) stowPosition = CarriagePreset.kStowAlgae;
         else stowPosition = CarriagePreset.kStowCoral;
 
-        safePosition = stowPosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
-        elevatorPosition = stowPosition;
-
-        // Redundant
-        wristPosition = stowPosition;
-        armPosition = stowPosition;
+        CarriagePreset safePosition = stowPosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
+        posPoints = new CarriagePreset[]
+        {
+            safePosition, // Arm & Wrist to stow angle.
+            stowPosition  // Elevator to stow height.
+        };
         
         mElevatorCarriage.setDesiredPreset(stowPosition);
+    }
+    private void initCoralLoad()
+    {
+        CarriagePreset loadPosition = CarriagePreset.kCoralLoad;
+
+        // We need to go all the way down first before changing wrist stuff. Kind of a pain.
+        CarriagePreset stowPosition;
+        if (mIntake.hasAlgae()) stowPosition = CarriagePreset.kStowAlgae;
+        else stowPosition = CarriagePreset.kStowCoral;
+
+        CarriagePreset safePosition = stowPosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
+        CarriagePreset elevatorBottom = stowPosition;
+        CarriagePreset wristPosition = stowPosition.withWristPreset(loadPosition);
+        CarriagePreset armPosition = wristPosition.withArmPreset(loadPosition);
+        posPoints = new CarriagePreset[]
+        {
+            safePosition,   // Move arm & wrist to the stow position (temporary).
+            elevatorBottom, // Move elevator to bottom (temporary), so we have room to move wrist.
+            wristPosition,  // Move wrist to load position.
+            armPosition,    // Move arm to load position.
+            loadPosition    // Finally, move elevator to load position.
+        };
     }
 
     @Override
@@ -120,12 +169,6 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             activePreset = mPresetSupplier.get();
             mElevatorCarriage.setPreset(activePreset);
         }
-
-        @Override
-        public void execute()
-        {            
-            //mElevatorCarriage.setPreset(activePreset);
-        }   
 
         @Override
         public boolean isFinished()
