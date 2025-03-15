@@ -22,10 +22,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.OperatorConfig.weightJoystick;
 import frc.robot.commands.PresetTeleop;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ClimbTeleop;
+import frc.robot.commands.DoTheThingCommand;
 import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.SwitchPresetCommand;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.VisionAlignCommand;
+import frc.robot.commands.tester.CarriageTester;
+import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.objectmodels.ReefEndTarget;
@@ -52,7 +58,7 @@ public class RobotContainer
     //private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakeSubsystem mIntakeSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
-    // private final ClimbSubsystem mClimbSubsystem;
+    private final ClimbSubsystem mClimbSubsystem;
 
     // Controllers go here:
     private final XboxController mDriver;
@@ -60,6 +66,7 @@ public class RobotContainer
     
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
+    private final ClimbTeleop mClimbTeleop;
     //private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
     //private final IntakeTeleop mIntakeTeleop;
 
@@ -81,6 +88,7 @@ public class RobotContainer
         mPartner = new XboxController(kPartnerPort);
 
         // Initialize subsystems.
+        mClimbSubsystem = ClimbSubsystem.kInstance;
         mLightsSubsystem = LightsSubsystem.kInstance;
         mSwerveSubsystem = SwerveSubsystem.kInstance;
         mVisionSubsystem = VisionSubsystem.kInstance;
@@ -103,12 +111,12 @@ public class RobotContainer
         //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
         //mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
         mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
-        // mClimberTester = new ClimberTester(mClimbSubsystem, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mDriver::getLeftTriggerAxis);
+        mClimbTeleop = new ClimbTeleop(mDriver::getLeftBumperButton, mDriver::getRightBumperButton);
         // Configure subsystems
         // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
         // This is the fastest fix I could make.
         mSwerveSubsystem.setDefaultCommand(mSwerveTeleop);
-        
+        mClimbSubsystem.setDefaultCommand(mClimbTeleop);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         PresetTeleop.setup(mPartner);
         

@@ -61,7 +61,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
 
     private static final double kElevatorD = 0.0;
 
-    private static final double kElevatorKG = 0.2;
+    private static final double kElevatorKG = 0; // FIXME: TEMP USED TO BE 0.2
 
     private static final double kArmP = 0.075;
 
