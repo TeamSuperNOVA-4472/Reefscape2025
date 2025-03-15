@@ -3,6 +3,7 @@ package frc.robot.commands;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -12,12 +13,15 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -33,9 +37,9 @@ public class VisionAlign {
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
 
-    private final PIDController mXPIDController;
-    private final PIDController mYPIDController;
-    private final PIDController mRotationPIDController;
+    private final ProfiledPIDController mXPIDController;
+    private final ProfiledPIDController mYPIDController;
+    private final ProfiledPIDController mRotationPIDController;
     
     // Constants
     private final Transform2d kWayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Controls radius of reef-avoiding
@@ -65,7 +69,7 @@ public class VisionAlign {
 
     // Gyro input constants
     private final double kMinContinuous = 0;
-    private final double kMaxContinuous = 360;
+    private final double kMaxContinuous = 2 * Math.PI;
 
     /**
      * Creates a new VisionAlign object
@@ -78,9 +82,9 @@ public class VisionAlign {
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
 
-        mXPIDController = new PIDController(kLateralP, kLateralI, kLateralD);
-        mYPIDController = new PIDController(kLateralP, kLateralI, kLateralD);
-        mRotationPIDController = new PIDController(kRotationP, kRotationI, kRotationD);
+        mXPIDController = new ProfiledPIDController(kLateralP, kLateralI, kLateralD, new Constraints(1.0, 1.0));
+        mYPIDController = new ProfiledPIDController(kLateralP, kLateralI, kLateralD, new Constraints(1.0, 1.0));
+        mRotationPIDController = new ProfiledPIDController(kRotationP, kRotationI, kRotationD, new Constraints(90, 90));
 
         mRotationPIDController.enableContinuousInput(kMinContinuous, kMaxContinuous);
 
@@ -295,20 +299,38 @@ public class VisionAlign {
     }
 
     // Creates the PID command that runs until interrupted for teleop control
-    private RunCommand getCloseToCommand(Pose2d destination, Supplier<VisionDirection> direction)
+    private Command getCloseToCommand(Pose2d destination, Supplier<VisionDirection> direction)
     {
-        return new RunCommand(() -> getCloseTo(destination, direction), mSwerveSubsystem, mVisionSubsystem);
+        Command runCommand  =
+            new RunCommand(() -> getCloseTo(destination, direction), mSwerveSubsystem, mVisionSubsystem);
+        return new SequentialCommandGroup(
+            resetProfiledPidCommand(),
+            runCommand
+        );
     }
 
     // Creates the PID command that runs until controllers are at setpoint
-    private ParallelRaceGroup getCloseToCommand(Pose2d destination, VisionDirection direction)
+    private Command getCloseToCommand(Pose2d destination, VisionDirection direction)
     {
-        RunCommand command = new RunCommand(() -> getCloseTo(destination, () -> direction), mSwerveSubsystem, mVisionSubsystem);
-        return command.until(() ->
-            mXPIDController.atSetpoint() &&
-            mYPIDController.atSetpoint() &&
-            mRotationPIDController.atSetpoint()
-        );
+        Command command = new RunCommand(() -> getCloseTo(destination, () -> direction), mSwerveSubsystem, mVisionSubsystem)
+            .until(() ->
+                mXPIDController.atGoal() &&
+                mYPIDController.atGoal() &&
+                mRotationPIDController.atGoal()
+            );
+
+            return new SequentialCommandGroup(
+                resetProfiledPidCommand(),
+                command);
+    }
+
+    private Command resetProfiledPidCommand() {
+        return new InstantCommand(() -> {
+            Pose2d currPose = mSwerveSubsystem.getPose();
+            mXPIDController.reset(currPose.getX());
+            mYPIDController.reset(currPose.getY());
+            mRotationPIDController.reset(currPose.getRotation().getRadians());
+        });
     }
 
     // Uses a basic PID for fine adjustments to absolute, field-oriented pose
