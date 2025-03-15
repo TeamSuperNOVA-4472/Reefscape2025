@@ -11,6 +11,7 @@ import org.photonvision.EstimatedRobotPose;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.wpilibj.XboxController;
@@ -35,6 +36,7 @@ import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.objectmodels.ReefEndTarget;
+import frc.robot.objectmodels.VisionDirection;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -160,13 +162,18 @@ public class RobotContainer
         NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
-        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopBoth()));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopCoral()));
         NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false));
         
         // Align to Reef named commands. There is going to be a lot
         NamedCommands.registerCommand("AlignToFarBottom-Right", new DeferredCommand(
             () -> new VisionAlign(
                     mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.RightCoral),
+                    Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToFarBottom-Left", new DeferredCommand(
+            () -> new VisionAlign(
+                    mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.LeftCoral),
                     Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToBottomLoading", new DeferredCommand(
@@ -177,7 +184,7 @@ public class RobotContainer
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
 
-        autoChooser.addOption("BScoreReefFar-Right", new PathPlannerAuto("BScoreReefFar-Right"));
+        autoChooser.addOption("BScoreReefFar-Left", new PathPlannerAuto("BScoreReefFar-Left"));
         autoChooser.addOption("Demo Auto", new PathPlannerAuto("Demo Auto"));
 
 
