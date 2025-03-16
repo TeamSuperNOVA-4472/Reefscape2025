@@ -82,21 +82,21 @@ public class VisionAlign {
     private final HashMap<CarriagePreset, Transform2d> kRightCoralTransforms = new HashMap<>();
     private final HashMap<CarriagePreset, Transform2d> kAlgaeTransforms = new HashMap<>();
 
-    private final double kMaxVelocity = 1.5; // Max velocity for PathPlanner
-    private final double kMaxAcceleration = 1.5; // Max acceleration for PathPlanner
+    private final double kMaxVelocity = .5; // Max velocity for PathPlanner
+    private final double kMaxAcceleration = .5; // Max acceleration for PathPlanner
 
     // PID Constants for the Lateral PID Controller
-    private final double kLateralP = 3;
+    private final double kLateralP = 1.5;
     private final double kLateralI = 0;
-    private final double kLateralD = 0.2;
-    private final double kLateralMaxVelocity = 4.5;
-    private final double kLateralMaxAcceleration = 4.5;
+    private final double kLateralD = 0.01;
+    private final double kLateralMaxVelocity = 0.5;
+    private final double kLateralMaxAcceleration = 0.5;
     private final double kLateralTolerance = 0.02;
 
     // PID Constants for the Rotation PID Controller
-    private final double kRotationP = 2.5;
+    private final double kRotationP = 1.5;
     private final double kRotationI = 0;
-    private final double kRotationD = 1;
+    private final double kRotationD = 0.1;
     private final double kRotationMaxVelocity = 2;
     private final double kRotationMaxAcceleration = 2;
     private final double kRotationTolerance = 0.02;
@@ -184,7 +184,7 @@ public class VisionAlign {
         Pose2d destination = VisionPoses.getTargetPose(target, mVisionSubsystem);
         Supplier<VisionDirection> direction = () -> getOffset(leftButton, rightButton);
 
-        Command getClose = getCloseToCommand(destination, () -> getReefTransform(direction, preset));
+        Command getClose = getCloseToCommandTeleop(destination, () -> getReefTransform(direction, preset));
 
         return alignToReef(target, getClose);
     }
@@ -209,7 +209,7 @@ public class VisionAlign {
         destination = destination.plus(kMatchLoadingTransform);
         Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
 
-        Command approach = getCloseToCommand(destination, () -> kMatchLoadingApproachTransform);
+        Command approach = getCloseToCommand(destination, kMatchLoadingApproachTransform);
         
         try {
             return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform), approach);
@@ -352,7 +352,7 @@ public class VisionAlign {
     }
 
     // Creates the PID command that runs until interrupted for teleop control
-    private Command getCloseToCommand(Pose2d destination, Supplier<Transform2d> direction)
+    private Command getCloseToCommandTeleop(Pose2d destination, Supplier<Transform2d> direction)
     {
         Command runCommand  =
             new RunCommand(() -> getCloseTo(destination, direction), mSwerveSubsystem, mVisionSubsystem);
