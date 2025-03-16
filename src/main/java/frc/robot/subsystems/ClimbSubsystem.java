@@ -12,7 +12,7 @@ public class ClimbSubsystem extends SubsystemBase
     public static final ClimbSubsystem kInstance = new ClimbSubsystem();
 
     // THE CONSTANTS
-    private static final double CLIMB_OFFSET_ANGLE = 166 - 90;
+    private static final double CLIMB_OFFSET_ANGLE = 0; // Used to be 166-90, why? It seems to be unneeded.
     private static final int CLIMB_MOTOR = 12;
 
     
@@ -39,7 +39,7 @@ public class ClimbSubsystem extends SubsystemBase
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Climb Encoder Degrees", mClimbEncoder.get()* 360);
+        SmartDashboard.putNumber("Climb Encoder Degrees", getClimbAngleDegrees());
     }
 
 }

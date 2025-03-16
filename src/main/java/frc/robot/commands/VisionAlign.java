@@ -162,8 +162,9 @@ public class VisionAlign {
         try {
 
             // Creates and returns command
-            Command pathFind = pathFindToPlace(exitPoint, kWayPointTransform);
-            SequentialCommandGroup alignCommand = new SequentialCommandGroup(pathFind, runLast);
+            //Command pathFind = pathFindToPlace(exitPoint, kWayPointTransform);
+            // FIXME: later
+            SequentialCommandGroup alignCommand = new SequentialCommandGroup(/*pathFind, */runLast);
 
             return alignCommand;
 

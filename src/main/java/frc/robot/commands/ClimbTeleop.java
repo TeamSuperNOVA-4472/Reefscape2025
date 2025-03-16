@@ -18,7 +18,7 @@ public class ClimbTeleop extends Command
     public static final double kAngleClimb = 20; // Ambitious is 11.
     public static final double kAngleReady = 135.5;
 
-    public static final double kTolerance = 2; // The result will be correct plus or minus this number in degrees.
+    public static final double kTolerance = 1; // The result will be correct plus or minus this number in degrees.
 
     private static final double kClimbVoltage = 12; // Max is 12v.
 
@@ -64,8 +64,10 @@ public class ClimbTeleop extends Command
             // Move in direction. signum() is the sign of the number,
             // and is a shorthand for moving in the negative direction
             // if the distance is negative. Saves me an if statement.
-            mClimbSubsystem.setVoltage(kClimbVoltage * Math.signum(diff));
+            mClimbSubsystem.setVoltage(kClimbVoltage * -Math.signum(diff));
         }
+
+        else mClimbSubsystem.setVoltage(0);
     }
 
     private enum ClimbState
