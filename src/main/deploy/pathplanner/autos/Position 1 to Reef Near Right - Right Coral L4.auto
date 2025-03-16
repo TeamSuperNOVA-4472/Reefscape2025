@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BDriveToBottomNear-Right"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MoveCoralL4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "OuttakeCoral"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Sebastian Backup Autos",
+  "choreoAuto": false
+}
