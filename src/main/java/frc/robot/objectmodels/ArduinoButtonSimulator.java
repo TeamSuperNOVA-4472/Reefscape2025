@@ -3,6 +3,47 @@ package frc.robot.objectmodels;
 import com.fazecast.jSerialComm.SerialPort;
 import edu.wpi.first.wpilibj.Joystick;
 
+enum E_Button
+{
+    Near_Left,
+    Near_Middle,
+    Near_Right,
+    Far_Left,
+    Far_Middle,
+    Far_Right,
+    Barge,
+    Processor,
+    Left_Source,
+    Right_Source;
+    @SuppressWarnings("null")
+    public int getSelectedButton() {
+        switch(this) {
+            case Near_Left:
+                return 4;
+            case Near_Middle:
+                return 3;
+            case Near_Right:
+                return 2;
+            case Far_Left:
+                return 5;
+            case Far_Middle:
+                return 0;
+            case Far_Right:
+                return 1;
+            case Barge:
+                return 9;
+            case Processor:
+                return 8;
+            case Left_Source:
+                return 6;
+            case Right_Source:
+                return 7;
+            default:
+                return (Integer) null;
+        }
+    }
+};
+
 public class ArduinoButtonSimulator {
     private SerialPort arduinoPort;
     private boolean[] buttonStates = new boolean[10];  // Array to store states of 10 buttons
@@ -66,9 +107,9 @@ public class ArduinoButtonSimulator {
         }
     }
 
-    public boolean getButton(int i)
+    public boolean getButton(E_Button i)
     {
-        return buttonStates[i];
+        return buttonStates[i.getSelectedButton()];
     }
 
     public void close() {
