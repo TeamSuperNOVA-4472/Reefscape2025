@@ -143,7 +143,7 @@ public class RobotContainer
 
         Trigger reefTrigger = new Trigger(mDriver::getYButton);
         reefTrigger.whileTrue(new DeferredCommand(() ->
-        visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton),
+        visionAlign.alignToReef(ReefEndTarget.NearRight, mDriver::getLeftBumperButton, mDriver::getRightBumperButton, mElevatorCarriageSubsystem::getDesiredPreset),
         Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
         );
 
@@ -168,12 +168,12 @@ public class RobotContainer
         // Align to Reef named commands. There is going to be a lot
         NamedCommands.registerCommand("AlignToFarBottom-Right", new DeferredCommand(
             () -> new VisionAlign(
-                    mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.RightCoral),
+                    mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.RightCoral, mElevatorCarriageSubsystem::getDesiredPreset),
                     Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarBottom-Left", new DeferredCommand(
             () -> new VisionAlign(
-                    mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.LeftCoral),
+                    mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.LeftCoral, mElevatorCarriageSubsystem::getDesiredPreset),
                     Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToBottomLoading", new DeferredCommand(
