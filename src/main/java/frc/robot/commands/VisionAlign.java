@@ -82,21 +82,21 @@ public class VisionAlign {
     private final HashMap<CarriagePreset, Transform2d> kRightCoralTransforms = new HashMap<>();
     private final HashMap<CarriagePreset, Transform2d> kAlgaeTransforms = new HashMap<>();
 
-    private final double kMaxVelocity = 1.5; // Max velocity for PathPlanner
-    private final double kMaxAcceleration = 1.5; // Max acceleration for PathPlanner
+    private final double kMaxVelocity = .5; // Max velocity for PathPlanner
+    private final double kMaxAcceleration = .5; // Max acceleration for PathPlanner
 
     // PID Constants for the Lateral PID Controller
-    private final double kLateralP = 3;
+    private final double kLateralP = 1.5;
     private final double kLateralI = 0;
-    private final double kLateralD = 0.2;
-    private final double kLateralMaxVelocity = 4.5;
-    private final double kLateralMaxAcceleration = 4.5;
+    private final double kLateralD = 0.1;
+    private final double kLateralMaxVelocity = 0.5;
+    private final double kLateralMaxAcceleration = 0.5;
     private final double kLateralTolerance = 0.02;
 
     // PID Constants for the Rotation PID Controller
-    private final double kRotationP = 2.5;
+    private final double kRotationP = 1.5;
     private final double kRotationI = 0;
-    private final double kRotationD = 1;
+    private final double kRotationD = 0.1;
     private final double kRotationMaxVelocity = 2;
     private final double kRotationMaxAcceleration = 2;
     private final double kRotationTolerance = 0.02;

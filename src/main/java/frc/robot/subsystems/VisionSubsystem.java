@@ -221,7 +221,8 @@ public class VisionSubsystem extends SubsystemBase
                 // if (poseApproximation != null && !isUnderThreshold(poseApproximation, newRobotPose.get())) continue;
 
                 EstimatedRobotPose pose = newRobotPose.get();
-                updatePose(pose);
+                if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 4))
+                    updatePose(pose);
             }
         }
 
@@ -230,6 +231,21 @@ public class VisionSubsystem extends SubsystemBase
             Pose2d currentPose = mSwerve.getPose();
             simVision.update(new Pose3d(currentPose));
         }
+    }
+
+    /**
+     * Evaluates the distance between robot and tag and returns
+     * @param pTagTransform The tag transform from camera
+     * @param pMinRange The minimum accepted distance
+     * @param pMaxRange The maximum accepted distance
+     * @return
+     */
+    private static boolean tagInRange(Transform3d pTagTransform, double pMinRange, double pMaxRange) {
+        double tagDistX = pTagTransform.getX();
+        double tagDistY = pTagTransform.getY();
+        double dist = Math.sqrt(tagDistX*tagDistX + tagDistY*tagDistY);
+        //System.out.println("[DEBUG] Tag distance: " + dist);
+        return dist >= pMinRange && dist <= pMaxRange;
     }
 
     /** Returns the best april tag target in view. */
