@@ -4,8 +4,9 @@
   "holonomicMode": true,
   "pathFolders": [
     "BottomPaths",
-    "MidPaths",
     "Loading Station paths",
+    "MidPaths",
+    "Start Paths",
     "Old Autos (may need them later)",
     "Sebastians New Paths (unsorted stuff, hopefully nothing in here)",
     "TopPaths"

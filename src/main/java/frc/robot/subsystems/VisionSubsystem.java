@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.opencv.core.Mat;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -31,19 +32,19 @@ import frc.robot.objectmodels.CameraInfo;
 
 public class VisionSubsystem extends SubsystemBase
 {
-
-    // TODO: CHANGE BACK TO OG
     // The first camera in this array is considered the "main camera."
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
     {
         new CameraInfo("LeftCamera", new Transform3d(new Translation3d(0.3023604062, 0.3023616, 0.2413), new Rotation3d(0, 0.174, 0.523599))),
         new CameraInfo("RightCamera", new Transform3d(new Translation3d(0.3023604062, -0.3023616, 0.2413), new Rotation3d(0, 0.174, -0.523599))),
-        new CameraInfo("BackCamera", new Transform3d(new Translation3d(0.288671, 0.009525, 0.8509), new Rotation3d(0, -0.3926991, 3.14159))) // Can be changed.
+        new CameraInfo("BackCamera", new Transform3d(new Translation3d(0.288671, 0.009525, 0.8509), new Rotation3d(0, 0.3926991, 3.14159))) // Can be changed.
  
     };
 
     public static final VisionSubsystem kInstance = new VisionSubsystem();
+
+    public static final double kThreshold = 2.5;
 
     // Cameras go here.
     private PhotonCamera[] cameras;
@@ -215,6 +216,10 @@ public class VisionSubsystem extends SubsystemBase
             }
             if  (newRobotPose.isPresent())
             {
+                // TODO: test distance filter
+                // Don't update if previous pose exists and new one is not under threshold - meant to stop vision from going crazy town
+                // if (poseApproximation != null && !isUnderThreshold(poseApproximation, newRobotPose.get())) continue;
+
                 EstimatedRobotPose pose = newRobotPose.get();
                 updatePose(pose);
             }
@@ -285,5 +290,18 @@ public class VisionSubsystem extends SubsystemBase
     public void disable()
     {
         enabled = false;
+    }
+
+    private boolean isUnderThreshold(EstimatedRobotPose oldEstimate, EstimatedRobotPose newEstimate)
+    {
+        Pose3d oldPose = oldEstimate.estimatedPose;
+        Pose3d newPose = newEstimate.estimatedPose;
+
+        // Checks if both X and Y readings are under threshold
+        if (Math.abs(oldPose.getX() - newPose.getX()) < kThreshold && Math.abs(oldPose.getY() - newPose.getY()) < kThreshold)
+        {
+            return true;
+        }
+        return false;
     }
 }

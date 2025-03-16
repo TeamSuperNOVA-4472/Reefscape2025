@@ -2,51 +2,88 @@ package frc.robot.commands;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.objectmodels.VisionPoses;
+import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.objectmodels.ReefEndTarget;
 import frc.robot.objectmodels.VisionDirection;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+
+// TODO:
+// - fix blue alliance bugs
+// - debug PID stop/start issue
+// - use instance variables and make methods static
+// I'll get these done in the car tomorrow.
 
 public class VisionAlign {
     // Member variables
     private final SwerveSubsystem mSwerveSubsystem;
     private final VisionSubsystem mVisionSubsystem;
 
-    private final PIDController mXPIDController;
-    private final PIDController mYPIDController;
-    private final PIDController mRotationPIDController;
+    private final ProfiledPIDController mXPIDController;
+    private final ProfiledPIDController mYPIDController;
+    private final ProfiledPIDController mRotationPIDController;
     
     // Constants
     private final Transform2d kWayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Controls radius of reef-avoiding
+    private final Transform2d kBackUpTransform = new Transform2d(-0.25, 0, new Rotation2d());
+
     private final Transform2d kReefTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Position at reef
     private final Transform2d kMatchLoadingTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
 
-    private final Transform2d kLeftCoralTransform = new Transform2d(0.4, -0.25, Rotation2d.k180deg); // Position at left coral stick
-    private final Transform2d kRightCoralTransform = new Transform2d(0.4, 0.25, Rotation2d.k180deg); // Position at right coral stick
-    private final Transform2d kAlgaeTransform = new Transform2d(0.4, 0, Rotation2d.k180deg); // Position at algae
+    // Left coral transforms go here
+    // If it's easier for you guys and the y values are the same, 
+    // I can consolidate Left/Right into one big map that negates the Y value.
+    // But that's up to y'all.
+    private final Transform2d kLeftCoralL1Transform = new Transform2d(0.4, -0.25, Rotation2d.k180deg);
+    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.4, -0.25, Rotation2d.k180deg);
+    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.4, -0.5, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.4, -0.25, Rotation2d.k180deg); 
+
+    // Right coral transforms
+    private final Transform2d kRightCoralL1Transform = new Transform2d(0.4, 0.25, Rotation2d.k180deg); 
+    private final Transform2d kRightCoralL2Transform = new Transform2d(0.4, 0.25, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL3Transform = new Transform2d(0.4, 0.5, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL4Transform = new Transform2d(0.4, 0.25, Rotation2d.k180deg);
+
+    // Algae transforms
+    private final Transform2d kAlgaeTopTransform = new Transform2d(0.4, 0, Rotation2d.k180deg); // Position at L3
+    private final Transform2d kAlgaeBottomTransform = new Transform2d(0.4, 0, Rotation2d.k180deg); // Position at L2
+
     private final Transform2d kMatchLoadingApproachTransform = new Transform2d(0.65, 0, new Rotation2d());
+
+    // Maps for CarriagePreset transforms
+    private final HashMap<CarriagePreset, Transform2d> kLeftCoralTransforms = new HashMap<>();
+    private final HashMap<CarriagePreset, Transform2d> kRightCoralTransforms = new HashMap<>();
+    private final HashMap<CarriagePreset, Transform2d> kAlgaeTransforms = new HashMap<>();
 
     private final double kMaxVelocity = 1.5; // Max velocity for PathPlanner
     private final double kMaxAcceleration = 1.5; // Max acceleration for PathPlanner
@@ -55,17 +92,21 @@ public class VisionAlign {
     private final double kLateralP = 3;
     private final double kLateralI = 0;
     private final double kLateralD = 0.2;
+    private final double kLateralMaxVelocity = 4.5;
+    private final double kLateralMaxAcceleration = 4.5;
     private final double kLateralTolerance = 0.02;
 
     // PID Constants for the Rotation PID Controller
-    private final double kRotationP = 5;
+    private final double kRotationP = 2.5;
     private final double kRotationI = 0;
-    private final double kRotationD = 0;
+    private final double kRotationD = 1;
+    private final double kRotationMaxVelocity = 2;
+    private final double kRotationMaxAcceleration = 2;
     private final double kRotationTolerance = 0.02;
 
     // Gyro input constants
     private final double kMinContinuous = 0;
-    private final double kMaxContinuous = 360;
+    private final double kMaxContinuous = 2 * Math.PI;
 
     /**
      * Creates a new VisionAlign object
@@ -78,15 +119,32 @@ public class VisionAlign {
         mSwerveSubsystem = pSwerveSubsystem;
         mVisionSubsystem = pVisionSubsystem;
 
-        mXPIDController = new PIDController(kLateralP, kLateralI, kLateralD);
-        mYPIDController = new PIDController(kLateralP, kLateralI, kLateralD);
-        mRotationPIDController = new PIDController(kRotationP, kRotationI, kRotationD);
+        mXPIDController = new ProfiledPIDController(kLateralP, kLateralI, kLateralD, new Constraints(kLateralMaxVelocity, kLateralMaxAcceleration));
+        mYPIDController = new ProfiledPIDController(kLateralP, kLateralI, kLateralD, new Constraints(kLateralMaxVelocity, kLateralMaxAcceleration));
+        mRotationPIDController = new ProfiledPIDController(kRotationP, kRotationI, kRotationD, new Constraints(kRotationMaxVelocity * Math.PI, kRotationMaxAcceleration * Math.PI));
 
         mRotationPIDController.enableContinuousInput(kMinContinuous, kMaxContinuous);
 
+        // Assign PID tolerances
         mXPIDController.setTolerance(kLateralTolerance);
         mYPIDController.setTolerance(kLateralTolerance);
         mRotationPIDController.setTolerance(kRotationTolerance);
+
+        // Assign left coral transforms
+        kLeftCoralTransforms.put(CarriagePreset.kCoralL1, kLeftCoralL1Transform);
+        kLeftCoralTransforms.put(CarriagePreset.kCoralL2, kLeftCoralL2Transform);
+        kLeftCoralTransforms.put(CarriagePreset.kCoralL3, kLeftCoralL3Transform);
+        kLeftCoralTransforms.put(CarriagePreset.kCoralL4, kLeftCoralL4Transform);
+
+        // Assign right coral transforms
+        kRightCoralTransforms.put(CarriagePreset.kCoralL1, kRightCoralL1Transform);
+        kRightCoralTransforms.put(CarriagePreset.kCoralL2, kRightCoralL2Transform);
+        kRightCoralTransforms.put(CarriagePreset.kCoralL3, kRightCoralL3Transform);
+        kRightCoralTransforms.put(CarriagePreset.kCoralL4, kRightCoralL4Transform);
+
+        // Assign algae transforms
+        kAlgaeTransforms.put(CarriagePreset.kAlgaeL2, kAlgaeBottomTransform);
+        kAlgaeTransforms.put(CarriagePreset.kAlgaeL3, kAlgaeTopTransform);
     }
 
     /**
@@ -121,14 +179,15 @@ public class VisionAlign {
      * @param target The enum describing end target from field-oriented position.
      * @param leftButton The button that moves the final alignment to the left.
      * @param rightButton The button that moves the final alignment to the right.
+     * @param preset The supplier that gives the desired preset of the robot.
      * @return The sequence of pathfinding and PID alignment.
      */
-    public SequentialCommandGroup alignToReef(ReefEndTarget target, Supplier<Boolean> leftButton, Supplier<Boolean> rightButton)
+    public SequentialCommandGroup alignToReef(ReefEndTarget target, Supplier<Boolean> leftButton, Supplier<Boolean> rightButton, Supplier<Optional<CarriagePreset>> preset)
     {
         Pose2d destination = VisionPoses.getTargetPose(target, mVisionSubsystem);
         Supplier<VisionDirection> direction = () -> getOffset(leftButton, rightButton);
 
-        Command getClose = getCloseToCommand(destination, direction);
+        Command getClose = getCloseToCommand(destination, () -> getReefTransform(direction, preset));
 
         return alignToReef(target, getClose);
     }
@@ -137,12 +196,13 @@ public class VisionAlign {
      * Pathfinds and aligns to a face on the reef.
      * @param target The enum describing end target from field-oriented position.
      * @param direction The enum describing left, right, or middle PID alignment.
+     * @param preset The supplier that gives the desired preset of the robot.
      * @return The sequence of pathfinding and PID alignment.
      */
-    public SequentialCommandGroup alignToReef(ReefEndTarget target, VisionDirection direction)
+    public SequentialCommandGroup alignToReef(ReefEndTarget target, VisionDirection direction, Supplier<Optional<CarriagePreset>> preset)
     {
         Pose2d destination = VisionPoses.getTargetPose(target, mVisionSubsystem);
-        Command getClose = getCloseToCommand(destination, direction);
+        Command getClose = getCloseToCommand(destination, getReefTransform(() -> direction, preset));
         
         return alignToReef(target, getClose);
     }
@@ -152,7 +212,7 @@ public class VisionAlign {
         destination = destination.plus(kMatchLoadingTransform);
         Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem));
 
-        Command approach = getCloseToCommand(destination, () -> VisionDirection.MatchLoading);
+        Command approach = getCloseToCommand(destination, () -> kMatchLoadingApproachTransform);
         
         try {
             return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform), approach);
@@ -232,7 +292,7 @@ public class VisionAlign {
         // Create a list of poses
         ArrayList<Pose2d> poses = VisionPoses.getReefPoses(radius, mVisionSubsystem);
 
-        Pose2d currPose = mSwerveSubsystem.getPose(); // Gets the current position of the drive
+        Pose2d currPose = mSwerveSubsystem.getPose().transformBy(kBackUpTransform); // Gets the current position of the drive
         Pose2d endingPose = target; // Gets the exit point position
         
         ArrayList<Pose2d> pathList = getMinPath(poses, endingPose, currPose); // Get the shortest path to the exit point
@@ -246,7 +306,7 @@ public class VisionAlign {
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
             new PathConstraints(kMaxVelocity, kMaxAcceleration, Units.degreesToRadians(360), Units.degreesToRadians(540)),
-            null,
+            new IdealStartingState(kMaxVelocity, currPose.getRotation()),
             new GoalEndState(kMaxVelocity, lastPose.getRotation())
         );
 
@@ -295,30 +355,60 @@ public class VisionAlign {
     }
 
     // Creates the PID command that runs until interrupted for teleop control
-    private RunCommand getCloseToCommand(Pose2d destination, Supplier<VisionDirection> direction)
+    private Command getCloseToCommand(Pose2d destination, Supplier<Transform2d> direction)
     {
-        return new RunCommand(() -> getCloseTo(destination, direction), mSwerveSubsystem, mVisionSubsystem);
-    }
+        Command runCommand  =
+            new RunCommand(() -> getCloseTo(destination, direction), mSwerveSubsystem, mVisionSubsystem);
 
-    // Creates the PID command that runs until controllers are at setpoint
-    private ParallelRaceGroup getCloseToCommand(Pose2d destination, VisionDirection direction)
-    {
-        RunCommand command = new RunCommand(() -> getCloseTo(destination, () -> direction), mSwerveSubsystem, mVisionSubsystem);
-        return command.until(() ->
-            mXPIDController.atSetpoint() &&
-            mYPIDController.atSetpoint() &&
-            mRotationPIDController.atSetpoint()
+        // Create command that resets PID before running everything else
+        return new SequentialCommandGroup(
+            resetProfiledPidCommand(),
+            runCommand
         );
     }
 
+    // Creates the PID command that runs until controllers are at setpoint
+    private Command getCloseToCommand(Pose2d destination, Transform2d direction)
+    {
+        Command command = new RunCommand(() -> getCloseTo(destination, () -> direction), mSwerveSubsystem, mVisionSubsystem)
+            .until(() ->
+                // Exits once PID controllers are at goal
+                mXPIDController.atGoal() &&
+                mYPIDController.atGoal() &&
+                mRotationPIDController.atGoal()
+            );
+
+            // Create command that resets PID before running everything else
+            return new SequentialCommandGroup(
+                resetProfiledPidCommand(),
+                command);
+    }
+
+    // TODO: debug weird jank movement between pathfinding and PID. It's worth putting the PID reset into
+    // a parallel group with pathfinding and having it run repeatedly.
+    // Resets the profiled PID to its correct starting position
+    private Command resetProfiledPidCommand() {
+        // Create new command
+        return new InstantCommand(() -> {
+            // Get current pose and velocity
+            Pose2d currPose = mSwerveSubsystem.getPose();
+            ChassisSpeeds currSpeed = mSwerveSubsystem.getRobotRelativeSpeeds();
+
+            // Reset controllers with position and velocity
+            mXPIDController.reset(currPose.getX(), currSpeed.vxMetersPerSecond);
+            mYPIDController.reset(currPose.getY(), currSpeed.vyMetersPerSecond);
+            mRotationPIDController.reset(currPose.getRotation().getRadians(), currSpeed.omegaRadiansPerSecond);
+        });
+    }
+
     // Uses a basic PID for fine adjustments to absolute, field-oriented pose
-    private void getCloseTo(Pose2d destination, Supplier<VisionDirection> direction)
+    private void getCloseTo(Pose2d destination, Supplier<Transform2d> direction)
     {
         // Gets current pose
         Pose2d curPose = mSwerveSubsystem.getPose();
 
         // Applies transformation based on direction received
-        Pose2d fixedPose = destination.transformBy(getTransform(direction.get()));
+        Pose2d fixedPose = destination.transformBy(direction.get());
 
         ChassisSpeeds speed = new ChassisSpeeds(
             // Calculates X, Y, and rotation error from current pose to destination
@@ -332,18 +422,26 @@ public class VisionAlign {
     }
 
     // Gets the correct transform for fine PID alignment
-    private Transform2d getTransform(VisionDirection endDirection)
+    private Transform2d getReefTransform(Supplier<VisionDirection> endDirection, Supplier<Optional<CarriagePreset>> presetGetter)
     {
-        switch (endDirection)
+        // Get the desired preset
+        Optional<CarriagePreset> desiredPreset = presetGetter.get();
+
+        // If no preset is present, assume it's in the away position
+        CarriagePreset preset = desiredPreset.isPresent() ? desiredPreset.get() : CarriagePreset.kAway;
+
+        switch (endDirection.get())
         {
             case LeftCoral:
-                return kLeftCoralTransform;
+                // Get the correct transform if a reef preset is present; if not, assume L1
+                return kLeftCoralTransforms.getOrDefault(preset, kLeftCoralL1Transform);
             case RightCoral:
-                return kRightCoralTransform;
-            case MatchLoading:
-                return kMatchLoadingApproachTransform;
+                // Get the correct transform if a reef preset is present; if not, assume L1
+                return kRightCoralTransforms.getOrDefault(preset, kRightCoralL1Transform);
             default:
-                return kAlgaeTransform;
+                // Return algae otherwise
+                // Check if algae is present; if not, assume L2 algae
+                return kAlgaeTransforms.getOrDefault(preset, kAlgaeBottomTransform);
         }
     }
 }
