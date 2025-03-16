@@ -88,7 +88,7 @@ public class VisionAlign {
     // PID Constants for the Lateral PID Controller
     private final double kLateralP = 1.5;
     private final double kLateralI = 0;
-    private final double kLateralD = 0.1;
+    private final double kLateralD = 0.01;
     private final double kLateralMaxVelocity = 0.5;
     private final double kLateralMaxAcceleration = 0.5;
     private final double kLateralTolerance = 0.02;
