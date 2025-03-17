@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.parser.SwerveParser;
+import swervelib.telemetry.SwerveDriveTelemetry;
+import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase
 {
@@ -118,7 +120,7 @@ public class SwerveSubsystem extends SubsystemBase
     /** Creates a new ExampleSubsystem. */
     private SwerveSubsystem()
     {
-        //SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false);
         mSwerveSysID = SwerveDriveTest.generateSysIdCommand(
