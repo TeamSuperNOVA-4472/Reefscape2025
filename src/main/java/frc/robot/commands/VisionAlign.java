@@ -57,8 +57,8 @@ public class VisionAlign {
     private final Transform2d kWayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Controls radius of reef-avoiding
     private final Transform2d kBackUpTransform = new Transform2d(-0.5, 0, new Rotation2d()); // Back up from stations
 
-    private final Transform2d kReefTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Position at reef
-    private final Transform2d kMatchLoadingTransform = new Transform2d(1.25, 0, Rotation2d.k180deg); // Position at match loading station
+    private final Transform2d kReefTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at reef
+    private final Transform2d kMatchLoadingTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
 
     // Left coral transforms go here
@@ -66,15 +66,15 @@ public class VisionAlign {
     // I can consolidate Left/Right into one big map that negates the Y value.
     // But that's up to y'all.
     private final Transform2d kLeftCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg);
-    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.6, -0.25, Rotation2d.k180deg);
+    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.5, -0.265, Rotation2d.k180deg);
     private final Transform2d kLeftCoralL3Transform = new Transform2d(0.5, -0.25, Rotation2d.k180deg); 
-    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.5, -0.25, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.45, -0.3, Rotation2d.k180deg); 
 
     // Right coral transforms
     private final Transform2d kRightCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg); 
-    private final Transform2d kRightCoralL2Transform = new Transform2d(0.6, 0.25, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL2Transform = new Transform2d(0.5, 0.185, Rotation2d.k180deg);
     private final Transform2d kRightCoralL3Transform = new Transform2d(0.5, 0.25, Rotation2d.k180deg);
-    private final Transform2d kRightCoralL4Transform = new Transform2d(0.5, 0.25, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL4Transform = new Transform2d(0.45, 0.3, Rotation2d.k180deg);
 
     // Algae transforms
     private final Transform2d kAlgaeTopTransform = new Transform2d(0.75, 0, Rotation2d.k180deg); // Position at L3
@@ -87,21 +87,21 @@ public class VisionAlign {
     private final HashMap<CarriagePreset, Transform2d> kRightCoralTransforms = new HashMap<>();
     private final HashMap<CarriagePreset, Transform2d> kAlgaeTransforms = new HashMap<>();
 
-    private final double kMaxVelocity = 1.5; // Max velocity for PathPlanner
-    private final double kMaxAcceleration = 1.5; // Max acceleration for PathPlanner
+    private final double kMaxVelocity = 2.5; // Max velocity for PathPlanner
+    private final double kMaxAcceleration = 2.5; // Max acceleration for PathPlanner
 
     // PID Constants for the Lateral PID Controller
     private final double kLateralP = 1.5;
     private final double kLateralI = 0;
-    private final double kLateralD = 0;
+    private final double kLateralD = 0.05;
     private final double kLateralMaxVelocity = 4.5;
     private final double kLateralMaxAcceleration = 4.5;
     private final double kLateralTolerance = 0.02;
 
     // PID Constants for the Rotation PID Controller
-    private final double kRotationP = 1;
+    private final double kRotationP = 0.75;
     private final double kRotationI = 0;
-    private final double kRotationD = 0.05;
+    private final double kRotationD = 0;
     private final double kRotationMaxVelocity = 2;
     private final double kRotationMaxAcceleration = 2;
     private final double kRotationTolerance = 0.02;
@@ -149,6 +149,35 @@ public class VisionAlign {
         kAlgaeTransforms.put(CarriagePreset.kAlgaeL3, kAlgaeTopTransform);
     }
 
+    // Aligns to the nearest reef face
+    private Command alignToNearestReef(Supplier<VisionDirection> direction, Supplier<Optional<CarriagePreset>> preset)
+    {
+        ArrayList<Pose2d> poses = VisionPoses.getReefPoses(new Transform2d(), mVisionSubsystem); // Creates list of poses
+        Pose2d currPose = mSwerveSubsystem.getPose(); // Gets current pose
+        Pose2d destination = currPose.nearest(poses); // Gets nearest reef pose to current pose
+
+        return getCloseToCommand(destination, () -> getReefTransform(direction, preset));
+    }
+
+    /**
+     * Aligns to the nearest reef face from field view for teleop.
+     * @param leftButton
+     * @param rightButton
+     * @param preset
+     * @return
+     */
+    public Command alignToNearestReef(Supplier<Boolean> leftButton, Supplier<Boolean> rightButton, Supplier<Optional<CarriagePreset>> preset)
+    {
+        Supplier<VisionDirection> direction = () -> getOffset(leftButton, rightButton);
+
+        return alignToNearestReef(direction, preset);
+    }
+
+    public Command alignToNearestReef(VisionDirection direction, Supplier<Optional<CarriagePreset>> preset)
+    {
+        return alignToNearestReef(() -> direction, preset);
+    }
+
     /**
      * Pathfinds and aligns to a face on the reef.
      * @param target The enum describing end target from field-oriented position.
@@ -163,8 +192,9 @@ public class VisionAlign {
 
         try {
             // Creates and returns command
-            // Command pathFind = pathFindToPlace(exitPoint, kWayPointTransform);
-            SequentialCommandGroup alignCommand = new SequentialCommandGroup(/*pathFind,*/ runLast);
+            Pose2d idealWaypoint = destination.plus(kWayPointTransform);
+            Command pathFind = pathFindToPlace(idealWaypoint, exitPoint, kWayPointTransform);
+            SequentialCommandGroup alignCommand = new SequentialCommandGroup(pathFind, runLast);
 
             return alignCommand;
 
@@ -308,7 +338,7 @@ public class VisionAlign {
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
             new PathConstraints(kMaxVelocity, kMaxAcceleration, Units.degreesToRadians(360), Units.degreesToRadians(540)),
-            new IdealStartingState(kMaxVelocity, currPose.getRotation()),
+            null,
             new GoalEndState(kMaxVelocity, lastPose.getRotation())
         );
 

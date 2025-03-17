@@ -137,14 +137,14 @@ public class RobotContainer
 
         Trigger visionTrigger = new Trigger(mDriver::getXButton);
         visionTrigger.whileTrue(new DeferredCommand(() ->
-        visionAlign.alignToRightMatchLoadingStation(),
-        Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
+        visionAlign.alignToNearestReef(() -> mDriver.getLeftTriggerAxis() > 0.1, () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
+        Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
         Trigger reefTrigger = new Trigger(mDriver::getYButton);
         reefTrigger.whileTrue(new DeferredCommand(() ->
-        visionAlign.alignToReef(ReefEndTarget.NearRight, () -> mDriver.getLeftTriggerAxis() > 0.1, () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
-        Set.of(mSwerveSubsystem, mVisionSubsystem)).until(() -> Math.abs(mDriver.getLeftY()) > 0.1)
+        visionAlign.alignToLeftMatchLoadingStation(),
+        Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
         // Register named commands.
