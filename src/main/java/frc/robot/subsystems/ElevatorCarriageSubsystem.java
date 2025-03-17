@@ -71,7 +71,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
 
     private static final double kArmKG = 0.44;
 
-    private static final double kWristP = 0.1;
+    private static final double kWristP = 0.2;
 
     private static final double kWristI = 0;
 
@@ -179,7 +179,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
 
         elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
         armPID = new ProfiledPIDController(kArmP, kArmI, kArmD, new Constraints(720, 720));
-        wristPID = new ProfiledPIDController(kWristP, kWristI, kWristD, new Constraints(360, 360));
+        wristPID = new ProfiledPIDController(kWristP, kWristI, kWristD, new Constraints(720, 720));
     }
 
     public boolean isAtTheBottom()
