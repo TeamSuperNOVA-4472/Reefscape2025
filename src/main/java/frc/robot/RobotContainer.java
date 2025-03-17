@@ -5,6 +5,47 @@
 package frc.robot;
 
 import java.util.Optional;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.events.EventTrigger;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import static frc.robot.OperatorConfig.weightJoystick;
+import frc.robot.commands.DriveDistanceAndHeading;
+import frc.robot.commands.ElevatorCarriageTeleop;
+import frc.robot.commands.PresetTeleop;
+import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DoTheThingCommand;
+import frc.robot.commands.SwerveTeleop;
+import frc.robot.commands.SwitchPresetCommand;
+import frc.robot.commands.SwitchPresetCommandOld;
+import frc.robot.commands.VisionAlignCommand;
+import frc.robot.commands.tester.CarriageTester;
+import frc.robot.commands.tester.ElevatorTester;
+import frc.robot.commands.tester.IntakeTester;
+import frc.robot.objectmodels.CarriagePreset;
+import frc.robot.subsystems.CarriageSubsystem;
+import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.ElevatorCarriageSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.commands.VisionAlign;
+import frc.robot.objectmodels.ReefEndTarget;
+import frc.robot.objectmodels.VisionDirection;
+import frc.robot.objectmodels.VisionPoses;
+import frc.robot.subsystems.LightsSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
+
 import java.util.Set;
 
 import org.photonvision.EstimatedRobotPose;
@@ -148,22 +189,25 @@ public class RobotContainer
         );
 
         // Register named commands.
-        NamedCommands.registerCommand("StowCarriage", SwitchPresetCommand.stow(false));
-        NamedCommands.registerCommand("MoveCoralL1", new SwitchPresetCommand(CarriagePreset.kCoralL1, false));
-        NamedCommands.registerCommand("MoveCoralL2", new SwitchPresetCommand(CarriagePreset.kCoralL2, false));
-        NamedCommands.registerCommand("MoveCoralL3", new SwitchPresetCommand(CarriagePreset.kCoralL3, false));
-        NamedCommands.registerCommand("MoveCoralL4", new SwitchPresetCommand(CarriagePreset.kCoralL4, false));
+        // NOTE: Here we are using the old switch preset command, because it handles more scenarios
+        //       (such as moving between L2 and L3 without restoring stow first). It isn't perfect though,
+        //       and it might have to be changed.
+        NamedCommands.registerCommand("StowCarriage", SwitchPresetCommandOld.stow(false));
+        NamedCommands.registerCommand("MoveCoralL1", new SwitchPresetCommandOld(CarriagePreset.kCoralL1, false));
+        NamedCommands.registerCommand("MoveCoralL2", new SwitchPresetCommandOld(CarriagePreset.kCoralL2, false));
+        NamedCommands.registerCommand("MoveCoralL3", new SwitchPresetCommandOld(CarriagePreset.kCoralL3, false));
+        NamedCommands.registerCommand("MoveCoralL4", new SwitchPresetCommandOld(CarriagePreset.kCoralL4, false));
         NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(VisionAlignCommand.kReefLeftOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignMiddle", new VisionAlignCommand(VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(VisionAlignCommand.kReefRightOffset, Optional.empty()));
-        NamedCommands.registerCommand("MoveAlgaeL2", new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false));
-        NamedCommands.registerCommand("MoveAlgaeL3", new SwitchPresetCommand(CarriagePreset.kAlgaeL3, false));
+        NamedCommands.registerCommand("MoveAlgaeL2", new SwitchPresetCommandOld(CarriagePreset.kAlgaeL2, false));
+        NamedCommands.registerCommand("MoveAlgaeL3", new SwitchPresetCommandOld(CarriagePreset.kAlgaeL3, false));
         NamedCommands.registerCommand("IntakeCoral", new InstantCommand(() -> mIntakeSubsystem.intakeCoral()));
         NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopCoral()));
-        NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false));
+        NamedCommands.registerCommand("Loading", SwitchPresetCommandOld.load(false));
         
         // Align to Reef named commands. There is going to be a lot
         NamedCommands.registerCommand("AlignToFarBottom-Right", new DeferredCommand(

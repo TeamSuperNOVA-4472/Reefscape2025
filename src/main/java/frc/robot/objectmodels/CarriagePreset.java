@@ -12,12 +12,12 @@ import frc.robot.subsystems.ElevatorCarriageSubsystem;
 public class CarriagePreset
 {
     // Actual presets go here.
-    public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 1.036);
-    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 11.816); // +2.5in
-    public static final CarriagePreset kCoralL3 = new CarriagePreset(89, -114, 29.625); // +2.5in
-    public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 60.125); // +3in
+    public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 0.036);
+    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 11.816); // +1.5in
+    public static final CarriagePreset kCoralL3 = new CarriagePreset(89, -114, 28.625); // +0.5in
+    public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 60.125);
     public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 6);
-    public static final CarriagePreset kStowCoral = new CarriagePreset(65, 0, 0); // Also used to be known as "moving" in some places of the code.
+    public static final CarriagePreset kStowCoral = new CarriagePreset(72, 18, 0); // Also used to be known as "moving" in some places of the code.
     
     public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -130, 60.855);
     public static final CarriagePreset kAlgaeProcessor = new CarriagePreset(20, -110, 0);
