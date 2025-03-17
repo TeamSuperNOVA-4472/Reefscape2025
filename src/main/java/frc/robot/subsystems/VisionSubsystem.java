@@ -38,13 +38,11 @@ public class VisionSubsystem extends SubsystemBase
     {
         new CameraInfo("LeftCamera", new Transform3d(new Translation3d(0.3023604062, 0.3023616, 0.2413), new Rotation3d(0, 0.174, 0.523599))),
         new CameraInfo("RightCamera", new Transform3d(new Translation3d(0.3023604062, -0.3023616, 0.2413), new Rotation3d(0, 0.174, -0.523599))),
-        new CameraInfo("BackCamera", new Transform3d(new Translation3d(0.288671, 0.009525, 0.8509), new Rotation3d(0, 0.3926991, 3.14159))) // Can be changed.
- 
+        // new CameraInfo("BackCamera", new Transform3d(new Translation3d(0.288671, 0.009525, 0.8509), new Rotation3d(0, 0.3926991, 3.14159))) // Can be changed.
     };
 
     public static final VisionSubsystem kInstance = new VisionSubsystem();
-
-    public static final double kThreshold = 2.5;
+    public static final double kThreshold = 2.5; // Threshold in meters to add vision measurement pose
 
     // Cameras go here.
     private PhotonCamera[] cameras;
@@ -218,7 +216,7 @@ public class VisionSubsystem extends SubsystemBase
             {
                 // TODO: test distance filter
                 // Don't update if previous pose exists and new one is not under threshold - meant to stop vision from going crazy town
-                // if (poseApproximation != null && !isUnderThreshold(poseApproximation, newRobotPose.get())) continue;
+                if (poseApproximation != null && !isUnderThreshold(poseApproximation, newRobotPose.get())) continue;
 
                 EstimatedRobotPose pose = newRobotPose.get();
                 updatePose(pose);
