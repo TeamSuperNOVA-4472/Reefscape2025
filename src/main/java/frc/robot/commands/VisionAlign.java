@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
@@ -52,6 +53,8 @@ public class VisionAlign {
     
     // Constants
     private final Transform2d kWayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Controls radius of reef-avoiding
+    private final Transform2d kBackUpTransform = new Transform2d(-0.25, 0, new Rotation2d());
+
     private final Transform2d kReefTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Position at reef
     private final Transform2d kMatchLoadingTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
@@ -159,8 +162,9 @@ public class VisionAlign {
         try {
 
             // Creates and returns command
-            Command pathFind = pathFindToPlace(exitPoint, kWayPointTransform);
-            SequentialCommandGroup alignCommand = new SequentialCommandGroup(pathFind, runLast);
+            //Command pathFind = pathFindToPlace(exitPoint, kWayPointTransform);
+            // FIXME: later
+            SequentialCommandGroup alignCommand = new SequentialCommandGroup(/*pathFind, */runLast);
 
             return alignCommand;
 
@@ -289,7 +293,7 @@ public class VisionAlign {
         // Create a list of poses
         ArrayList<Pose2d> poses = VisionPoses.getReefPoses(radius, mVisionSubsystem);
 
-        Pose2d currPose = mSwerveSubsystem.getPose(); // Gets the current position of the drive
+        Pose2d currPose = mSwerveSubsystem.getPose().transformBy(kBackUpTransform); // Gets the current position of the drive
         Pose2d endingPose = target; // Gets the exit point position
         
         ArrayList<Pose2d> pathList = getMinPath(poses, endingPose, currPose); // Get the shortest path to the exit point
@@ -303,7 +307,7 @@ public class VisionAlign {
         PathPlannerPath path = new PathPlannerPath(
             waypoints,
             new PathConstraints(kMaxVelocity, kMaxAcceleration, Units.degreesToRadians(360), Units.degreesToRadians(540)),
-            null,
+            new IdealStartingState(kMaxVelocity, currPose.getRotation()),
             new GoalEndState(kMaxVelocity, lastPose.getRotation())
         );
 

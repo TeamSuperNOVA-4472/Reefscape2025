@@ -2,8 +2,6 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
-import javax.sound.midi.MetaEventListener;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -85,6 +83,13 @@ public class SwitchPresetCommand extends SequentialCommandGroup
     private void init()
     {
         CarriagePreset newPreset = mPresetSupplier.get();
+        if (newPreset == CarriagePreset.kStowAlgae ||
+            newPreset == CarriagePreset.kStowCoral ||
+            newPreset == CarriagePreset.kCoralLoad)
+        {
+            System.err.println("[SWITCH] PLEASE DO NOT PASS A STOW OR A LOADING PRESET INTO THE SWITCHPRESETCOMMAND CONSTRUCTOR!!! If you are stowing, call .stow(). If you are loading, call load().");
+            cancel();
+        }
 
         CarriagePreset safePosition;
         if (mIntake.hasAlgae()) safePosition = CarriagePreset.kStowAlgae;

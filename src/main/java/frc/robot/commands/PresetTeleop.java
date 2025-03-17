@@ -39,20 +39,33 @@ public class PresetTeleop
         // If nothing is to be done, stow the carriage.
         elevatorCarriage.setDefaultCommand(SwitchPresetCommand.stow(true));
 
-        // Check for moving to L1, L2, L3, and L4 positions.
+        // #region Controls
         Trigger moveL1 = new Trigger(partner::getAButton),
                 moveL2 = new Trigger(partner::getXButton),
                 moveL3 = new Trigger(partner::getBButton),
                 moveL4 = new Trigger(partner::getYButton);
+
+        Trigger loadCoral = new Trigger(partner::getRightBumperButton),
+                scoreCoral = new Trigger(() -> partner.getRightTriggerAxis() > 0.25);
+
+        Trigger algaeL2 = new Trigger(partner::getLeftBumperButton),
+                algaeL3 = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25),
+                algaeGround = new Trigger(() -> partner.getPOV() == 90);
+
+        Trigger algaeProccessor = new Trigger(() -> partner.getPOV() == 180),
+                algaeBarge = new Trigger(() -> partner.getPOV() == 270);
+
+        Trigger algaeOutake = new Trigger(() -> partner.getPOV() == 0);
+        // #endregion
+
+        // #region Check for moving to L1, L2, L3, and L4 positions.
         moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
         moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
         moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
         moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
+        // #endregion
 
-        // Handle loading and scoring coral.
-        Trigger loadCoral = new Trigger(partner::getRightBumperButton),
-                scoreCoral = new Trigger(() -> partner.getRightTriggerAxis() > 0.25);
-
+        // #region Handle loading and scoring coral.
         loadCoral.whileTrue(new SequentialCommandGroup(
             SwitchPresetCommand.load(false),
             new InstantCommand(() -> intake.intakeCoral()),
@@ -62,11 +75,9 @@ public class PresetTeleop
 
         scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
         scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
+        // #endregion
 
-        // Right is algae l2, left is l3
-        Trigger algaeL2 = new Trigger(() -> partner.getPOV() == 90),
-                algaeL3 = new Trigger(() -> partner.getPOV() == 270);
-        
+        // #region Go to Algae L2, L3, and ground, begin intaking.
         algaeL2.whileTrue(new SequentialCommandGroup(
             new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false),
             new InstantCommand(() -> intake.intakeAlgae()),
@@ -80,17 +91,23 @@ public class PresetTeleop
             new ForeverCommand()
         ));
         algaeL3.onFalse(new InstantCommand(() -> intake.stopAlgae()));
-
-        // down is algae Processor, up is Barge
-        Trigger algaeProccessorTrigger = new Trigger(() -> partner.getPOV() == 180),
-                algaeBarge = new Trigger(() -> partner.getPOV() == 0);
         
-        algaeProccessorTrigger.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeProcessor, true));
-        algaeBarge.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeBarge, true));
+        algaeGround.whileTrue(new SequentialCommandGroup(
+            new SwitchPresetCommand(CarriagePreset.kAlgaeGround, false),
+            new InstantCommand(() -> intake.intakeAlgae()),
+            new ForeverCommand()
+        ));
+        algaeGround.onFalse(new InstantCommand(() -> intake.stopAlgae()));
+        // #endregion
 
-        // Outake Algae
-        Trigger algaeOutakeTrigger = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25);
-        algaeOutakeTrigger.onTrue(new InstantCommand(() -> intake.outtakeAlgae()));
-        algaeOutakeTrigger.onFalse(new InstantCommand(() -> intake.stopAlgae()));
+        // #region Algae Processor and Barge
+        algaeProccessor.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeProcessor, true));
+        algaeBarge.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeBarge, true));
+        // #endregion
+
+        // #region Outtake Algae
+        algaeOutake.onTrue(new InstantCommand(() -> intake.outtakeAlgae()));
+        algaeOutake.onFalse(new InstantCommand(() -> intake.stopAlgae()));
+        // #endregion
     }
 }
