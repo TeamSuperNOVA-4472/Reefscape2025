@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.objectmodels.CarriagePreset;
@@ -37,7 +38,7 @@ public class PresetTeleop
         IntakeSubsystem intake = IntakeSubsystem.kInstance;
 
         // If nothing is to be done, stow the carriage.
-        elevatorCarriage.setDefaultCommand(SwitchPresetCommand.stow(true));
+        elevatorCarriage.setDefaultCommand(SwitchPresetCommand.defaultToStow(true));
 
         // #region Controls
         Trigger moveL1 = new Trigger(partner::getAButton),
@@ -59,19 +60,22 @@ public class PresetTeleop
         // #endregion
 
         // #region Check for moving to L1, L2, L3, and L4 positions.
-        moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
-        moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
-        moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
-        moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
+        moveL1.whileTrue(SwitchPresetCommand.stowToDefault(CarriagePreset.kCoralL1, true));
+        moveL2.whileTrue(SwitchPresetCommand.stowToDefault(CarriagePreset.kCoralL2, true));
+        moveL3.whileTrue(SwitchPresetCommand.stowToDefault(CarriagePreset.kCoralL3, true));
+        moveL4.whileTrue(SwitchPresetCommand.stowToDefault(CarriagePreset.kCoralL4, true));
         // #endregion
 
         // #region Handle loading and scoring coral.
         loadCoral.whileTrue(new SequentialCommandGroup(
-            SwitchPresetCommand.load(false),
+            SwitchPresetCommand.stowToLoad(false),
             new InstantCommand(() -> intake.intakeCoral()),
             new ForeverCommand()
         ));
-        loadCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
+        loadCoral.onFalse(new ParallelCommandGroup(
+            new InstantCommand(() -> intake.stopCoral()),
+            SwitchPresetCommand.loadToStow(false)
+        ));
 
         scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
         scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
@@ -79,21 +83,21 @@ public class PresetTeleop
 
         // #region Go to Algae L2, L3, and ground, begin intaking.
         algaeL2.whileTrue(new SequentialCommandGroup(
-            new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false),
+            SwitchPresetCommand.stowToDefault(CarriagePreset.kAlgaeL2, false),
             new InstantCommand(() -> intake.intakeAlgae()),
             new ForeverCommand()
         ));
         algaeL2.onFalse(new InstantCommand(() -> intake.stopAlgae()));
 
         algaeL3.whileTrue(new SequentialCommandGroup(
-            new SwitchPresetCommand(CarriagePreset.kAlgaeL3, false),
+            SwitchPresetCommand.stowToDefault(CarriagePreset.kAlgaeL3, false),
             new InstantCommand(() -> intake.intakeAlgae()),
             new ForeverCommand()
         ));
         algaeL3.onFalse(new InstantCommand(() -> intake.stopAlgae()));
         
         algaeGround.whileTrue(new SequentialCommandGroup(
-            new SwitchPresetCommand(CarriagePreset.kAlgaeGround, false),
+            SwitchPresetCommand.stowToDefault(CarriagePreset.kAlgaeGround, false),
             new InstantCommand(() -> intake.intakeAlgae()),
             new ForeverCommand()
         ));
@@ -101,8 +105,8 @@ public class PresetTeleop
         // #endregion
 
         // #region Algae Processor and Barge
-        algaeProccessor.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeProcessor, true));
-        algaeBarge.whileTrue(new SwitchPresetCommand(CarriagePreset.kAlgaeBarge, true));
+        algaeProccessor.whileTrue(SwitchPresetCommand.stowToDefault(CarriagePreset.kAlgaeProcessor, true));
+        algaeBarge.whileTrue(SwitchPresetCommand.stowToDefault(CarriagePreset.kAlgaeBarge, true));
         // #endregion
 
         // #region Outtake Algae
