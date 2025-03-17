@@ -13,6 +13,11 @@ public class ForeverCommand extends Command
     }
 
     @Override
+    public void initialize() {
+        System.out.println("hey I ran. this is bad. hopefully you dont see this");
+    }
+
+    @Override
     public boolean isFinished()
     {
         return false;
