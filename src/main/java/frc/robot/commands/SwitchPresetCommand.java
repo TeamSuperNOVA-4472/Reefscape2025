@@ -15,6 +15,12 @@ import frc.robot.subsystems.IntakeSubsystem;
  */
 public class SwitchPresetCommand extends SequentialCommandGroup
 {
+    private static boolean holdForProcessor;
+    public static boolean isHoldingForProcessor()
+    {
+        return holdForProcessor;
+    }
+
     public static SwitchPresetCommand stow(boolean keepAlive)
     {
         SwitchPresetCommand preset = new SwitchPresetCommand(true);
@@ -72,7 +78,8 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         mPresetSupplier = newPreset;
 
         addCommands(
-            new InstantCommand(this::init),            // Run initial setup.
+            new InstantCommand(() -> holdForProcessor = false),
+            new InstantCommand(this::init),                                  // Run initial setup.
             new MovePresetCommand(() -> posPoints[0], false), // Move to the safe position.
             new MovePresetCommand(() -> posPoints[1], false), // Move the elevator.
             new MovePresetCommand(() -> posPoints[2], false), // Move the wrist. Might be worth combining.
@@ -89,12 +96,14 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         mElevatorCarriage = ElevatorCarriageSubsystem.kInstance;
         mIntake = IntakeSubsystem.kInstance;
         mPresetSupplier = null; // Unused in this context. Careful!
+        addCommands(new InstantCommand(() -> holdForProcessor = false));
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
     }
 
     private void init()
     {
         CarriagePreset newPreset = mPresetSupplier.get();
+        if (newPreset == CarriagePreset.kAlgaeProcessor) holdForProcessor = true;
 
         CarriagePreset safePosition;
         if (mIntake.hasAlgae()) safePosition = CarriagePreset.kStowAlgae;
