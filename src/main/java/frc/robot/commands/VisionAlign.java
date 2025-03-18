@@ -72,7 +72,7 @@ public class VisionAlign {
 
     // Right coral transforms
     private final Transform2d kRightCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg); 
-    private final Transform2d kRightCoralL2Transform = new Transform2d(0.5, 0.185, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL2Transform = new Transform2d(0.5, 0.21, Rotation2d.k180deg);
     private final Transform2d kRightCoralL3Transform = new Transform2d(0.5, 0.25, Rotation2d.k180deg);
     private final Transform2d kRightCoralL4Transform = new Transform2d(0.45, 0.3, Rotation2d.k180deg);
 
