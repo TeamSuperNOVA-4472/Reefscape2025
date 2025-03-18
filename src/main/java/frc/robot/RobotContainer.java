@@ -159,12 +159,12 @@ public class RobotContainer
         NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(VisionAlignCommand.kReefRightOffset, Optional.empty()));
         NamedCommands.registerCommand("MoveAlgaeL2", new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false));
         NamedCommands.registerCommand("MoveAlgaeL3", new SwitchPresetCommand(CarriagePreset.kAlgaeL3, false));
-        NamedCommands.registerCommand("IntakeCoral", new InstantCommand(() -> mIntakeSubsystem.intakeCoral()));
+        NamedCommands.registerCommand("IntakeCoral", new InstantCommand(() -> mIntakeSubsystem.intakeCoral()).andThen(new WaitForCoral()));
         NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopBoth()));
-        NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false).andThen(new WaitForCoral()));
+        NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false));
         
         // Align to Reef named commands. There is going to be a lot
         NamedCommands.registerCommand("AlignToFarBottom-Right", new DeferredCommand(
