@@ -21,10 +21,23 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         return holdForProcessor;
     }
 
+    private static boolean holdForBarge;
+    public static boolean isHoldingForBarge()
+    {
+        return holdForBarge;
+    }
+
+    private static void clearHoldings()
+    {
+        holdForProcessor = false;
+        holdForBarge = false;
+    }
+
     public static SwitchPresetCommand stow(boolean keepAlive)
     {
         SwitchPresetCommand preset = new SwitchPresetCommand(true);
         preset.addCommands(
+            new InstantCommand(SwitchPresetCommand::clearHoldings),
             new InstantCommand(preset::initStowOnly),         // Run initial setup.
             new MovePresetCommand(() -> preset.posPoints[0], true), // Move to the safe position.
             new MovePresetCommand(() -> preset.posPoints[1], true)  // Move the elevator.
@@ -36,6 +49,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
     {
         SwitchPresetCommand preset = new SwitchPresetCommand(true);
         preset.addCommands(
+            new InstantCommand(SwitchPresetCommand::clearHoldings),
             new InstantCommand(preset::initCoralLoad),        // Run initial setup
             new MovePresetCommand(() -> preset.posPoints[0], true), // Move to the safe position.
             new MovePresetCommand(() -> preset.posPoints[1], true), // Move the elevator to the bottom.
@@ -78,7 +92,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         mPresetSupplier = newPreset;
 
         addCommands(
-            new InstantCommand(() -> holdForProcessor = false),
+            new InstantCommand(SwitchPresetCommand::clearHoldings),
             new InstantCommand(this::init),                                  // Run initial setup.
             new MovePresetCommand(() -> posPoints[0], false), // Move to the safe position.
             new MovePresetCommand(() -> posPoints[1], false), // Move the elevator.
@@ -96,7 +110,8 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         mElevatorCarriage = ElevatorCarriageSubsystem.kInstance;
         mIntake = IntakeSubsystem.kInstance;
         mPresetSupplier = null; // Unused in this context. Careful!
-        addCommands(new InstantCommand(() -> holdForProcessor = false));
+        addCommands(
+            new InstantCommand(SwitchPresetCommand::clearHoldings));
         addRequirements(mElevatorCarriage); // Not actively modifying intake.
     }
 
@@ -104,6 +119,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
     {
         CarriagePreset newPreset = mPresetSupplier.get();
         if (newPreset == CarriagePreset.kAlgaeProcessor) holdForProcessor = true;
+        else if (newPreset == CarriagePreset.kAlgaeBarge) holdForBarge = true;
 
         CarriagePreset safePosition;
         if (mIntake.hasAlgae()) safePosition = CarriagePreset.kStowAlgae;
