@@ -37,7 +37,6 @@ public class SwitchPresetCommand extends SequentialCommandGroup
     {
         SwitchPresetCommand preset = new SwitchPresetCommand(true);
         preset.addCommands(
-            new InstantCommand(SwitchPresetCommand::clearHoldings),
             new InstantCommand(preset::initStowOnly),         // Run initial setup.
             new MovePresetCommand(() -> preset.posPoints[0], true), // Move to the safe position.
             new MovePresetCommand(() -> preset.posPoints[1], true)  // Move the elevator.
@@ -49,7 +48,6 @@ public class SwitchPresetCommand extends SequentialCommandGroup
     {
         SwitchPresetCommand preset = new SwitchPresetCommand(true);
         preset.addCommands(
-            new InstantCommand(SwitchPresetCommand::clearHoldings),
             new InstantCommand(preset::initCoralLoad),        // Run initial setup
             new MovePresetCommand(() -> preset.posPoints[0], true), // Move to the safe position.
             new MovePresetCommand(() -> preset.posPoints[1], true), // Move the elevator to the bottom.
@@ -135,7 +133,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             // Move the arm first.
             CarriagePreset armPosition = elevatorPosition.withArmPreset(newPreset);
             CarriagePreset wristPosition = armPosition.withWristPreset(newPreset);
-            CarriagePreset finalPosition = wristPosition.withElevatorPreset(newPreset);
+            CarriagePreset finalPosition = newPreset;
 
             posPoints = new CarriagePreset[]
             {
@@ -151,7 +149,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             // Move the wrist first (default).
             CarriagePreset wristPosition = elevatorPosition.withWristPreset(newPreset);
             CarriagePreset armPosition = wristPosition.withArmPreset(newPreset);
-            CarriagePreset finalPosition = wristPosition.withElevatorPreset(newPreset);
+            CarriagePreset finalPosition = newPreset;
 
             posPoints = new CarriagePreset[]
             {

@@ -56,7 +56,7 @@ public class PresetTeleop
         Trigger algaeProccessor = new Trigger(() -> partner.getPOV() == 180 ||
                                                     (SwitchPresetCommand.isHoldingForProcessor() && intake.hasAlgae())),
                 algaeBarge = new Trigger(() -> partner.getPOV() == 270 ||
-                                               (SwitchPresetCommand.isHoldingForProcessor() && intake.hasAlgae()));
+                                               (SwitchPresetCommand.isHoldingForBarge() && intake.hasAlgae()));
 
         Trigger algaeOutake = new Trigger(() -> partner.getPOV() == 0);
         // #endregion
