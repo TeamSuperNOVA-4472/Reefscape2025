@@ -162,7 +162,7 @@ public class RobotContainer
         NamedCommands.registerCommand("OuttakeCoral", new InstantCommand(() -> mIntakeSubsystem.outtakeCoral()));
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
-        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopCoral()));
+        NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopBoth()));
         NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false));
         
         // Align to Reef named commands. There is going to be a lot

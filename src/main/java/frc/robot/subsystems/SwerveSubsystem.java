@@ -122,7 +122,9 @@ public class SwerveSubsystem extends SubsystemBase
     {
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
         mSwerveDrive = readSwerveConfig();
-        mSwerveDrive.setHeadingCorrection(false);
+        mSwerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
+        mSwerveDrive.setCosineCompensator(false); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+    
         mSwerveSysID = SwerveDriveTest.generateSysIdCommand(
             SwerveDriveTest.setDriveSysIdRoutine(
                 new Config(),

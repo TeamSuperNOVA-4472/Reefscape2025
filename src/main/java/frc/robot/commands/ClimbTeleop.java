@@ -7,34 +7,73 @@ import frc.robot.subsystems.ClimbSubsystem;
 
 public class ClimbTeleop extends Command 
 {
-    private static final double CLIMB_VOLTAGE = 12;
+    // A lot of this logic might be better served in the climb subsystem,
+    // not the teleop. But for now it will do.
+    
+    // By default, the mechanism goes to the stow position.
+    // When the right trigger is pressed, it goes to the ready position.
+    // And when the left trigger is pressed, it goes to the climbing position.
+
+    public static final double kAngleStow = 33;
+    public static final double kAngleClimb = 20; // Ambitious is 11.
+    public static final double kAngleReady = 135.5;
+
+    public static final double kTolerance = 1; // The result will be correct plus or minus this number in degrees.
+
+    private static final double kClimbVoltage = 12; // Max is 12v.
 
     private final ClimbSubsystem mClimbSubsystem;
-    Supplier<Boolean> mClimbFwd;
-    Supplier<Boolean> mClimbRev;
 
-    public ClimbTeleop(Supplier<Boolean> pClimbFwd, Supplier<Boolean> pClimbRev)
+    private final Supplier<Boolean> mClimbReady, mClimbActivate;
+
+    private ClimbState mState = ClimbState.kStow;
+
+    public ClimbTeleop(Supplier<Boolean> pClimbReady, Supplier<Boolean> pClimbActivate)
     {
         mClimbSubsystem = ClimbSubsystem.kInstance;
-        mClimbFwd = pClimbFwd;
-        mClimbRev = pClimbRev;
+
+        mClimbReady = pClimbReady;
+        mClimbActivate = pClimbActivate;
+        
         addRequirements(mClimbSubsystem);
     }    
 
     @Override
     public void execute()
     {
-        if(mClimbFwd.get())
+        // Determine state.
+        if (mClimbReady.get()) mState = ClimbState.kReady;
+        else if (mClimbActivate.get()) mState = ClimbState.kClimb;
+
+        // Determine position based on state.
+        double desiredRot;
+        switch (mState)
         {
-            mClimbSubsystem.setVoltage(CLIMB_VOLTAGE);
+            case kStow: desiredRot = kAngleStow; break;
+            case kReady: desiredRot = kAngleReady; break;
+            case kClimb: desiredRot = kAngleClimb; break;
+            default: desiredRot = 90; break; // Default state, should never happen, but just in case it's a safe value to go to.
         }
-        else if(mClimbRev.get())
+
+        // Then move the motor in the direction needed (if out of tolerance).
+        double currentRot = mClimbSubsystem.getClimbAngleDegrees();
+        double diff = desiredRot - currentRot;
+
+        if (Math.abs(diff) >= kTolerance) // Out of tolerance, actually move.
         {
-            mClimbSubsystem.setVoltage(-CLIMB_VOLTAGE);
+            // Move in direction. signum() is the sign of the number,
+            // and is a shorthand for moving in the negative direction
+            // if the distance is negative. Saves me an if statement.
+            mClimbSubsystem.setVoltage(kClimbVoltage * -Math.signum(diff));
         }
-        else
-        {
-            mClimbSubsystem.setVoltage(0);
-        }
+
+        else mClimbSubsystem.setVoltage(0);
+    }
+
+    private enum ClimbState
+    {
+        kStow,
+        kReady,
+        kClimb
     }
 }
