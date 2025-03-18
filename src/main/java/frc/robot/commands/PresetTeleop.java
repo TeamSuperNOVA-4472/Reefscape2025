@@ -47,6 +47,7 @@ public class PresetTeleop
         moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
         moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
         moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
+        moveL3.onFalse(SwitchPresetCommand.moveElevator(-16));
         moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
 
         // Handle loading and scoring coral.

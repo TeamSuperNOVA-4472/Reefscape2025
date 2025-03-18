@@ -1,5 +1,9 @@
 package frc.robot.objectmodels;
 
+import static frc.robot.subsystems.SwerveSubsystem.kA;
+
+import java.util.ArrayList;
+
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 
 /**
@@ -13,29 +17,35 @@ public class CarriagePreset
 {
     // Actual presets go here.
     public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 1);
-    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 11.816); // +1.5in
-    public static final CarriagePreset kCoralL3 = new CarriagePreset(89, -114, 28.625); // +0.5in
+    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 13.816);
+    public static final CarriagePreset kCoralL3 = new CarriagePreset(81, -122, 29.625, true);
     public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 61.23);
     public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 7);
     public static final CarriagePreset kStowCoral = new CarriagePreset(82, 10, 0); // Also used to be known as "moving" in some places of the code.
     
     public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -130, 60.855);
-    public static final CarriagePreset kAlgaeProcessor = new CarriagePreset(20, -110, 0);
-    public static final CarriagePreset kAlgaeGround = new CarriagePreset(-45, -90, 12.855);
-    public static final CarriagePreset kAlgaeL2 = new CarriagePreset(40, -120, 12.855);
-    public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 28.73);
+    public static final CarriagePreset kAlgaeProcessor = new CarriagePreset(20, -110, 0, true);
+    public static final CarriagePreset kAlgaeGround = new CarriagePreset(-45, -90, 12.855, true);
+    public static final CarriagePreset kAlgaeL2 = new CarriagePreset(40, -120, 12.855, true);
+    public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 28.73, true);
     public static final CarriagePreset kStowAlgae = new CarriagePreset(65, -60, 0);
 
     public static final CarriagePreset kAway = new CarriagePreset(0, 0, 0);
     public static final CarriagePreset kClimb = new CarriagePreset(85, 25, 0);
 
     public final double kArmPreset, kWristPreset, kElevatorPreset;
+    public final boolean kMoveArmFirst;
 
     public CarriagePreset(double pArmPreset, double pWristPreset, double pElevatorPreset)
+    {
+        this(pArmPreset, pWristPreset, pElevatorPreset, false);
+    }
+    public CarriagePreset(double pArmPreset, double pWristPreset, double pElevatorPreset, boolean pMoveArmFirst)
     {
         kArmPreset = pArmPreset;
         kWristPreset = pWristPreset;
         kElevatorPreset = pElevatorPreset + ElevatorCarriageSubsystem.initialHeight;
+        kMoveArmFirst = pMoveArmFirst;
     }
 
     /**
