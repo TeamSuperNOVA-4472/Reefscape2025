@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.objectmodels.CarriagePreset;
@@ -52,8 +53,10 @@ public class PresetTeleop
                 algaeL3 = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25),
                 algaeGround = new Trigger(() -> partner.getPOV() == 90);
 
-        Trigger algaeProccessor = new Trigger(() -> partner.getPOV() == 180),
-                algaeBarge = new Trigger(() -> partner.getPOV() == 270);
+        Trigger algaeProccessor = new Trigger(() -> partner.getPOV() == 180 ||
+                                                    (SwitchPresetCommand.isHoldingForProcessor() && intake.hasAlgae())),
+                algaeBarge = new Trigger(() -> partner.getPOV() == 270 ||
+                                               (SwitchPresetCommand.isHoldingForBarge() && intake.hasAlgae()));
 
         Trigger algaeOutake = new Trigger(() -> partner.getPOV() == 0);
         // #endregion
@@ -62,6 +65,7 @@ public class PresetTeleop
         moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
         moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
         moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
+        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kCoralL2.kElevatorPreset - CarriagePreset.kCoralL3.kElevatorPreset));
         moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
         // #endregion
 
@@ -71,7 +75,10 @@ public class PresetTeleop
             new InstantCommand(() -> intake.intakeCoral()),
             new ForeverCommand()
         ));
-        loadCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
+        loadCoral.onFalse(new ParallelCommandGroup(
+            new InstantCommand(() -> intake.stopCoral()),
+            SwitchPresetCommand.load(false)
+        ));
 
         scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
         scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
