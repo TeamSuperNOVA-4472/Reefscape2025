@@ -220,7 +220,7 @@ public class VisionAlign {
         Pose2d destination = VisionPoses.getTargetPose(target, mVisionSubsystem);
         Supplier<VisionDirection> direction = () -> getOffset(leftButton, rightButton);
 
-        Command getClose = getCloseToCommandTeleop(destination, () -> getReefTransform(direction, preset));
+        Command getClose = getCloseToCommand(destination, () -> getReefTransform(direction, preset));
 
         return alignToReef(target, getClose);
     }
@@ -389,7 +389,7 @@ public class VisionAlign {
     }
 
     // Creates the PID command that runs until interrupted for teleop control
-    private Command getCloseToCommandTeleop(Pose2d destination, Supplier<Transform2d> direction)
+    private Command getCloseToCommand(Pose2d destination, Supplier<Transform2d> direction)
     {
         Command runCommand  =
             new RunCommand(() -> getCloseTo(destination, direction), mSwerveSubsystem, mVisionSubsystem);
