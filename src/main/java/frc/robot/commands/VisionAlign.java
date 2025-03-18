@@ -57,7 +57,7 @@ public class VisionAlign {
     private final Transform2d kWayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Controls radius of reef-avoiding
     private final Transform2d kBackUpTransform = new Transform2d(-0.5, 0, new Rotation2d()); // Back up from stations
 
-    private final Transform2d kReefTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at reef
+    private final Transform2d kReefTransform = new Transform2d(0.75, 0, Rotation2d.k180deg); // Position at reef
     private final Transform2d kMatchLoadingTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
 
@@ -89,6 +89,8 @@ public class VisionAlign {
 
     private final double kMaxVelocity = 2.5; // Max velocity for PathPlanner
     private final double kMaxAcceleration = 2.5; // Max acceleration for PathPlanner
+
+    private final double kEndVelocity = 0; // Ending velocity for PathPlanner
 
     // PID Constants for the Lateral PID Controller
     private final double kLateralP = 1.5;
@@ -339,7 +341,7 @@ public class VisionAlign {
             waypoints,
             new PathConstraints(kMaxVelocity, kMaxAcceleration, Units.degreesToRadians(360), Units.degreesToRadians(540)),
             null,
-            new GoalEndState(kMaxVelocity, lastPose.getRotation())
+            new GoalEndState(kEndVelocity, lastPose.getRotation())
         );
 
         path.preventFlipping = true;

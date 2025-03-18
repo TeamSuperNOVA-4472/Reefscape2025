@@ -143,7 +143,7 @@ public class RobotContainer
 
         Trigger reefTrigger = new Trigger(mDriver::getYButton);
         reefTrigger.whileTrue(new DeferredCommand(() ->
-        visionAlign.alignToLeftMatchLoadingStation(),
+        visionAlign.alignToReef(ReefEndTarget.NearRight,() -> mDriver.getLeftTriggerAxis() > 0.1, () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
         Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
