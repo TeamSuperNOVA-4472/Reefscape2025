@@ -15,7 +15,7 @@ public class IntakeSubsystem extends SubsystemBase
     public static final IntakeSubsystem kInstance = new IntakeSubsystem();
 
     public static final int kIntakeMotorId = 1;
-    public static final double kCoralIntakeVoltage = 4;
+    public static final double kCoralIntakeVoltage = 6;
     public static final double kCoralOuttakeVoltage = 8;
     public static final double kCoralDefaultVoltage = 0;
     public static final double kAlgaeIntakeVoltage = 6;
