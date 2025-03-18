@@ -118,7 +118,7 @@ public class IntakeSubsystem extends SubsystemBase
     }
 
     public boolean hasAlgae(){
-        return Math.abs(mAlgaeIntake.getMotorVoltage().getValueAsDouble()) > 0.1 && Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 1;
+        return Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 1 && Math.abs(mAlgaeIntake.getStatorCurrent().getValueAsDouble()) > 20;
     }
 
     public boolean hasCoral(){
@@ -132,7 +132,7 @@ public class IntakeSubsystem extends SubsystemBase
     @Override
     public void periodic()
     {
-        SmartDashboard.putNumber("Algae Intake Current", mAlgaeIntake.getSupplyCurrent().getValueAsDouble());
+        SmartDashboard.putNumber("Algae Intake Current", mAlgaeIntake.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Algae Target Voltage", algaeTargetVoltage);
         SmartDashboard.putNumber("Algae Actual Voltage", mAlgaeIntake.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Algae Actual Velocity", mAlgaeIntake.getVelocity().getValueAsDouble());
