@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -16,22 +17,27 @@ public class IntakeSubsystem extends SubsystemBase
     public static final int kIntakeMotorId = 1;
     public static final double kCoralIntakeVoltage = 4;
     public static final double kCoralOuttakeVoltage = 8;
-    public static final double kCoralDefaultVoltage = 1;
+    public static final double kCoralDefaultVoltage = 0;
     public static final double kAlgaeIntakeVoltage = 6;
     public static final double kAlgaeOuttakeVoltage = 12;
     public static final double kAlgaeDefaultVoltage = 1;
     public static final double kAlgaeCurrentThreshold = 2;
 
+    private double coralTargetVolatge = kCoralDefaultVoltage;
     private double algaeTargetVoltage = kAlgaeDefaultVoltage;
 
-    private boolean hasCoral;
+    private boolean shouldHaveCoral;
     private TalonFX mAlgaeIntake;
     private TalonFX mCoralIntake;
+    private DigitalInput mBeamBreak;
+    private int mTimer;
 
     private IntakeSubsystem()
     {
         mCoralIntake = new TalonFX(23, "CANivore");
         mAlgaeIntake = new TalonFX(24, "CANivore");
+        mBeamBreak = new DigitalInput(5);
+        mTimer = 0;
         
         TalonFXConfiguration algaeConfig = new TalonFXConfiguration();
         CurrentLimitsConfigs algaeCurrentConfig = new CurrentLimitsConfigs();
@@ -62,17 +68,19 @@ public class IntakeSubsystem extends SubsystemBase
         coralConfig.withCurrentLimits(coralCurrentConfig);
         coralConfig.withMotorOutput(coralMotorConfig);
         mCoralIntake.getConfigurator().apply(coralConfig);
-        hasCoral = false;
+        shouldHaveCoral = false; //TODO: Should be true for autos.
     }
 
     public void intakeCoral()
     {
         mCoralIntake.setVoltage(kCoralIntakeVoltage);
+        coralTargetVolatge = kCoralIntakeVoltage;
     }
 
     public void outtakeCoral()
     {
         mCoralIntake.setVoltage(-kCoralOuttakeVoltage);
+        coralTargetVolatge = kCoralOuttakeVoltage;
     }
 
     public void intakeAlgae()
@@ -91,6 +99,7 @@ public class IntakeSubsystem extends SubsystemBase
     public void stopCoral()
     {
         mCoralIntake.setVoltage(kCoralDefaultVoltage);
+        coralTargetVolatge = kCoralDefaultVoltage;
     }
     public void stopAlgae()
     {
@@ -109,15 +118,15 @@ public class IntakeSubsystem extends SubsystemBase
     }
 
     public boolean hasAlgae(){
-        return Math.abs(algaeTargetVoltage) > 0 && Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 1;
+        return Math.abs(mAlgaeIntake.getMotorVoltage().getValueAsDouble()) > 0.1 && Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 1;
     }
 
     public boolean hasCoral(){
-        return hasCoral;
+        return !mBeamBreak.get();
     }
 
-    public void setCoral(boolean newCoral){
-        hasCoral = newCoral;
+    public void setShouldHaveCoral(boolean newShouldHaveCoral){
+        shouldHaveCoral = newShouldHaveCoral;
     }
 
     @Override
@@ -127,10 +136,12 @@ public class IntakeSubsystem extends SubsystemBase
         SmartDashboard.putNumber("Algae Target Voltage", algaeTargetVoltage);
         SmartDashboard.putNumber("Algae Actual Voltage", mAlgaeIntake.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Algae Actual Velocity", mAlgaeIntake.getVelocity().getValueAsDouble());
-        SmartDashboard.putBoolean("Algae in Intake", this.hasAlgae());
-        SmartDashboard.putBoolean("Has Coral", hasCoral);
-        /*if (Math.abs(mCoralIntake.getMotorVoltage().getValueAsDouble()) > 1 && Math.abs(mCoralIntake.getVelocity().getValueAsDouble()) < 0.2){
-            hasCoral = true;
-        }*/
+        SmartDashboard.putBoolean("Algae in Intake", hasAlgae());
+        SmartDashboard.putBoolean("Has Coral", hasCoral());
+        if (shouldHaveCoral && !hasCoral()){
+            intakeCoral();
+        } else if(coralTargetVolatge == kCoralIntakeVoltage){
+            stopCoral();
+        }
     }
 }

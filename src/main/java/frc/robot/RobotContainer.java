@@ -31,6 +31,7 @@ import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.SwitchPresetCommand;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.VisionAlignCommand;
+import frc.robot.commands.WaitForCoral;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
@@ -163,7 +164,7 @@ public class RobotContainer
         NamedCommands.registerCommand("IntakeAlgae", new InstantCommand(() -> mIntakeSubsystem.intakeAlgae()));
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopBoth()));
-        NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false));
+        NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false).andThen(new WaitForCoral()));
         
         // Align to Reef named commands. There is going to be a lot
         NamedCommands.registerCommand("AlignToFarBottom-Right", new DeferredCommand(

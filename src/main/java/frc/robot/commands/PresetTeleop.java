@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -68,12 +69,12 @@ public class PresetTeleop
         // #region Handle loading and scoring coral.
         loadCoral.whileTrue(new SequentialCommandGroup(
             SwitchPresetCommand.load(false),
-            new InstantCommand(() -> intake.intakeCoral()),
+            new InstantCommand(() -> intake.setShouldHaveCoral(true)),
             new ForeverCommand()
         ));
-        loadCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
+        loadCoral.onFalse(new ConditionalCommand(new InstantCommand(), new InstantCommand(() -> intake.setShouldHaveCoral(false)).andThen(new InstantCommand(() -> intake.stopCoral())), () -> intake.hasCoral()));
 
-        scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
+        scoreCoral.onTrue(new InstantCommand(() -> intake.setShouldHaveCoral(false)).andThen(new InstantCommand(() -> intake.outtakeCoral())));
         scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
         // #endregion
 
