@@ -17,8 +17,8 @@ public class CarriagePreset
 {
     // Actual presets go here.
     public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 1);
-    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 13.816);
-    public static final CarriagePreset kCoralL3 = new CarriagePreset(81, -122, 29.625, true);
+    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 14.816);
+    public static final CarriagePreset kCoralL3 = new CarriagePreset(81, -122, 33.625, true);
     public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 61.23);
     public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 7);
     public static final CarriagePreset kStowCoral = new CarriagePreset(82, 10, 0); // Also used to be known as "moving" in some places of the code.
