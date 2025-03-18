@@ -67,8 +67,8 @@ public class VisionAlign {
     // But that's up to y'all.
     private final Transform2d kLeftCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg);
     private final Transform2d kLeftCoralL2Transform = new Transform2d(0.5, -0.265, Rotation2d.k180deg);
-    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.5, -0.25, Rotation2d.k180deg); 
-    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.45, -0.3, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.25, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.45, -0.265, Rotation2d.k180deg); 
 
     // Right coral transforms
     private final Transform2d kRightCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg); 
@@ -77,8 +77,8 @@ public class VisionAlign {
     private final Transform2d kRightCoralL4Transform = new Transform2d(0.45, 0.3, Rotation2d.k180deg);
 
     // Algae transforms
-    private final Transform2d kAlgaeTopTransform = new Transform2d(0.75, 0, Rotation2d.k180deg); // Position at L3
-    private final Transform2d kAlgaeBottomTransform = new Transform2d(0.75, 0, Rotation2d.k180deg); // Position at L2
+    private final Transform2d kAlgaeTopTransform = new Transform2d(0.5, 0, Rotation2d.k180deg); // Position at L3
+    private final Transform2d kAlgaeBottomTransform = new Transform2d(0.5, 0, Rotation2d.k180deg); // Position at L2
 
     private final Transform2d kMatchLoadingApproachTransform = new Transform2d(0.75, 0, new Rotation2d());
 
@@ -467,14 +467,14 @@ public class VisionAlign {
         {
             case LeftCoral:
                 // Get the correct transform if a reef preset is present; if not, assume L1
-                return kLeftCoralTransforms.getOrDefault(preset, kLeftCoralL1Transform);
+                return kLeftCoralTransforms.getOrDefault(preset, kReefTransform);
             case RightCoral:
                 // Get the correct transform if a reef preset is present; if not, assume L1
-                return kRightCoralTransforms.getOrDefault(preset, kRightCoralL1Transform);
+                return kRightCoralTransforms.getOrDefault(preset, kReefTransform);
             default:
                 // Return algae otherwise
                 // Check if algae is present; if not, assume L2 algae
-                return kAlgaeTransforms.getOrDefault(preset, kAlgaeBottomTransform);
+                return kAlgaeTransforms.getOrDefault(preset, kReefTransform);
         }
     }
 }
