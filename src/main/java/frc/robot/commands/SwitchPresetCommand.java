@@ -52,8 +52,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             new MovePresetCommand(() -> preset.posPoints[0], true), // Move to the safe position.
             new MovePresetCommand(() -> preset.posPoints[1], true), // Move the elevator to the bottom.
             new MovePresetCommand(() -> preset.posPoints[2], true), // Move the arm & wrist to load position.
-            new MovePresetCommand(() -> preset.posPoints[3], true), // Move the elevator to load position.
-            new InstantCommand(() -> System.out.println("HEY GUYS WE ARE DONE DO YOU SEE ME YET HAVING A GOOD TIME"))
+            new MovePresetCommand(() -> preset.posPoints[3], true)  // Move the elevator to load position.
         );
         if (keepAlive) preset.addCommands(new ForeverCommand());
         return preset;

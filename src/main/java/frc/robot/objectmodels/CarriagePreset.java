@@ -16,8 +16,8 @@ import frc.robot.subsystems.ElevatorCarriageSubsystem;
 public class CarriagePreset
 {
     // Actual presets go here.
-    public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -71, 1);
-    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -114, 15.316);
+    public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -61, 2);
+    public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -122, 15.316);
     public static final CarriagePreset kCoralL3 = new CarriagePreset(81, -122, 34.625, true);
     public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 61.23);
     public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 7);

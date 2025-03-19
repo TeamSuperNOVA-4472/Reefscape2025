@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
@@ -65,7 +66,8 @@ public class PresetTeleop
         moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
         moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
         moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
-        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kCoralL2.kElevatorPreset - CarriagePreset.kCoralL3.kElevatorPreset));
+        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kCoralL2.kElevatorPreset - CarriagePreset.kCoralL3.kElevatorPreset).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        
         moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
         // #endregion
 
@@ -76,8 +78,7 @@ public class PresetTeleop
             new ForeverCommand()
         ));
         loadCoral.onFalse(new ParallelCommandGroup(
-            new InstantCommand(() -> intake.stopCoral()),
-            SwitchPresetCommand.load(false)
+            new InstantCommand(() -> intake.stopCoral())
         ));
 
         scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));

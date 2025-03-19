@@ -147,6 +147,12 @@ public class RobotContainer
         Set.of(mSwerveSubsystem, mVisionSubsystem))
         );
 
+        Trigger matchLoadingTrigger = new Trigger(mDriver::getBButton);
+        matchLoadingTrigger.whileTrue(new DeferredCommand(() ->
+        visionAlign.alignToRightMatchLoadingStation(),
+        Set.of(mSwerveSubsystem, mVisionSubsystem))
+        );
+
         // Register named commands.
         NamedCommands.registerCommand("StowCarriage", SwitchPresetCommand.stow(false));
         NamedCommands.registerCommand("MoveCoralL1", new SwitchPresetCommand(CarriagePreset.kCoralL1, false));

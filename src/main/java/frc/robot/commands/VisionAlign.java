@@ -58,7 +58,7 @@ public class VisionAlign {
     private final Transform2d kBackUpTransform = new Transform2d(-0.5, 0, new Rotation2d()); // Back up from stations
 
     private final Transform2d kReefTransform = new Transform2d(0.75, 0, Rotation2d.k180deg); // Position at reef
-    private final Transform2d kMatchLoadingTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Position at match loading station
+    private final Transform2d kMatchLoadingTransform = new Transform2d(0.65, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
 
     // Left coral transforms go here
@@ -66,21 +66,19 @@ public class VisionAlign {
     // I can consolidate Left/Right into one big map that negates the Y value.
     // But that's up to y'all.
     private final Transform2d kLeftCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg);
-    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.5, -0.2, Rotation2d.k180deg);
-    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.26, Rotation2d.k180deg); 
-    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.375, -0.265, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.45, -0.18, Rotation2d.k180deg);
+    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.255, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.45, -0.255, Rotation2d.k180deg); 
 
     // Right coral transforms
     private final Transform2d kRightCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg); 
-    private final Transform2d kRightCoralL2Transform = new Transform2d(0.5, 0.2, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL2Transform = new Transform2d(0.5, 0.25, Rotation2d.k180deg);
     private final Transform2d kRightCoralL3Transform = new Transform2d(0.45, 0.26, Rotation2d.k180deg);
-    private final Transform2d kRightCoralL4Transform = new Transform2d(0.375, 0.265, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL4Transform = new Transform2d(0.45, 0.26, Rotation2d.k180deg);
 
     // Algae transforms
     private final Transform2d kAlgaeTopTransform = new Transform2d(0.5, 0, Rotation2d.k180deg); // Position at L3
     private final Transform2d kAlgaeBottomTransform = new Transform2d(0.5, 0, Rotation2d.k180deg); // Position at L2
-
-    private final Transform2d kMatchLoadingApproachTransform = new Transform2d(0.75, 0, new Rotation2d());
 
     // Maps for CarriagePreset transforms
     private final HashMap<CarriagePreset, Transform2d> kLeftCoralTransforms = new HashMap<>();
@@ -93,9 +91,9 @@ public class VisionAlign {
     private final double kEndVelocity = 0; // Ending velocity for PathPlanner
 
     // PID Constants for the Lateral PID Controller
-    private final double kLateralP = 1.5;
+    private final double kLateralP = 1.75;
     private final double kLateralI = 0;
-    private final double kLateralD = 0.05;
+    private final double kLateralD = 0.025;
     private final double kLateralMaxVelocity = 4.5;
     private final double kLateralMaxAcceleration = 4.5;
     private final double kLateralTolerance = 0.02;
@@ -246,7 +244,7 @@ public class VisionAlign {
         destination = destination.plus(kMatchLoadingTransform); // Adds desired transform
         Pose2d target = destination.nearest(VisionPoses.getReefPoses(kWayPointTransform, mVisionSubsystem)); // Finds nearest pose around reef
 
-        Command approach = getCloseToCommand(destination, kMatchLoadingApproachTransform);
+        Command approach = getCloseToCommand(destination, new Transform2d());
         
         try {
             return new SequentialCommandGroup(pathFindToPlace(target, destination, kWayPointTransform), approach); // If enough waypoints are present, runs

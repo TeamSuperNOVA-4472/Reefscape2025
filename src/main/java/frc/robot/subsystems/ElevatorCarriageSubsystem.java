@@ -180,6 +180,8 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
         elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
         armPID = new ProfiledPIDController(kArmP, kArmI, kArmD, new Constraints(720, 720));
         wristPID = new ProfiledPIDController(kWristP, kWristI, kWristD, new Constraints(720, 720));
+
+        resetElevatorEncoder();
     }
 
     public boolean isAtTheBottom()
@@ -406,6 +408,14 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
     public void periodic()
     {
         SmartDashboard.putNumber("Elevator Position", getElevatorPosition());
+        if (carriagePreset.isPresent())
+        {
+            SmartDashboard.putNumber("Desired Elevator Height", carriagePreset.get().kElevatorPreset);
+        }
+        else
+        {
+            SmartDashboard.putNumber("Desired Elevator Height", -1);
+        }
         SmartDashboard.putNumber("Arm Position", getArmAngle());
         SmartDashboard.putNumber("Wrist Position", getWristAngle());
 
