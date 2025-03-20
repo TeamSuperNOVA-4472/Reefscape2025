@@ -56,9 +56,7 @@ public class RobotContainer {
     // Subsystems go here:
     public LightsSubsystem mLightsSubsystem;
     private VisionSubsystem mVisionSubsystem;
-    // private final CarriageSubsystem mCarriageSubsystem;
     private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
-    // private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakeSubsystem mIntakeSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
     private final ClimbSubsystem mClimbSubsystem;
@@ -70,15 +68,9 @@ public class RobotContainer {
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
     private final ClimbTeleop mClimbTeleop;
-    // private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
-    // private final IntakeTeleop mIntakeTeleop;
 
     // TODO: Remove tester commands when robot is properly programmed
     private final IntakeTester mIntakeTester;
-    // private final ClimberTester mClimberTester;
-
-    // TODO: In the future I think more triggers should be brought out here.
-    // private final Trigger algaeTrigger, algaeHighTrigger;
 
     // Extras:
     private final SendableChooser<Command> autoChooser;
@@ -110,11 +102,6 @@ public class RobotContainer {
                 mDriver::getAButton, () -> mDriver.getBButton());
 
         // TODO: remove tester commands when robot is properly programmed
-        // mElevatorTester = new ElevatorTester(mElevatorSubsystem, () ->
-        // MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
-        // mCarriageTester = new CarriageTester(() ->
-        // MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () ->
-        // MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
         mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton,
                 mPartner::getYButton, mIntakeSubsystem);
         mClimbTeleop = new ClimbTeleop(mDriver::getLeftBumperButtonPressed, mDriver::getRightBumperButtonPressed);
@@ -178,109 +165,109 @@ public class RobotContainer {
         NamedCommands.registerCommand("AlignToFarBottom-Right", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight,
-                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarBottom-Left", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight,
-                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarRight-Algae", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight,
-                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarLeft-Right", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarLeft,
-                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarLeft-Left", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarLeft,
-                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarLeft-Algae", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarLeft,
-                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarMiddle-Right", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarMiddle,
-                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarMiddle-Left", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarMiddle,
-                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarMiddle-Algae", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarMiddle,
-                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearMiddle-Right", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearMiddle,
-                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearMiddle-Left", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearMiddle,
-                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearMiddle-Algae", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearMiddle,
-                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearRight-Right", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearRight,
-                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearRight-Left", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearRight,
-                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearRight-Algae", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearRight,
-                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearLeft-Right", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearLeft,
-                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearLeft-Left", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearLeft,
-                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToNearLeft-Algae", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearLeft,
-                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4, false),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToBottomLoading", new DeferredCommand(
@@ -295,41 +282,10 @@ public class RobotContainer {
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
-
-        autoChooser.addOption("BScoreReefFar-Left", new PathPlannerAuto("BScoreReefFar-Left"));
-        autoChooser.addOption("Demo Auto", new PathPlannerAuto("Demo Auto"));
-
-        // TODO: DEBUG THING, PLEASE REMOVE
-        new EventTrigger("TheEvent").onTrue(
-                new InstantCommand(() -> System.out.println("The Event has triggered")));
-
-        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
-
-    // private void applyHeightOffsetWhenVisionAlignFinishes()
-    // {
-    // // Scuffed as hell. As a completely last step, apply Christian's
-    // // offsets for the different levels.
-
-    // Translation2d offset;
-    // if (mPartner.getYButton()) offset = VisionAlignCommand.kDeltaForL4;
-    // else if (mPartner.getBButton()) offset = VisionAlignCommand.kDeltaForL3;
-    // else if (mPartner.getXButton()) offset = VisionAlignCommand.kDeltaForL2;
-    // else if (mPartner.getAButton()) offset = VisionAlignCommand.kDeltaForL1;
-    // else offset = Translation2d.kZero;
-
-    // // If in algae preset, go a little more towards the reef.
-    // if (algaeTrigger.getAsBoolean() || algaeHighTrigger.getAsBoolean())
-    // offset = offset.plus(VisionAlignCommand.kDeltaForAlgae);
-
-    // Pose2d pose = new Pose2d(offset, Rotation2d.kZero);
-    // DriveDistanceAndHeading moveCmd = new DriveDistanceAndHeading(() -> pose);
-    // moveCmd.schedule(); // I really hope this works.
-    // }
 
     // Specify which command will be used as the autonomous command.
     public Command getAutonomousCommand() {
-        // return mSwerveSubsystem.getSysIDCommand();
         return autoChooser.getSelected();
     }
 
