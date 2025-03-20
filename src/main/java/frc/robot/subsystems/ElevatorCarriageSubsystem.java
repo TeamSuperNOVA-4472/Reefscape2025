@@ -177,7 +177,7 @@ public class ElevatorCarriageSubsystem extends SubsystemBase
         mArmEncoder = new DutyCycleEncoder(0);
         mWristEncoder = new DutyCycleEncoder(1);
 
-        elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(50, 50));
+        elevatorPID = new ProfiledPIDController(kElevatorP, kElevatorI, kElevatorD, new Constraints(100, 80));
         armPID = new ProfiledPIDController(kArmP, kArmI, kArmD, new Constraints(720, 720));
         wristPID = new ProfiledPIDController(kWristP, kWristI, kWristD, new Constraints(720, 720));
 

@@ -48,8 +48,7 @@ import frc.robot.subsystems.VisionSubsystem;
 // This class is where subsystems and other robot parts are declared.
 // IF A SUBSYSTEM IS NOT IN HERE, IT WILL NOT RUN!
 @SuppressWarnings("unused")
-public class RobotContainer
-{
+public class RobotContainer {
     // Ports go here:
     public static final int kDriverPort = 0;
     public static final int kPartnerPort = 1;
@@ -57,9 +56,9 @@ public class RobotContainer
     // Subsystems go here:
     public LightsSubsystem mLightsSubsystem;
     private VisionSubsystem mVisionSubsystem;
-    //private final CarriageSubsystem mCarriageSubsystem;
+    // private final CarriageSubsystem mCarriageSubsystem;
     private final ElevatorCarriageSubsystem mElevatorCarriageSubsystem;
-    //private final ElevatorSubsystem mElevatorSubsystem;
+    // private final ElevatorSubsystem mElevatorSubsystem;
     private final IntakeSubsystem mIntakeSubsystem;
     private final SwerveSubsystem mSwerveSubsystem;
     private final ClimbSubsystem mClimbSubsystem;
@@ -67,12 +66,12 @@ public class RobotContainer
     // Controllers go here:
     private final XboxController mDriver;
     private final XboxController mPartner;
-    
+
     // Commands go here:
     private final SwerveTeleop mSwerveTeleop;
     private final ClimbTeleop mClimbTeleop;
-    //private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
-    //private final IntakeTeleop mIntakeTeleop;
+    // private final ElevatorCarriageTeleop mElevatorCarriageTeleop;
+    // private final IntakeTeleop mIntakeTeleop;
 
     // TODO: Remove tester commands when robot is properly programmed
     private final IntakeTester mIntakeTester;
@@ -85,8 +84,7 @@ public class RobotContainer
     private final SendableChooser<Command> autoChooser;
     private boolean isFirst;
 
-    public RobotContainer()
-    {
+    public RobotContainer() {
         // Initialize controllers.
         mDriver = new XboxController(kDriverPort);
         mPartner = new XboxController(kPartnerPort);
@@ -103,13 +101,13 @@ public class RobotContainer
 
         // Initialize commands.
         // TODO: Should weighting go here? Or in the command?
-        //       Also, we should add a comment explaining why
-        //       we need to invert these.
+        // Also, we should add a comment explaining why
+        // we need to invert these.
         mSwerveTeleop = new SwerveTeleop(
-            weightJoystick(mDriver::getLeftY, true),
-            weightJoystick(mDriver::getLeftX, true),
-            weightJoystick(mDriver::getRightX, true),
-            mDriver::getAButton, () -> mDriver.getBButton());
+                weightJoystick(mDriver::getLeftY, true),
+                weightJoystick(mDriver::getLeftX, true),
+                weightJoystick(mDriver::getRightX, true),
+                mDriver::getAButton, () -> mDriver.getBButton());
 
         // TODO: remove tester commands when robot is properly programmed
         //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
@@ -124,14 +122,18 @@ public class RobotContainer
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         PresetTeleop.setup(mPartner);
         VisionTeleop.setup(mDriver);
-        
+
         mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
-            /*Pose2d vision = newVisionPose.estimatedPose.toPose2d();
-            Pose2d current = mSwerveSubsystem.getPose();
-
-            Pose2d measurement = new Pose2d(vision.getTranslation(), current.getRotation());*/
-            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(), newVisionPose.timestampSeconds);
+            /*
+             * Pose2d vision = newVisionPose.estimatedPose.toPose2d();
+             * Pose2d current = mSwerveSubsystem.getPose();
+             * 
+             * Pose2d measurement = new Pose2d(vision.getTranslation(),
+             * current.getRotation());
+             */
+            mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(),
+                    newVisionPose.timestampSeconds);
             isFirst = false;
         });
 
@@ -141,9 +143,6 @@ public class RobotContainer
         NamedCommands.registerCommand("MoveCoralL2", new SwitchPresetCommand(CarriagePreset.kCoralL2, false));
         NamedCommands.registerCommand("MoveCoralL3", new SwitchPresetCommand(CarriagePreset.kCoralL3, false));
         NamedCommands.registerCommand("MoveCoralL4", new SwitchPresetCommand(CarriagePreset.kCoralL4, false));
-        NamedCommands.registerCommand("ReefVisionAlignLeft", new VisionAlignCommand(VisionAlignCommand.kReefLeftOffset, Optional.empty()));
-        NamedCommands.registerCommand("ReefVisionAlignMiddle", new VisionAlignCommand(VisionAlignCommand.kReefMiddleOffset, Optional.empty()));
-        NamedCommands.registerCommand("ReefVisionAlignRight", new VisionAlignCommand(VisionAlignCommand.kReefRightOffset, Optional.empty()));
         NamedCommands.registerCommand("MoveAlgaeL2", new SwitchPresetCommand(CarriagePreset.kAlgaeL2, false));
         NamedCommands.registerCommand("MoveAlgaeL3", new SwitchPresetCommand(CarriagePreset.kAlgaeL3, false));
         NamedCommands.registerCommand("IntakeCoral", new InstantCommand(() -> mIntakeSubsystem.intakeCoral()));
@@ -152,29 +151,126 @@ public class RobotContainer
         NamedCommands.registerCommand("OuttakeAlgae", new InstantCommand(() -> mIntakeSubsystem.outtakeAlgae()));
         NamedCommands.registerCommand("StopIntake", new InstantCommand(() -> mIntakeSubsystem.stopBoth()));
         NamedCommands.registerCommand("Loading", SwitchPresetCommand.load(false));
-        
+
         // Align to Reef named commands. There is going to be a lot
         NamedCommands.registerCommand("AlignToFarBottom-Right", new DeferredCommand(
-            () -> new VisionAlign(
-                    mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.RightCoral, mElevatorCarriageSubsystem::getDesiredPreset),
-                    Set.of(mSwerveSubsystem, mVisionSubsystem)));
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight,
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToFarBottom-Left", new DeferredCommand(
-            () -> new VisionAlign(
-                    mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight, VisionDirection.LeftCoral, mElevatorCarriageSubsystem::getDesiredPreset),
-                    Set.of(mSwerveSubsystem, mVisionSubsystem)));
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight,
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToFarRight-Algae", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarRight,
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToFarLeft-Right", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarLeft,
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToFarLeft-Left", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarLeft,
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToFarLeft-Algae", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarLeft,
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToFarMiddle-Right", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarMiddle,
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToFarMiddle-Left", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarMiddle,
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToFarMiddle-Algae", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.FarMiddle,
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearMiddle-Right", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearMiddle,
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearMiddle-Left", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearMiddle,
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearMiddle-Algae", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearMiddle,
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearRight-Right", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearRight,
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearRight-Left", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearRight,
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearRight-Algae", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearRight,
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearLeft-Right", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearLeft,
+                                VisionDirection.RightCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearLeft-Left", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearLeft,
+                                VisionDirection.LeftCoral, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToNearLeft-Algae", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToReef(ReefEndTarget.NearLeft,
+                                VisionDirection.MiddleDefault, CarriagePreset.kCoralL4),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         NamedCommands.registerCommand("AlignToBottomLoading", new DeferredCommand(
-            () -> new VisionAlign(
-                    mSwerveSubsystem, mVisionSubsystem).alignToRightMatchLoadingStation(),
-                    Set.of(mSwerveSubsystem, mVisionSubsystem)));
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToRightMatchLoadingStation(),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         // Configure other things.
         autoChooser = AutoBuilder.buildAutoChooser();
 
         autoChooser.addOption("BScoreReefFar-Left", new PathPlannerAuto("BScoreReefFar-Left"));
         autoChooser.addOption("Demo Auto", new PathPlannerAuto("Demo Auto"));
-
 
         // TODO: DEBUG THING, PLEASE REMOVE
         new EventTrigger("TheEvent").onTrue(
@@ -185,29 +281,28 @@ public class RobotContainer
 
     // private void applyHeightOffsetWhenVisionAlignFinishes()
     // {
-    //     // Scuffed as hell. As a completely last step, apply Christian's
-    //     // offsets for the different levels.
+    // // Scuffed as hell. As a completely last step, apply Christian's
+    // // offsets for the different levels.
 
-    //     Translation2d offset;
-    //     if (mPartner.getYButton()) offset = VisionAlignCommand.kDeltaForL4;
-    //     else if (mPartner.getBButton()) offset = VisionAlignCommand.kDeltaForL3;
-    //     else if (mPartner.getXButton()) offset = VisionAlignCommand.kDeltaForL2;
-    //     else if (mPartner.getAButton()) offset = VisionAlignCommand.kDeltaForL1;
-    //     else offset = Translation2d.kZero;
+    // Translation2d offset;
+    // if (mPartner.getYButton()) offset = VisionAlignCommand.kDeltaForL4;
+    // else if (mPartner.getBButton()) offset = VisionAlignCommand.kDeltaForL3;
+    // else if (mPartner.getXButton()) offset = VisionAlignCommand.kDeltaForL2;
+    // else if (mPartner.getAButton()) offset = VisionAlignCommand.kDeltaForL1;
+    // else offset = Translation2d.kZero;
 
-    //     // If in algae preset, go a little more towards the reef.
-    //     if (algaeTrigger.getAsBoolean() || algaeHighTrigger.getAsBoolean())
-    //         offset = offset.plus(VisionAlignCommand.kDeltaForAlgae);
+    // // If in algae preset, go a little more towards the reef.
+    // if (algaeTrigger.getAsBoolean() || algaeHighTrigger.getAsBoolean())
+    // offset = offset.plus(VisionAlignCommand.kDeltaForAlgae);
 
-    //     Pose2d pose = new Pose2d(offset, Rotation2d.kZero);
-    //     DriveDistanceAndHeading moveCmd = new DriveDistanceAndHeading(() -> pose);
-    //     moveCmd.schedule(); // I really hope this works.
+    // Pose2d pose = new Pose2d(offset, Rotation2d.kZero);
+    // DriveDistanceAndHeading moveCmd = new DriveDistanceAndHeading(() -> pose);
+    // moveCmd.schedule(); // I really hope this works.
     // }
 
     // Specify which command will be used as the autonomous command.
-    public Command getAutonomousCommand()
-    {
-        //return mSwerveSubsystem.getSysIDCommand();
+    public Command getAutonomousCommand() {
+        // return mSwerveSubsystem.getSysIDCommand();
         return autoChooser.getSelected();
     }
 
