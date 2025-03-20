@@ -31,6 +31,7 @@ import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.SwitchPresetCommand;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.VisionAlignCommand;
+import frc.robot.commands.VisionTeleop;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
@@ -124,7 +125,8 @@ public class RobotContainer {
         mClimbSubsystem.setDefaultCommand(mClimbTeleop);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         PresetTeleop.setup(mPartner);
-
+        VisionTeleop.setup(mDriver);
+        
         mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
             /*
