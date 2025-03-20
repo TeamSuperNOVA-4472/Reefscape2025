@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Start Bottom"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -21,13 +15,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 1.0
+                        "waitTime": 0.4
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "AlignToFarBottom-Left"
+                        "name": "MoveCoralL4"
                       }
                     }
                   ]
@@ -36,7 +30,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "MoveCoralL2"
+                  "name": "AlignToFarLeft-Right"
                 }
               }
             ]
@@ -51,7 +45,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.15
           }
         },
         {
@@ -65,9 +59,22 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "AlignToBottomLoading"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.7
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AlignToLeftLoading"
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -80,12 +87,6 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "IntakeCoral"
@@ -94,7 +95,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.6
           }
         },
         {
@@ -102,15 +103,28 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "MoveCoralL2"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.3
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "MoveCoralL4"
+                      }
+                    }
+                  ]
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignToFarBottom-Left"
+                  "name": "AlignToNearLeft-Left"
                 }
               }
             ]
@@ -125,7 +139,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": "Sebastians New Autos",
   "choreoAuto": false
 }

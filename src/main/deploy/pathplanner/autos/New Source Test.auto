@@ -5,21 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "VisionTestPath"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "VisionAlign"
+            "name": "AlignToLeftLoading"
           }
         }
       ]
     }
   },
-  "resetOdom": true,
-  "folder": "Sebastians New Autos",
+  "resetOdom": false,
+  "folder": null,
   "choreoAuto": false
 }

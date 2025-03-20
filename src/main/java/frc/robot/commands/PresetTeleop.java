@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
@@ -47,7 +48,8 @@ public class PresetTeleop
                 moveL4 = new Trigger(partner::getYButton);
 
         Trigger loadCoral = new Trigger(partner::getRightBumperButton),
-                scoreCoral = new Trigger(() -> partner.getRightTriggerAxis() > 0.25);
+                scoreCoral = new Trigger(() -> partner.getRightTriggerAxis() > 0.25),
+                intakeCoralOnly = new Trigger(partner::getLeftStickButton);
 
         Trigger algaeL2 = new Trigger(partner::getLeftBumperButton),
                 algaeL3 = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25),
@@ -63,9 +65,13 @@ public class PresetTeleop
 
         // #region Check for moving to L1, L2, L3, and L4 positions.
         moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
+        
         moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
+        moveL2.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kElevatorL2L3Intermediate, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+
         moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
-        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kCoralL2.kElevatorPreset - CarriagePreset.kCoralL3.kElevatorPreset));
+        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kElevatorL2L3Intermediate, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        
         moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
         // #endregion
 
@@ -76,12 +82,14 @@ public class PresetTeleop
             new ForeverCommand()
         ));
         loadCoral.onFalse(new ParallelCommandGroup(
-            new InstantCommand(() -> intake.stopCoral()),
-            SwitchPresetCommand.load(false)
+            new InstantCommand(() -> intake.stopCoral())
         ));
 
         scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
         scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
+
+        intakeCoralOnly.onTrue(new InstantCommand(() -> intake.intakeCoral()));
+        intakeCoralOnly.onFalse(new InstantCommand(() -> intake.stopCoral()));
         // #endregion
 
         // #region Go to Algae L2, L3, and ground, begin intaking.

@@ -7,15 +7,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class ForeverCommand extends Command
 {
-    public ForeverCommand()
-    {
-
-    }
-
-    @Override
-    public void initialize() {
-        System.out.println("hey I ran. this is bad. hopefully you dont see this");
-    }
+    public ForeverCommand() { }
 
     @Override
     public boolean isFinished()

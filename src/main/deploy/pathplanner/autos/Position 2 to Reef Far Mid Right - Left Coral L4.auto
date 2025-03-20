@@ -5,22 +5,21 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "MoveCoralL4"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "MDriveToBottomFar-Left"
-                }
-              }
-            ]
+            "pathName": "MDriveToBottomFar-Left"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "MoveCoralL4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignToFarBottom-Left"
           }
         },
         {

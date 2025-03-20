@@ -109,11 +109,11 @@ public class IntakeSubsystem extends SubsystemBase
     }
 
     public boolean hasAlgae(){
-        return Math.abs(algaeTargetVoltage) > 0 && Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 1;
+        return Math.abs(mAlgaeIntake.getVelocity().getValueAsDouble()) < 1 && Math.abs(mAlgaeIntake.getStatorCurrent().getValueAsDouble()) > 20;
     }
 
     public boolean hasCoral(){
-        return hasCoral;
+        return Math.abs(mCoralIntake.getStatorCurrent().getValueAsDouble()) > 15;
     }
 
     public void setCoral(boolean newCoral){
@@ -127,8 +127,8 @@ public class IntakeSubsystem extends SubsystemBase
         SmartDashboard.putNumber("Algae Target Voltage", algaeTargetVoltage);
         SmartDashboard.putNumber("Algae Actual Voltage", mAlgaeIntake.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Algae Actual Velocity", mAlgaeIntake.getVelocity().getValueAsDouble());
-        SmartDashboard.putBoolean("Algae in Intake", this.hasAlgae());
-        SmartDashboard.putBoolean("Has Coral", hasCoral);
+        SmartDashboard.putBoolean("Algae in Intake", hasAlgae());
+        SmartDashboard.putBoolean("Has Coral", hasCoral());
         /*if (Math.abs(mCoralIntake.getMotorVoltage().getValueAsDouble()) > 1 && Math.abs(mCoralIntake.getVelocity().getValueAsDouble()) < 0.2){
             hasCoral = true;
         }*/
