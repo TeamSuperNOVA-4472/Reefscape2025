@@ -65,9 +65,11 @@ public class PresetTeleop
 
         // #region Check for moving to L1, L2, L3, and L4 positions.
         moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
+        
         moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
+        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kElevatorL2L3Intermediate - CarriagePreset.kCoralL2.kElevatorPreset).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
         moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
-        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kCoralL2.kElevatorPreset - CarriagePreset.kCoralL3.kElevatorPreset).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kElevatorL2L3Intermediate - CarriagePreset.kCoralL3.kElevatorPreset).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
         
         moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
         // #endregion
