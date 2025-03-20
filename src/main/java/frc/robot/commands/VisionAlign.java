@@ -195,7 +195,7 @@ public class VisionAlign {
             // Creates and returns command
             Pose2d idealWaypoint = destination.plus(kWayPointTransform);
             // Checks if swerve should back up or not
-            Command pathFind = pathFindToPlace(idealWaypoint, exitPoint, kWayPointTransform, backUp ? kBackUpTransform : new Transform2d());
+            Command pathFind = pathFindToPlace(idealWaypoint, exitPoint, kWayPointTransform, backUp);
             SequentialCommandGroup alignCommand = new SequentialCommandGroup(pathFind, runLast);
 
             return alignCommand;
@@ -234,7 +234,7 @@ public class VisionAlign {
      */
     public SequentialCommandGroup alignToReef(ReefEndTarget target, VisionDirection direction, CarriagePreset preset)
     {
-        return alignToReef(target, direction, preset, false);
+        return alignToReef(target, direction, preset, true);
     }
 
     public SequentialCommandGroup alignToReef(ReefEndTarget target, VisionDirection direction, CarriagePreset preset, Boolean backUp)
@@ -327,16 +327,16 @@ public class VisionAlign {
 
     private Command pathFindToPlace(Pose2d target, Pose2d lastPose, Transform2d radius)
     {
-        return pathFindToPlace(target, lastPose, radius, new Transform2d());
+        return pathFindToPlace(target, lastPose, radius, true);
     }
 
     // Path finds to a destination while avoiding the reef
-    private Command pathFindToPlace(Pose2d target, Pose2d lastPose, Transform2d radius, Transform2d backup)
+    private Command pathFindToPlace(Pose2d target, Pose2d lastPose, Transform2d radius, Boolean backUp)
     {
         // Create a list of poses
         ArrayList<Pose2d> poses = VisionPoses.getReefPoses(radius, mVisionSubsystem);
 
-        Pose2d currPose = mSwerveSubsystem.getPose().transformBy(kBackUpTransform); // Gets the current position of the drive
+        Pose2d currPose = mSwerveSubsystem.getPose().transformBy(backUp ? kBackUpTransform : new Transform2d()); // Gets the current position of the drive
         Pose2d endingPose = target; // Gets the exit point position
         
         ArrayList<Pose2d> pathList = getMinPath(poses, endingPose, currPose); // Get the shortest path to the exit point
