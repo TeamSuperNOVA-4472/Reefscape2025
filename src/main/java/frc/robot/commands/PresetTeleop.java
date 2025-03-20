@@ -48,7 +48,8 @@ public class PresetTeleop
                 moveL4 = new Trigger(partner::getYButton);
 
         Trigger loadCoral = new Trigger(partner::getRightBumperButton),
-                scoreCoral = new Trigger(() -> partner.getRightTriggerAxis() > 0.25);
+                scoreCoral = new Trigger(() -> partner.getRightTriggerAxis() > 0.25),
+                intakeCoralOnly = new Trigger(partner::getLeftStickButton);
 
         Trigger algaeL2 = new Trigger(partner::getLeftBumperButton),
                 algaeL3 = new Trigger(() -> partner.getLeftTriggerAxis() > 0.25),
@@ -83,6 +84,9 @@ public class PresetTeleop
 
         scoreCoral.onTrue(new InstantCommand(() -> intake.outtakeCoral()));
         scoreCoral.onFalse(new InstantCommand(() -> intake.stopCoral()));
+
+        intakeCoralOnly.onTrue(new InstantCommand(() -> intake.intakeCoral()));
+        intakeCoralOnly.onFalse(new InstantCommand(() -> intake.stopCoral()));
         // #endregion
 
         // #region Go to Algae L2, L3, and ground, begin intaking.

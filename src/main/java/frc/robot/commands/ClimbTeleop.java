@@ -15,7 +15,7 @@ public class ClimbTeleop extends Command
     // And when the left trigger is pressed, it goes to the climbing position.
 
     public static final double kAngleStow = 33;
-    public static final double kAngleClimb = 20; // Ambitious is 11.
+    public static final double kAngleClimb = 30; // Used to be 22, ambitious is 11.
     public static final double kAngleReady = 135.5;
 
     public static final double kTolerance = 1; // The result will be correct plus or minus this number in degrees.
@@ -42,21 +42,30 @@ public class ClimbTeleop extends Command
     public void execute()
     {
         // Determine state.
-        if (mClimbReady.get()) mState = ClimbState.kReady;
-        else if (mClimbActivate.get()) mState = ClimbState.kClimb;
+        if (mClimbReady.get())
+        {
+            if (mState == ClimbState.kReady) mState = ClimbState.kPause;
+            else mState = ClimbState.kReady;
+        }
+        else if (mClimbActivate.get())
+        {
+            if (mState == ClimbState.kClimb) mState = ClimbState.kPause;
+            else mState = ClimbState.kClimb;
+        }
 
         // Determine position based on state.
+        double currentRot = mClimbSubsystem.getClimbAngleDegrees();
         double desiredRot;
         switch (mState)
         {
             case kStow: desiredRot = kAngleStow; break;
             case kReady: desiredRot = kAngleReady; break;
             case kClimb: desiredRot = kAngleClimb; break;
+            case kPause: desiredRot = currentRot; break;
             default: desiredRot = 90; break; // Default state, should never happen, but just in case it's a safe value to go to.
         }
 
         // Then move the motor in the direction needed (if out of tolerance).
-        double currentRot = mClimbSubsystem.getClimbAngleDegrees();
         double diff = desiredRot - currentRot;
 
         if (Math.abs(diff) >= kTolerance) // Out of tolerance, actually move.
@@ -74,6 +83,7 @@ public class ClimbTeleop extends Command
     {
         kStow,
         kReady,
-        kClimb
+        kClimb,
+        kPause
     }
 }
