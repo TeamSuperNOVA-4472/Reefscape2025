@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.dyn4j.geometry.Transform;
 import org.opencv.video.TrackerDaSiamRPN;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -67,13 +68,13 @@ public class VisionAlign {
     // I can consolidate Left/Right into one big map that negates the Y value.
     // But that's up to y'all.
     private final Transform2d kLeftCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg);
-    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.45, -0.18, Rotation2d.k180deg);
+    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.45, -0.2, Rotation2d.k180deg);
     private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.255, Rotation2d.k180deg); 
     private final Transform2d kLeftCoralL4Transform = new Transform2d(0.45, -0.255, Rotation2d.k180deg); 
 
     // Right coral transforms
     private final Transform2d kRightCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg); 
-    private final Transform2d kRightCoralL2Transform = new Transform2d(0.5, 0.25, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL2Transform = new Transform2d(0.5, 0.2, Rotation2d.k180deg);
     private final Transform2d kRightCoralL3Transform = new Transform2d(0.45, 0.26, Rotation2d.k180deg);
     private final Transform2d kRightCoralL4Transform = new Transform2d(0.45, 0.26, Rotation2d.k180deg);
 
@@ -185,7 +186,7 @@ public class VisionAlign {
      * @param direction The supplier providing an enum describing left, right, or middle PID alignment.
      * @return The sequence of pathfinding and PID alignment.
      */
-    private SequentialCommandGroup alignToReef(ReefEndTarget target, Command runLast)
+    private SequentialCommandGroup alignToReef(ReefEndTarget target, Command runLast, Boolean backUp)
     {
         // Final poses
         Pose2d destination = VisionPoses.getTargetPose(target, mVisionSubsystem); // Pose after PID runs
@@ -194,7 +195,8 @@ public class VisionAlign {
         try {
             // Creates and returns command
             Pose2d idealWaypoint = destination.plus(kWayPointTransform);
-            Command pathFind = pathFindToPlace(idealWaypoint, exitPoint, kWayPointTransform);
+            // Checks if swerve should back up or not
+            Command pathFind = pathFindToPlace(idealWaypoint, exitPoint, kWayPointTransform, backUp);
             SequentialCommandGroup alignCommand = new SequentialCommandGroup(pathFind, runLast);
 
             return alignCommand;
@@ -221,7 +223,7 @@ public class VisionAlign {
 
         Command getClose = getCloseToCommand(destination, () -> getReefTransform(direction, preset));
 
-        return alignToReef(target, getClose);
+        return alignToReef(target, getClose, false);
     }
 
     /**
@@ -233,10 +235,15 @@ public class VisionAlign {
      */
     public SequentialCommandGroup alignToReef(ReefEndTarget target, VisionDirection direction, CarriagePreset preset)
     {
+        return alignToReef(target, direction, preset, true);
+    }
+
+    public SequentialCommandGroup alignToReef(ReefEndTarget target, VisionDirection direction, CarriagePreset preset, Boolean backUp)
+    {
         Pose2d destination = VisionPoses.getTargetPose(target, mVisionSubsystem);
         Command getClose = getCloseToCommand(destination, getReefTransform(() -> direction, () -> Optional.of(preset)));
-        
-        return alignToReef(target, getClose);
+
+        return alignToReef(target, getClose, backUp);
     }
 
     // Consolidates both align to match loading station commnads
@@ -319,13 +326,18 @@ public class VisionAlign {
         return pathFindToPlace(target, target, radius);
     }
 
-    // Path finds to a destination while avoiding the reef
     private Command pathFindToPlace(Pose2d target, Pose2d lastPose, Transform2d radius)
+    {
+        return pathFindToPlace(target, lastPose, radius, true);
+    }
+
+    // Path finds to a destination while avoiding the reef
+    private Command pathFindToPlace(Pose2d target, Pose2d lastPose, Transform2d radius, Boolean backUp)
     {
         // Create a list of poses
         ArrayList<Pose2d> poses = VisionPoses.getReefPoses(radius, mVisionSubsystem);
 
-        Pose2d currPose = mSwerveSubsystem.getPose().transformBy(kBackUpTransform); // Gets the current position of the drive
+        Pose2d currPose = mSwerveSubsystem.getPose().transformBy(backUp ? kBackUpTransform : new Transform2d()); // Gets the current position of the drive
         Pose2d endingPose = target; // Gets the exit point position
         
         ArrayList<Pose2d> pathList = getMinPath(poses, endingPose, currPose); // Get the shortest path to the exit point

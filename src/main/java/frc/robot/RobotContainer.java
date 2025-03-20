@@ -110,9 +110,13 @@ public class RobotContainer {
                 mDriver::getAButton, () -> mDriver.getBButton());
 
         // TODO: remove tester commands when robot is properly programmed
-        //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
-        //mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
-        mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
+        // mElevatorTester = new ElevatorTester(mElevatorSubsystem, () ->
+        // MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
+        // mCarriageTester = new CarriageTester(() ->
+        // MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () ->
+        // MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
+        mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton,
+                mPartner::getYButton, mIntakeSubsystem);
         mClimbTeleop = new ClimbTeleop(mDriver::getLeftBumperButtonPressed, mDriver::getRightBumperButtonPressed);
         // Configure subsystems
         // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
@@ -136,6 +140,24 @@ public class RobotContainer {
                     newVisionPose.timestampSeconds);
             isFirst = false;
         });
+
+        VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
+
+        Trigger visionTrigger = new Trigger(mDriver::getXButton);
+        visionTrigger.whileTrue(new DeferredCommand(
+                () -> visionAlign.alignToNearestReef(() -> mDriver.getLeftTriggerAxis() > 0.1,
+                        () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        Trigger reefTrigger = new Trigger(mDriver::getYButton);
+        reefTrigger.whileTrue(new DeferredCommand(
+                () -> visionAlign.alignToReef(ReefEndTarget.NearRight, () -> mDriver.getLeftTriggerAxis() > 0.1,
+                        () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        Trigger matchLoadingTrigger = new Trigger(mDriver::getBButton);
+        matchLoadingTrigger.onTrue(new DeferredCommand(() -> visionAlign.alignToRightMatchLoadingStation(),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         // Register named commands.
         NamedCommands.registerCommand("StowCarriage", SwitchPresetCommand.stow(false));
@@ -264,6 +286,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("AlignToBottomLoading", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToRightMatchLoadingStation(),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToLeftLoading", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToLeftMatchLoadingStation(),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         // Configure other things.
