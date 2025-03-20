@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.objectmodels.VisionPoses;
+import frc.robot.Robot;
 import frc.robot.objectmodels.CarriagePreset;
 import frc.robot.objectmodels.ReefEndTarget;
 import frc.robot.objectmodels.VisionDirection;
@@ -91,7 +92,7 @@ public class VisionAlign {
     private final double kEndVelocity = 0; // Ending velocity for PathPlanner
 
     // PID Constants for the Lateral PID Controller
-    private final double kLateralP = 1.75;
+    private final double kLateralP = 1.3;
     private final double kLateralI = 0;
     private final double kLateralD = 0.025;
     private final double kLateralMaxVelocity = 4.5;
@@ -378,8 +379,8 @@ public class VisionAlign {
             if (curRevPose.equals(target)) { return altPath; }
             
             // Add pose to path and adjust angle to face the direction of travel
-            path.add(new Pose2d(curFwdPose.getTranslation(), curFwdPose.getRotation().rotateBy(Rotation2d.kCW_90deg)));
-            altPath.add(new Pose2d(curRevPose.getTranslation(), curRevPose.getRotation().rotateBy(Rotation2d.kCCW_90deg)));
+            path.add(new Pose2d(curFwdPose.getTranslation(), curFwdPose.getRotation().rotateBy(Robot.isRedAlliance() ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg)));
+            altPath.add(new Pose2d(curRevPose.getTranslation(), curRevPose.getRotation().rotateBy(Robot.isRedAlliance() ? Rotation2d.kCCW_90deg : Rotation2d.kCW_90deg)));
         }
         
         // If both paths are equally long, return the clockwise one

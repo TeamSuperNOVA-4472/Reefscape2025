@@ -31,6 +31,7 @@ import frc.robot.commands.SwerveTeleop;
 import frc.robot.commands.SwitchPresetCommand;
 import frc.robot.commands.VisionAlign;
 import frc.robot.commands.VisionAlignCommand;
+import frc.robot.commands.VisionTeleop;
 import frc.robot.commands.tester.CarriageTester;
 import frc.robot.commands.tester.ElevatorTester;
 import frc.robot.commands.tester.IntakeTester;
@@ -122,6 +123,7 @@ public class RobotContainer
         mClimbSubsystem.setDefaultCommand(mClimbTeleop);
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         PresetTeleop.setup(mPartner);
+        VisionTeleop.setup(mDriver);
         
         mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
@@ -132,26 +134,6 @@ public class RobotContainer
             mSwerveSubsystem.addVisionMeasurement(newVisionPose.estimatedPose.toPose2d(), newVisionPose.timestampSeconds);
             isFirst = false;
         });
-
-        VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
-
-        Trigger visionTrigger = new Trigger(mDriver::getXButton);
-        visionTrigger.whileTrue(new DeferredCommand(() ->
-        visionAlign.alignToNearestReef(() -> mDriver.getLeftTriggerAxis() > 0.1, () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
-        Set.of(mSwerveSubsystem, mVisionSubsystem))
-        );
-
-        Trigger reefTrigger = new Trigger(mDriver::getYButton);
-        reefTrigger.whileTrue(new DeferredCommand(() ->
-        visionAlign.alignToReef(ReefEndTarget.NearRight,() -> mDriver.getLeftTriggerAxis() > 0.1, () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
-        Set.of(mSwerveSubsystem, mVisionSubsystem))
-        );
-
-        Trigger matchLoadingTrigger = new Trigger(mDriver::getBButton);
-        matchLoadingTrigger.whileTrue(new DeferredCommand(() ->
-        visionAlign.alignToRightMatchLoadingStation(),
-        Set.of(mSwerveSubsystem, mVisionSubsystem))
-        );
 
         // Register named commands.
         NamedCommands.registerCommand("StowCarriage", SwitchPresetCommand.stow(false));
