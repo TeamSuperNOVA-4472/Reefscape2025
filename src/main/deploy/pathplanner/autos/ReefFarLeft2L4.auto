@@ -30,7 +30,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignToFarBottom-Left"
+                  "name": "AlignToFarLeft-Right"
                 }
               }
             ]
@@ -71,7 +71,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "AlignToBottomLoading"
+                        "name": "AlignToLeftLoading"
                       }
                     }
                   ]
@@ -124,7 +124,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignToNearRight-Right"
+                  "name": "AlignToNearLeft-Left"
                 }
               }
             ]
