@@ -124,7 +124,9 @@ public class SwitchPresetCommand extends SequentialCommandGroup
 
         safePosition = safePosition.withElevatorPreset(mElevatorCarriage.getElevatorHeight());
         CarriagePreset elevatorPosition;
-        if (newPreset == CarriagePreset.kCoralL3) elevatorPosition = safePosition.withElevatorPreset(CarriagePreset.kCoralL2);
+        if (newPreset == CarriagePreset.kCoralL3 ||
+            newPreset == CarriagePreset.kCoralL2)
+                elevatorPosition = safePosition.withElevatorPreset(CarriagePreset.kElevatorL2L3Intermediate);
         else elevatorPosition = safePosition.withElevatorPreset(newPreset);
 
         if (newPreset.kMoveArmFirst)
