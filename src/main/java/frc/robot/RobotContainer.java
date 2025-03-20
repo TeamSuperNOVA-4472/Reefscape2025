@@ -109,9 +109,13 @@ public class RobotContainer {
                 mDriver::getAButton, () -> mDriver.getBButton());
 
         // TODO: remove tester commands when robot is properly programmed
-        //mElevatorTester = new ElevatorTester(mElevatorSubsystem, () -> MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
-        //mCarriageTester = new CarriageTester(() -> MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () -> MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
-        mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton, mPartner::getYButton, mIntakeSubsystem);
+        // mElevatorTester = new ElevatorTester(mElevatorSubsystem, () ->
+        // MathUtil.applyDeadband(-mPartner.getLeftY(), 0.1));
+        // mCarriageTester = new CarriageTester(() ->
+        // MathUtil.applyDeadband(mPartner.getRightX(), 0.1), () ->
+        // MathUtil.applyDeadband(mPartner.getRightY(), 0.1), mCarriageSubsystem);
+        mIntakeTester = new IntakeTester(mPartner::getAButton, mPartner::getBButton, mPartner::getXButton,
+                mPartner::getYButton, mIntakeSubsystem);
         mClimbTeleop = new ClimbTeleop(mDriver::getLeftBumperButtonPressed, mDriver::getRightBumperButtonPressed);
         // Configure subsystems
         // Kyle here. Sophia wants her controls to be disabled when moving the arms in.
@@ -280,6 +284,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("AlignToBottomLoading", new DeferredCommand(
                 () -> new VisionAlign(
                         mSwerveSubsystem, mVisionSubsystem).alignToRightMatchLoadingStation(),
+                Set.of(mSwerveSubsystem, mVisionSubsystem)));
+
+        NamedCommands.registerCommand("AlignToLeftLoading", new DeferredCommand(
+                () -> new VisionAlign(
+                        mSwerveSubsystem, mVisionSubsystem).alignToLeftMatchLoadingStation(),
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         // Configure other things.
