@@ -216,7 +216,7 @@ public class VisionSubsystem extends SubsystemBase
             {
                 // TODO: test distance filter
                 // Don't update if previous pose exists and new one is not under threshold - meant to stop vision from going crazy town
-                if (poseApproximation != null && !isUnderThreshold(poseApproximation, newRobotPose.get())) continue;
+                //if (poseApproximation != null && !isUnderThreshold(poseApproximation, newRobotPose.get())) continue;
 
                 EstimatedRobotPose pose = newRobotPose.get();
                 if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 4))

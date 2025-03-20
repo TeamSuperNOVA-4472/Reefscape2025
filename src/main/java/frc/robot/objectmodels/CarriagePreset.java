@@ -18,16 +18,16 @@ public class CarriagePreset
     // Actual presets go here.
     public static final CarriagePreset kCoralL1 = new CarriagePreset(67, -61, 2);
     public static final CarriagePreset kCoralL2 = new CarriagePreset(89, -122, 14.75, true);
-    public static final CarriagePreset kCoralL3 = new CarriagePreset(81, -122, 34.625, true);
-    public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 61.23);
+    public static final CarriagePreset kCoralL3 = new CarriagePreset(81, -122, 33.625, true);
+    public static final CarriagePreset kCoralL4 = new CarriagePreset(100, -142, 60.23);
     public static final CarriagePreset kCoralLoad = new CarriagePreset(104, -71, 7);
     public static final CarriagePreset kStowCoral = new CarriagePreset(82, 10, 0); // Also used to be known as "moving" in some places of the code.
     
-    public static final double kElevatorL2L3Intermediate = ElevatorCarriageSubsystem.initialHeight + 14; // The temporary place for L2 and L3.
+    public static final double kElevatorL2L3Intermediate = ElevatorCarriageSubsystem.initialHeight + 2; // The temporary place for L2 and L3.
 
-    public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -130, 60.855);
+    public static final CarriagePreset kAlgaeBarge = new CarriagePreset(90, -130, 60.23);
     public static final CarriagePreset kAlgaeProcessor = new CarriagePreset(20, -110, 0, true);
-    public static final CarriagePreset kAlgaeGround = new CarriagePreset(-45, -90, 12.855, true);
+    public static final CarriagePreset kAlgaeGround = new CarriagePreset(-45, -90, 12.855, false);
     public static final CarriagePreset kAlgaeL2 = new CarriagePreset(40, -120, 12.855, true);
     public static final CarriagePreset kAlgaeL3 = new CarriagePreset(40, -120, 28.73, true);
     public static final CarriagePreset kStowAlgae = new CarriagePreset(65, -60, 0);

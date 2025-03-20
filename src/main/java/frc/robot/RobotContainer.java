@@ -281,7 +281,11 @@ public class RobotContainer {
                 Set.of(mSwerveSubsystem, mVisionSubsystem)));
 
         // Configure other things.
-        autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser = new SendableChooser<>();//AutoBuilder.buildAutoChooser();
+        autoChooser.addOption("ReefFarLeft2L4", new PathPlannerAuto("ReefFarLeft2L4"));
+        autoChooser.addOption("ReefFarRight2L4", new PathPlannerAuto("ReefFarRight2L4"));
+        autoChooser.setDefaultOption("FarMiddleL4-Right", new PathPlannerAuto("FarMiddleL4-Right"));
+        SmartDashboard.putData("Auto Selector", autoChooser);
     }
 
     // Specify which command will be used as the autonomous command.

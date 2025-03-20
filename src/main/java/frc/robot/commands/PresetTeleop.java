@@ -67,9 +67,10 @@ public class PresetTeleop
         moveL1.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL1, true));
         
         moveL2.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL2, true));
-        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kElevatorL2L3Intermediate - CarriagePreset.kCoralL2.kElevatorPreset).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        moveL2.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kElevatorL2L3Intermediate, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+
         moveL3.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL3, true));
-        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kElevatorL2L3Intermediate - CarriagePreset.kCoralL3.kElevatorPreset).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+        moveL3.onFalse(SwitchPresetCommand.moveElevator(CarriagePreset.kElevatorL2L3Intermediate, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
         
         moveL4.whileTrue(new SwitchPresetCommand(CarriagePreset.kCoralL4, true));
         // #endregion

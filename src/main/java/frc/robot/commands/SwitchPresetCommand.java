@@ -58,7 +58,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
         return preset;
     }
 
-    public static Command moveElevator(double amount)
+    public static Command moveElevator(double amount, boolean relative)
     {
         return new MovePresetCommand(() ->
         {
@@ -66,7 +66,9 @@ public class SwitchPresetCommand extends SequentialCommandGroup
             return new CarriagePreset(
                 mElevatorCarriage.getArmAngle(),
                 mElevatorCarriage.getWristAngle(),
-                mElevatorCarriage.getElevatorHeight() + amount - ElevatorCarriageSubsystem.initialHeight);
+                relative
+                    ? mElevatorCarriage.getElevatorHeight() + amount - ElevatorCarriageSubsystem.initialHeight
+                    : amount - ElevatorCarriageSubsystem.initialHeight);
         }, true);
     }
 
