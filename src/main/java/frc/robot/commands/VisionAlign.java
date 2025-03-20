@@ -54,11 +54,11 @@ public class VisionAlign {
     private final PIDController mRotationPIDController;
     
     // Constants
-    private final Transform2d kWayPointTransform = new Transform2d(1.5, 0, Rotation2d.k180deg); // Controls radius of reef-avoiding
+    private final Transform2d kWayPointTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Controls radius of reef-avoiding
     private final Transform2d kBackUpTransform = new Transform2d(-0.5, 0, new Rotation2d()); // Back up from stations
 
     private final Transform2d kReefTransform = new Transform2d(0.75, 0, Rotation2d.k180deg); // Position at reef
-    private final Transform2d kMatchLoadingTransform = new Transform2d(0.65, 0, Rotation2d.k180deg); // Position at match loading station
+    private final Transform2d kMatchLoadingTransform = new Transform2d(0.317, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
 
     // Left coral transforms go here
@@ -91,20 +91,20 @@ public class VisionAlign {
     private final double kEndVelocity = 0; // Ending velocity for PathPlanner
 
     // PID Constants for the Lateral PID Controller
-    private final double kLateralP = 1.75;
+    private final double kLateralP = 1.3;
     private final double kLateralI = 0;
-    private final double kLateralD = 0.025;
+    private final double kLateralD = 0.08;
     private final double kLateralMaxVelocity = 4.5;
     private final double kLateralMaxAcceleration = 4.5;
-    private final double kLateralTolerance = 0.02;
+    private final double kLateralTolerance = 0.04;
 
     // PID Constants for the Rotation PID Controller
-    private final double kRotationP = 0.75;
+    private final double kRotationP = 0.9;
     private final double kRotationI = 0;
-    private final double kRotationD = 0;
+    private final double kRotationD = 0.03;
     private final double kRotationMaxVelocity = 2;
     private final double kRotationMaxAcceleration = 2;
-    private final double kRotationTolerance = 0.02;
+    private final double kRotationTolerance = 0.04;
 
     // Gyro input constants
     private final double kMinContinuous = 0;
@@ -230,10 +230,10 @@ public class VisionAlign {
      * @param preset The supplier that gives the desired preset of the robot.
      * @return The sequence of pathfinding and PID alignment.
      */
-    public SequentialCommandGroup alignToReef(ReefEndTarget target, VisionDirection direction, Supplier<Optional<CarriagePreset>> preset)
+    public SequentialCommandGroup alignToReef(ReefEndTarget target, VisionDirection direction, CarriagePreset preset)
     {
         Pose2d destination = VisionPoses.getTargetPose(target, mVisionSubsystem);
-        Command getClose = getCloseToCommand(destination, getReefTransform(() -> direction, preset));
+        Command getClose = getCloseToCommand(destination, getReefTransform(() -> direction, () -> Optional.of(preset)));
         
         return alignToReef(target, getClose);
     }
