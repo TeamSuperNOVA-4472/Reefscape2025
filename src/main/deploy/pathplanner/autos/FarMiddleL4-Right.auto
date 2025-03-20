@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "MDriveToMidFar-Right"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [

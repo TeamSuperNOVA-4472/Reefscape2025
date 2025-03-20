@@ -113,7 +113,7 @@ public class RobotContainer {
         mIntakeSubsystem.setDefaultCommand(mIntakeTester);
         PresetTeleop.setup(mPartner);
         VisionTeleop.setup(mDriver);
-        
+
         mVisionSubsystem.addMeasurementListener((EstimatedRobotPose newVisionPose) -> {
             // Update the swerve's odometry with the new vision estimate.
             /*
