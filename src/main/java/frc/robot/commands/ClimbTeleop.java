@@ -18,7 +18,7 @@ public class ClimbTeleop extends Command
     public static final double kAngleClimb = 30; // Used to be 22, ambitious is 11.
     public static final double kAngleReady = 135.5;
 
-    public static final double kTolerance = 1; // The result will be correct plus or minus this number in degrees.
+    public static final double kTolerance = 3; // The result will be correct plus or minus this number in degrees.
 
     private static final double kClimbVoltage = 12; // Max is 12v.
 

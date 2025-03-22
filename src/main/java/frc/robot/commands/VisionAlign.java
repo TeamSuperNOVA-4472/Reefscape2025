@@ -69,18 +69,18 @@ public class VisionAlign {
     // But that's up to y'all.
     private final Transform2d kLeftCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg);
     private final Transform2d kLeftCoralL2Transform = new Transform2d(0.45, -0.2, Rotation2d.k180deg);
-    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.255, Rotation2d.k180deg); 
-    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.45, -0.255, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.2, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.45, -0.2, Rotation2d.k180deg); 
 
     // Right coral transforms
     private final Transform2d kRightCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg); 
     private final Transform2d kRightCoralL2Transform = new Transform2d(0.45, 0.2, Rotation2d.k180deg);
-    private final Transform2d kRightCoralL3Transform = new Transform2d(0.45, 0.255, Rotation2d.k180deg);
-    private final Transform2d kRightCoralL4Transform = new Transform2d(0.45, 0.255, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL3Transform = new Transform2d(0.45, 0.2, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL4Transform = new Transform2d(0.45, 0.2, Rotation2d.k180deg);
 
     // Algae transforms
-    private final Transform2d kAlgaeTopTransform = new Transform2d(0.5, 0, Rotation2d.k180deg); // Position at L3
-    private final Transform2d kAlgaeBottomTransform = new Transform2d(0.5, 0, Rotation2d.k180deg); // Position at L2
+    private final Transform2d kAlgaeTopTransform = new Transform2d(0.45, 0, Rotation2d.k180deg); // Position at L3
+    private final Transform2d kAlgaeBottomTransform = new Transform2d(0.45, 0, Rotation2d.k180deg); // Position at L2
 
     // Maps for CarriagePreset transforms
     private final HashMap<CarriagePreset, Transform2d> kLeftCoralTransforms = new HashMap<>();
