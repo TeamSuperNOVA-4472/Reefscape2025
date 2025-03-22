@@ -225,8 +225,7 @@ public class VisionSubsystem extends SubsystemBase
                     if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.1, 4.0))
                         updatePose(pose);
                 } else {
-                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.1, 6.5))
-                        updatePose(pose);
+                    updatePose(pose);
                 }
             }
         }
