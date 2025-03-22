@@ -60,7 +60,7 @@ public class VisionAlign {
     private final Transform2d kBackUpTransform = new Transform2d(-0.5, 0, new Rotation2d()); // Back up from stations
 
     private final Transform2d kReefTransform = new Transform2d(0.75, 0, Rotation2d.k180deg); // Position at reef
-    private final Transform2d kMatchLoadingTransform = new Transform2d(0.317, 0, Rotation2d.k180deg); // Position at match loading station
+    private final Transform2d kMatchLoadingTransform = new Transform2d(0.324, 0, Rotation2d.k180deg); // Position at match loading station
     private final Transform2d kProcessorTransform = new Transform2d(1, 0, Rotation2d.k180deg); // Position at processor
 
     // Left coral transforms go here
