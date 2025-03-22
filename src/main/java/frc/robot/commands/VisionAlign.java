@@ -70,13 +70,13 @@ public class VisionAlign {
     private final Transform2d kLeftCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg);
     private final Transform2d kLeftCoralL2Transform = new Transform2d(0.45, -0.23, Rotation2d.k180deg);
     private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.23, Rotation2d.k180deg); 
-    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.45, -0.23, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.4, -0.23, Rotation2d.k180deg); 
 
     // Right coral transforms
     private final Transform2d kRightCoralL1Transform = new Transform2d(0.5, 0, Rotation2d.k180deg); 
     private final Transform2d kRightCoralL2Transform = new Transform2d(0.45, 0.18, Rotation2d.k180deg);
     private final Transform2d kRightCoralL3Transform = new Transform2d(0.45, 0.18, Rotation2d.k180deg);
-    private final Transform2d kRightCoralL4Transform = new Transform2d(0.45, 0.18, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL4Transform = new Transform2d(0.4, 0.18, Rotation2d.k180deg);
 
     // Algae transforms
     private final Transform2d kAlgaeTopTransform = new Transform2d(0.425, 0, Rotation2d.k180deg); // Position at L3
