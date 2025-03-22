@@ -222,10 +222,10 @@ public class VisionSubsystem extends SubsystemBase
                 EstimatedRobotPose pose = newRobotPose.get();
                 if (Robot.sIsAutonomous())
                 {
-                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.1, 4.0))
+                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 4.0))
                         updatePose(pose);
                 } else {
-                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.1, 6.5))
+                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 6.5))
                         updatePose(pose);
                 }
             }
