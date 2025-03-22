@@ -79,8 +79,8 @@ public class VisionAlign {
     private final Transform2d kRightCoralL4Transform = new Transform2d(0.425, 0.185, Rotation2d.k180deg);
 
     // Algae transforms
-    private final Transform2d kAlgaeTopTransform = new Transform2d(0.425, 0, Rotation2d.k180deg); // Position at L3
-    private final Transform2d kAlgaeBottomTransform = new Transform2d(0.425, 0, Rotation2d.k180deg); // Position at L2
+    private final Transform2d kAlgaeTopTransform = new Transform2d(0.375, 0, Rotation2d.k180deg); // Position at L3
+    private final Transform2d kAlgaeBottomTransform = new Transform2d(0.375, 0, Rotation2d.k180deg); // Position at L2
 
     // Maps for CarriagePreset transforms
     private final HashMap<CarriagePreset, Transform2d> kLeftCoralTransforms = new HashMap<>();

@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.objectmodels.CameraInfo;
 
 public class VisionSubsystem extends SubsystemBase
@@ -219,8 +220,14 @@ public class VisionSubsystem extends SubsystemBase
                 //if (poseApproximation != null && !isUnderThreshold(poseApproximation, newRobotPose.get())) continue;
 
                 EstimatedRobotPose pose = newRobotPose.get();
-                if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 6.5))
-                    updatePose(pose);
+                if (Robot.sIsAutonomous())
+                {
+                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 4.0))
+                        updatePose(pose);
+                } else {
+                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 6.5))
+                        updatePose(pose);
+                }
             }
         }
 
