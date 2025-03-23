@@ -111,7 +111,7 @@ public class VisionSubsystem extends SubsystemBase
             cameras[i] = new PhotonCamera(info.getName());
             poseEstimators[i] = new PhotonPoseEstimator(
                 tagLayout,
-                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                PoseStrategy.LOWEST_AMBIGUITY,
                 info.getOffset());
             poseEstimators[i].setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         }
