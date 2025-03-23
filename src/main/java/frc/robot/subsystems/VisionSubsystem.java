@@ -37,13 +37,16 @@ public class VisionSubsystem extends SubsystemBase
     // TODO: More information for more cameras!
     public static final CameraInfo[] kInstalledCameras =
     {
-        new CameraInfo("LeftCamera", new Transform3d(new Translation3d(0.3023604062, 0.3023616, 0.2413), new Rotation3d(0, 0.174, 0.523599))),
-        new CameraInfo("RightCamera", new Transform3d(new Translation3d(0.3023604062, -0.3023616, 0.2413), new Rotation3d(0, 0.174, -0.523599))),
+        // Camera Dimensions for forward-facing: (0.279527m, 0.3481578m, 0.2582926m), (0rad, 0.174rad, 0rad)
+
+        new CameraInfo("LeftCamera", new Transform3d(new Translation3d(0.3481578, 0.279527, 0.2582926), new Rotation3d(0, 0.174, 0))),
+        new CameraInfo("RightCamera", new Transform3d(new Translation3d(0.3481578, -0.279527, 0.2582926), new Rotation3d(0, 0.174, 0))),
         // new CameraInfo("BackCamera", new Transform3d(new Translation3d(0.288671, 0.009525, 0.8509), new Rotation3d(0, 0.3926991, 3.14159))) // Can be changed.
     };
 
     public static final VisionSubsystem kInstance = new VisionSubsystem();
     public static final double kThreshold = 2.5; // Threshold in meters to add vision measurement pose
+    public static final double kMaxAngle  = 70;
 
     // Cameras go here.
     private PhotonCamera[] cameras;
@@ -222,12 +225,13 @@ public class VisionSubsystem extends SubsystemBase
                 EstimatedRobotPose pose = newRobotPose.get();
                 if (Robot.sIsAutonomous())
                 {
-                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 4.0))
+                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 4.0) && Math.abs(bestTarget.get().getYaw()) < kMaxAngle)
                         updatePose(pose);
                 } else {
-                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 6.5))
+                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 6.5) && Math.abs(bestTarget.get().getYaw()) < kMaxAngle)
                         updatePose(pose);
                 }
+                SmartDashboard.putNumber("Yaw of AprilTag", bestTarget.get().getYaw());
             }
         }
 
