@@ -130,22 +130,6 @@ public class RobotContainer {
 
         VisionAlign visionAlign = new VisionAlign(mSwerveSubsystem, mVisionSubsystem);
 
-        Trigger visionTrigger = new Trigger(mDriver::getXButton);
-        visionTrigger.whileTrue(new DeferredCommand(
-                () -> visionAlign.alignToNearestReef(() -> mDriver.getLeftTriggerAxis() > 0.1,
-                        () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
-                Set.of(mSwerveSubsystem, mVisionSubsystem)));
-
-        Trigger reefTrigger = new Trigger(mDriver::getYButton);
-        reefTrigger.whileTrue(new DeferredCommand(
-                () -> visionAlign.alignToReef(ReefEndTarget.NearRight, () -> mDriver.getLeftTriggerAxis() > 0.1,
-                        () -> mDriver.getRightTriggerAxis() > 0.1, mElevatorCarriageSubsystem::getDesiredPreset),
-                Set.of(mSwerveSubsystem, mVisionSubsystem)));
-
-        Trigger matchLoadingTrigger = new Trigger(mDriver::getBButton);
-        matchLoadingTrigger.onTrue(new DeferredCommand(() -> visionAlign.alignToRightMatchLoadingStation(),
-                Set.of(mSwerveSubsystem, mVisionSubsystem)));
-
         // Register named commands.
         NamedCommands.registerCommand("StowCarriage", SwitchPresetCommand.stow(false));
         NamedCommands.registerCommand("MoveCoralL1", new SwitchPresetCommand(CarriagePreset.kCoralL1, false));
