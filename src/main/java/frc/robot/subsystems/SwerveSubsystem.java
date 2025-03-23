@@ -120,7 +120,7 @@ public class SwerveSubsystem extends SubsystemBase
     /** Creates a new ExampleSubsystem. */
     private SwerveSubsystem()
     {
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.POSE;
         mSwerveDrive = readSwerveConfig();
         mSwerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
         mSwerveDrive.setCosineCompensator(false); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.

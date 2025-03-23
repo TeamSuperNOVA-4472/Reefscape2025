@@ -7,8 +7,6 @@ package frc.robot.commands;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.lang.model.util.ElementScanner14;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -78,7 +76,7 @@ public class SwerveTeleop extends Command
     @Override
     public void execute()
     {
-        SmartDashboard.putNumber("Swerve Rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
+        //SmartDashboard.putNumber("Swerve Rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
 
         double fwdInput, sideInput, turnInput;
         if (isTheBButtonHeld.get()) // FARIS_UPDATE_SWERVE
@@ -129,8 +127,8 @@ public class SwerveTeleop extends Command
             resetFieldHeading();
         }
 
-        SmartDashboard.putString("Swerve pose: ", mSwerveSubsystem.getPose().toString());
-        SmartDashboard.putNumber("Swerve rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
+        //SmartDashboard.putString("Swerve pose: ", mSwerveSubsystem.getPose().toString());
+        //SmartDashboard.putNumber("Swerve rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
 
     }
 

@@ -73,7 +73,7 @@ public class DriveDistanceAndHeading extends Command {
         mTargetRotation = mOffset.get().getRotation().getDegrees();
         mEstDistanceTraveled =  new Translation2d();
         mNewHeading = mSwerveSubsystem.getHeadingDegrees() + mTargetRotation;
-        SmartDashboard.putNumber("Commanded Rotation", mTargetRotation);
+        //SmartDashboard.putNumber("Commanded Rotation", mTargetRotation);
     }
 
     @Override
@@ -106,9 +106,9 @@ public class DriveDistanceAndHeading extends Command {
             Rotation2d.fromDegrees(deltaHeading));
 
         mSwerveSubsystem.driveRobotOriented(newRobotSpeeds);
-        SmartDashboard.putNumber("X error", mXController.getPositionError());
-        SmartDashboard.putNumber("Y error", mYController.getPositionError());
-        SmartDashboard.putNumber("Rot error", mGyroController.getPositionError());
+        //SmartDashboard.putNumber("X error", mXController.getPositionError());
+        //SmartDashboard.putNumber("Y error", mYController.getPositionError());
+        //SmartDashboard.putNumber("Rot error", mGyroController.getPositionError());
     }
 
     @Override

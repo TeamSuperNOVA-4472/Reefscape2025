@@ -221,7 +221,7 @@ public class CarriageSubsystem extends SubsystemBase
         
         double armX = 13 * Math.cos(Math.toRadians(getArmSetpoint()));
         double wristX = -10 * Math.cos(Math.toRadians(getWristSetpoint() + getArmSetpoint())) + -6 * Math.sin(Math.toRadians(getWristSetpoint() + getArmSetpoint()));
-        SmartDashboard.putNumber("GetTargetX Value", armX + wristX);
+        //SmartDashboard.putNumber("GetTargetX Value", armX + wristX);
         return armX + wristX;
     }
 
