@@ -15,7 +15,7 @@ public class ClimbTeleop extends Command
     // And when the left trigger is pressed, it goes to the climbing position.
 
     public static final double kAngleStow = 33;
-    public static final double kAngleClimb = 27; // Used to be 22, ambitious is 11.
+    public static final double kAngleClimb = 28.5; // Used to be 22, ambitious is 11.
     public static final double kAngleReady = 135.5;
 
     public static final double kTolerance = 3; // The result will be correct plus or minus this number in degrees.

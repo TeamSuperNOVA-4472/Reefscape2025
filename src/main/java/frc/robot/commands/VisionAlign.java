@@ -68,15 +68,15 @@ public class VisionAlign {
     // I can consolidate Left/Right into one big map that negates the Y value.
     // But that's up to y'all.
     private final Transform2d kLeftCoralL1Transform = new Transform2d(0.425, 0, Rotation2d.k180deg);
-    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.45, -0.19, Rotation2d.k180deg);
-    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.19, Rotation2d.k180deg); 
-    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.425, -0.19, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL2Transform = new Transform2d(0.45, -0.22, Rotation2d.k180deg);
+    private final Transform2d kLeftCoralL3Transform = new Transform2d(0.45, -0.22, Rotation2d.k180deg); 
+    private final Transform2d kLeftCoralL4Transform = new Transform2d(0.425, -0.22, Rotation2d.k180deg); 
 
     // Right coral transforms
     private final Transform2d kRightCoralL1Transform = new Transform2d(0.425, 0, Rotation2d.k180deg); 
-    private final Transform2d kRightCoralL2Transform = new Transform2d(0.45, 0.185, Rotation2d.k180deg);
-    private final Transform2d kRightCoralL3Transform = new Transform2d(0.45, 0.185, Rotation2d.k180deg);
-    private final Transform2d kRightCoralL4Transform = new Transform2d(0.425, 0.185, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL2Transform = new Transform2d(0.45, 0.175, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL3Transform = new Transform2d(0.45, 0.175, Rotation2d.k180deg);
+    private final Transform2d kRightCoralL4Transform = new Transform2d(0.425, 0.175, Rotation2d.k180deg);
 
     // Algae transforms
     private final Transform2d kAlgaeTopTransform = new Transform2d(0.375, 0, Rotation2d.k180deg); // Position at L3

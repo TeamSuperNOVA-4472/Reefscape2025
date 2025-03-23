@@ -46,7 +46,7 @@ public class VisionSubsystem extends SubsystemBase
 
     public static final VisionSubsystem kInstance = new VisionSubsystem();
     public static final double kThreshold = 2.5; // Threshold in meters to add vision measurement pose
-    public static final double kMaxAngle  = 70;
+    public static final double kMaxAngle  = 60;
 
     // Cameras go here.
     private PhotonCamera[] cameras;
