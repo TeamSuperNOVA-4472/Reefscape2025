@@ -7,6 +7,8 @@ package frc.robot.commands;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.lang.model.util.ElementScanner14;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -24,9 +26,9 @@ import static frc.robot.subsystems.SwerveSubsystem.kMetersPerSecondToRadiansPerS
 public class SwerveTeleop extends Command
 {
     // TODO: how is this different from a clamp? Might want to consider doing that.
-    public static final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(1.0);
-    public static final SlewRateLimiter mSideLimiter = new SlewRateLimiter(1.0);
-    public static final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(1.0);
+    public static final SlewRateLimiter mFwdLimiter = new SlewRateLimiter(kMaxSpeedMS);
+    public static final SlewRateLimiter mSideLimiter = new SlewRateLimiter(kMaxSpeedMS);
+    public static final SlewRateLimiter mTurnLimiter = new SlewRateLimiter(kMaxSpeedMS);
 
     private final Supplier<Double> mFwdInput;
     private final Supplier<Double> mSideInput;
@@ -77,9 +79,24 @@ public class SwerveTeleop extends Command
     public void execute()
     {
         SmartDashboard.putNumber("Swerve Rotation: ", mSwerveSubsystem.getPose().getRotation().getDegrees());
-        double updatedFwdSpeedMS = mFwdLimiter.calculate(mFwdInput.get()) * kMaxSpeedMS;
-        double updatedSideSpeedMS = mSideLimiter.calculate(mSideInput.get()) * kMaxSpeedMS;
-        double updatedTurnSpeedRadS = mTurnLimiter.calculate(mTurnInput.get()) * kMetersPerSecondToRadiansPerSecond * kMaxSpeedMS;
+
+        double fwdInput, sideInput, turnInput;
+        if (isTheBButtonHeld.get()) // FARIS_UPDATE_SWERVE
+        {
+            fwdInput = mFwdInput.get() * kMaxSpeedMS * slow_down;
+            sideInput = mSideInput.get() * kMaxSpeedMS * slow_down;
+            turnInput = mTurnInput.get() * kMaxSpeedMS * slow_down;
+        }
+        else
+        {
+            fwdInput = mFwdInput.get() * kMaxSpeedMS;
+            sideInput = mSideInput.get() * kMaxSpeedMS;
+            turnInput = mTurnInput.get() * kMaxSpeedMS;
+        }
+
+        double updatedFwdSpeedMS = mFwdLimiter.calculate(fwdInput);
+        double updatedSideSpeedMS = mSideLimiter.calculate(sideInput);
+        double updatedTurnSpeedRadS = mTurnLimiter.calculate(turnInput) * kMetersPerSecondToRadiansPerSecond;
 
         if (updatedTurnSpeedRadS == 0.0 && (updatedFwdSpeedMS != 0 || updatedSideSpeedMS != 0))
         {
@@ -90,28 +107,21 @@ public class SwerveTeleop extends Command
             mChassisHeadingDegrees = mSwerveSubsystem.getGyroDegrees();
         }
 
+        ChassisSpeeds speeds = new ChassisSpeeds
+        (
+            updatedFwdSpeedMS,
+            updatedSideSpeedMS,
+            updatedTurnSpeedRadS
+        );
+
         // FARIS_UPDATE_SWERVE
         if (isTheBButtonHeld.get())
         {
-            updatedFwdSpeedMS *= slow_down;
-            updatedSideSpeedMS *= slow_down;
-            updatedTurnSpeedRadS *= slow_down;
-
-            mSwerveSubsystem.driveRobotOriented(new ChassisSpeeds
-            (
-                updatedFwdSpeedMS,
-                updatedSideSpeedMS,
-                updatedTurnSpeedRadS
-            ));
+            mSwerveSubsystem.driveRobotOriented(speeds);
         }
-
         else
         {
-            mSwerveSubsystem.driveFieldOriented(new ChassisSpeeds(
-                updatedFwdSpeedMS,
-                updatedSideSpeedMS,
-                updatedTurnSpeedRadS), 
-            mFieldHeadingDegrees);
+            mSwerveSubsystem.driveFieldOriented(speeds, mFieldHeadingDegrees);
         }
         
         if (mResetHeadingInput.get())
