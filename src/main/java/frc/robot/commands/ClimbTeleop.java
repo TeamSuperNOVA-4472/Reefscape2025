@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClimbSubsystem;
 
@@ -46,14 +47,15 @@ public class ClimbTeleop extends Command
         {
             if (mState == ClimbState.kReady) mState = ClimbState.kPause;
             else mState = ClimbState.kReady;
-            mClimbSubsystem.setIsClimbing(false);
         }
         else if (mClimbActivate.get())
         {
             if (mState == ClimbState.kClimb) mState = ClimbState.kPause;
             else mState = ClimbState.kClimb;
-            mClimbSubsystem.setIsClimbing(true);
         }
+        SmartDashboard.putString("Commands/ClimbTeleop/ClimbState", mState.toString());
+        mClimbSubsystem.setIsClimbing(mState != ClimbState.kStow &&
+                                      mState != ClimbState.kPause);
 
         // Determine position based on state.
         double currentRot = mClimbSubsystem.getClimbAngleDegrees();

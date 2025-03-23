@@ -29,7 +29,7 @@ public class ClimbSubsystem extends SubsystemBase
     {
         mClimbMotor = new TalonFX(CLIMB_MOTOR, "CANivore"); // Move these to constants at the top, DONE
         mClimbEncoder = new DutyCycleEncoder(4);
-        SmartDashboard.putBoolean("ClimbSubsystem/Is Climbing", false);
+        SmartDashboard.putBoolean("Subsystems/ClimbSubsystem/Is Climbing", false);
     }
 
     public void setVoltage(double pVoltage)
@@ -54,6 +54,6 @@ public class ClimbSubsystem extends SubsystemBase
     public void setIsClimbing(boolean pIsClimbing)
     {
         mIsClimbing = pIsClimbing;
-        SmartDashboard.putBoolean("ClimbSubsystem/Is Climbing", pIsClimbing);
+        SmartDashboard.putBoolean("Subsystems/ClimbSubsystem/Is Climbing", pIsClimbing);
     }
 }
