@@ -46,11 +46,13 @@ public class ClimbTeleop extends Command
         {
             if (mState == ClimbState.kReady) mState = ClimbState.kPause;
             else mState = ClimbState.kReady;
+            mClimbSubsystem.setIsClimbing(false);
         }
         else if (mClimbActivate.get())
         {
             if (mState == ClimbState.kClimb) mState = ClimbState.kPause;
             else mState = ClimbState.kClimb;
+            mClimbSubsystem.setIsClimbing(true);
         }
 
         // Determine position based on state.

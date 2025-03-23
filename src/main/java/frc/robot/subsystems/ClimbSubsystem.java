@@ -20,11 +20,16 @@ public class ClimbSubsystem extends SubsystemBase
 
     private final DutyCycleEncoder mClimbEncoder;
 
+    // TODO: This is incomplete. Eventually, this will mesh with the climbteleop code once its
+    //       moved over here.
+    private boolean mIsClimbing;
+
     // Constructor
     private ClimbSubsystem()
     {
         mClimbMotor = new TalonFX(CLIMB_MOTOR, "CANivore"); // Move these to constants at the top, DONE
         mClimbEncoder = new DutyCycleEncoder(4);
+        SmartDashboard.putBoolean("ClimbSubsystem/Is Climbing", false);
     }
 
     public void setVoltage(double pVoltage)
@@ -42,4 +47,13 @@ public class ClimbSubsystem extends SubsystemBase
         SmartDashboard.putNumber("Climb Encoder Degrees", getClimbAngleDegrees());
     }
 
+    public boolean isClimbing()
+    {
+        return mIsClimbing;
+    }
+    public void setIsClimbing(boolean pIsClimbing)
+    {
+        mIsClimbing = pIsClimbing;
+        SmartDashboard.putBoolean("ClimbSubsystem/Is Climbing", pIsClimbing);
+    }
 }

@@ -33,7 +33,7 @@ public class CarriagePreset
     public static final CarriagePreset kStowAlgae = new CarriagePreset(65, -60, 0);
 
     public static final CarriagePreset kAway = new CarriagePreset(0, 0, 0);
-    public static final CarriagePreset kClimb = new CarriagePreset(85, 25, 0);
+    public static final CarriagePreset kClimb = new CarriagePreset(68, 23, 0);
 
     public final double kArmPreset, kWristPreset, kElevatorPreset;
     public final boolean kMoveArmFirst;

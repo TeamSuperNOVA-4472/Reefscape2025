@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.objectmodels.CarriagePreset;
+import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ElevatorCarriageSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -170,6 +171,7 @@ public class SwitchPresetCommand extends SequentialCommandGroup
     {
         CarriagePreset stowPosition;
         if (mIntake.hasAlgae()) stowPosition = CarriagePreset.kStowAlgae;
+        else if (ClimbSubsystem.kInstance.isClimbing()) stowPosition = CarriagePreset.kClimb;
         else stowPosition = CarriagePreset.kStowCoral;
 
         final double lower = 2;
