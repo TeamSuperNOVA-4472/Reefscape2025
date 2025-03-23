@@ -46,7 +46,7 @@ public class VisionSubsystem extends SubsystemBase
 
     public static final VisionSubsystem kInstance = new VisionSubsystem();
     public static final double kThreshold = 2.5; // Threshold in meters to add vision measurement pose
-    public static final double kMaxAngle  = 60;
+    public static final double kMaxAngle  = 70;
 
     // Cameras go here.
     private PhotonCamera[] cameras;
@@ -223,15 +223,8 @@ public class VisionSubsystem extends SubsystemBase
                 //if (poseApproximation != null && !isUnderThreshold(poseApproximation, newRobotPose.get())) continue;
 
                 EstimatedRobotPose pose = newRobotPose.get();
-                if (Robot.sIsAutonomous())
-                {
-                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 4.0) && Math.abs(bestTarget.get().getYaw()) < kMaxAngle)
-                        updatePose(pose);
-                } else {
-                    if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 6.5) && Math.abs(bestTarget.get().getYaw()) < kMaxAngle)
-                        updatePose(pose);
-                }
-                SmartDashboard.putNumber("Yaw of AprilTag", bestTarget.get().getYaw());
+                if(tagInRange(bestTarget.get().getBestCameraToTarget(), 0.5, 4.0) && Math.abs(bestTarget.get().getYaw()) < kMaxAngle)
+                    updatePose(pose);
             }
         }
 
