@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -119,7 +120,11 @@ public class SwerveTeleop extends Command
         }
         else
         {
-            mSwerveSubsystem.driveFieldOriented(speeds, mFieldHeadingDegrees);
+            if(RobotBase.isSimulation()) {
+                mSwerveSubsystem.driveFieldOriented(speeds);
+            } else {
+                mSwerveSubsystem.driveFieldOriented(speeds, mFieldHeadingDegrees);
+            }
         }
         
         if (mResetHeadingInput.get())
